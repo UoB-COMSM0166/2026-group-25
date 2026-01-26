@@ -46,6 +46,10 @@ GROUP PHOTO. Add a group photo here.
 - 15% ~750 words
 - Early stages design. Ideation process. How did you decide as a team what to develop? Use case diagrams, user stories. 
 
+<img width="2508" height="774" alt="image" src="https://github.com/user-attachments/assets/95deb84c-1043-48ed-a3e6-d88072c00490" />
+
+
+
 ### Design
 
 - 15% ~750 words 
