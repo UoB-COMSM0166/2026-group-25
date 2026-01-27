@@ -27,7 +27,7 @@ VIDEO. Include a demo video of your game here (you don't have to wait until the 
 
 GROUP PHOTO. Add a group photo here.
 
-- Group member 1, name, email, role
+- Lichong YAO, zi25826@bristol.ac.uk, Designer
 - Group member 2, name, email, role
 - Group member 3, name, email, role
 - Group member 4, name, email, role
