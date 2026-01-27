@@ -28,11 +28,10 @@ VIDEO. Include a demo video of your game here (you don't have to wait until the 
 GROUP PHOTO. Add a group photo here.
 
 - Lichong YAO, zi25826@bristol.ac.uk, Designer
-- Group member 2, name, email, role
-- Group member 3, name, email, role
-- Group member 4, name, email, role
-- Group member 5, name, email, role
-- Group member 6, name, email, role
+- Yusheng Yang, vj25954@bristol.ac.uk, Manager
+- Zhiqin Lin, pu25346@bristol.ac.uk, Worker
+- Yulun Wu,sq25375@bristol.ac.uk, Testing engineer
+- Yiyang Dong, hh25303@bristol.ac.uk, Coder
 
 ## Project Report
 
