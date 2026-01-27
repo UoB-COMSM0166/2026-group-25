@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>p5.js Drawing App</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <!-- Brush Tools -->
+    <div class="toolbar-group">
+      <span class="label">Brush:</span>
+      <button class="btn active" data-tool="pencil">Pencil</button>
+      <button class="btn" data-tool="brush">Brush</button>
+      <button class="btn" data-tool="marker">Marker</button>
+      <button class="btn" data-tool="highlighter">Highlighter</button>
+      <button class="btn" data-tool="spray">Spray</button>
+      <button class="btn" data-tool="crayon">Crayon</button>
+    </div>
+
+    <!-- Eraser and Shapes -->
+    <div class="toolbar-group">
+      <span class="label">Eraser:</span>
+      <button class="btn" data-tool="eraser-round">Round</button>
+      <button class="btn" data-tool="eraser-square">Square</button>
+      <span class="label">Shape:</span>
+      <button class="btn" data-tool="line">Line</button>
+      <button class="btn" data-tool="rect">Rect</button>
+      <button class="btn" data-tool="ellipse">Ellipse</button>
+      <button class="btn" data-tool="triangle">Triangle</button>
+    </div>
+
+    <!-- Utility Tools -->
+    <div class="toolbar-group">
+      <span class="label">Tools:</span>
+      <button class="btn" data-tool="picker">Picker</button>
+      <button class="btn" data-tool="fill">Fill</button>
+    </div>
+
+    <!-- Color Selection -->
+    <div class="toolbar-group">
+      <span class="label">Color:</span>
+      <input type="color" id="color-picker" value="#000000">
+      <div class="color-presets" id="color-presets"></div>
+    </div>
+
+    <!-- Size and Alpha -->
+    <div class="toolbar-group">
+      <span class="label">Size:</span>
+      <input type="range" id="size-slider" min="1" max="50" value="5">
+      <span id="size-value">5</span>
+      <span class="label">Alpha:</span>
+      <input type="range" id="alpha-slider" min="0" max="255" value="255">
+      <span id="alpha-value">255</span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="toolbar-group">
+      <button class="btn action" id="undo-btn">Undo</button>
+      <button class="btn action" id="redo-btn">Redo</button>
+      <button class="btn action" id="clear-btn">Clear</button>
+      <button class="btn action" id="save-btn">Save</button>
+    </div>
+  </div>
+
+  <!-- Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- Status Bar -->
+  <div class="statusbar">
+    <span>Tool: <strong id="status-tool">Pencil</strong></span>
+    <span>Size: <strong id="status-size">5</strong></span>
+    <span>Position: <strong id="status-coords">0, 0</strong></span>
+    <span class="shortcuts">Shortcuts: B-Pencil E-Eraser L-Line R-Rect O-Ellipse I-Picker G-Fill [/]-Size Ctrl+Z-Undo Ctrl+Y-Redo</span>
+  </div>
+
+  <script src="sketch.js"></script>
+</body>
+</html>
