@@ -25,11 +25,12 @@ VIDEO. Include a demo video of your game here (you don't have to wait until the 
 
 ## Your Group
 
-GROUP PHOTO. Add a group photo here.
+![0130_1](https://github.com/user-attachments/assets/36302454-9711-4d80-8e8f-009c0f76e488)
+
 
 - Lichong YAO, zi25826@bristol.ac.uk, Designer
 - Yusheng Yang, vj25954@bristol.ac.uk, Manager
-- Zhiqin Lin, pu25346@bristol.ac.uk, Worker
+- Zhiqin Lin, pu25346@bristol.ac.uk, Coder
 - Yulun Wu,sq25375@bristol.ac.uk, Testing engineer
 - Yiyang Dong, hh25303@bristol.ac.uk, Coder
 
