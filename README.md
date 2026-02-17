@@ -50,6 +50,14 @@ VIDEO. Include a demo video of your game here (you don't have to wait until the 
 
 <img width="2508" height="774" alt="image" src="https://github.com/user-attachments/assets/95deb84c-1043-48ed-a3e6-d88072c00490" />
 
+Paper Prototype
+
+Idea 1
+![0217_1](https://github.com/user-attachments/assets/d578d5f3-0aec-4c03-8010-c235f9561890)
+
+Idea 2
+![0217_2](https://github.com/user-attachments/assets/5f7a262b-34e9-45d0-8786-355abe415dfa)
+
 
 
 ### Design
