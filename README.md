@@ -39,7 +39,7 @@ VIDEO. Include a demo video of your game here (you don't have to wait until the 
 
 ## Project Report
 
-**1. Introduction**
+### 1. Introduction
 
 - 5% ~250 words 
 - Describe your game, what is based on, what makes it novel? (what's the "twist"?) 
@@ -48,7 +48,7 @@ VIDEO. Include a demo video of your game here (you don't have to wait until the 
      By combining constrained movement, automatic fire, meaningful build choices, and persistent upgrades, the game aims for the classic “one more run” loop—simple to control, but rich in strategy and replayability.
 
 
-### Requirements 
+### 2. Requirements 
 
 - 15% ~750 words
 - Early stages design. Ideation process. How did you decide as a team what to develop? Use case diagrams, user stories. 
