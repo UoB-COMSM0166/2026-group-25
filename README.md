@@ -42,9 +42,12 @@ VIDEO. Include a demo video of your game here (you don't have to wait until the 
 ### 1. Introduction
 
 - 5% ~250 words 
-- Describe your game, what is based on, what makes it novel? (what's the "twist"?) 
+- Describe your game, what is based on, what makes it novel? (what's the "twist"?)
+- 
      Our game is a pixel-art, on-rails survival shooter, inspired by modern survival shooters and the punchy arcade feel of classics like _Contra_, _Metal Slug_. The player advances automatically through a hostile battlefield and can only move left and right, turning every second into a trade-off between positioning and firepower. Shooting is automatic, so survival depends on reading enemy patterns, dodging bullets, and choosing the safest lane under constant forward momentum.
+  
      The twist is a two-layer progression system that makes each run feel tactical and long-term. In-run “upgrade gates” and drops let players rapidly evolve their build by changing how they shoot (fire rate, bullet count, and bullet types such as spread shots, fire rounds, and piercing rounds). Meanwhile, defeated enemies drop coins that feed an out-of-run shop, where players permanently improve stats (damage, rate of fire, and elemental/attribute effects) and unlock stronger weapons. At fixed waves, the shop appears mid-run, forcing players to decide whether to spend now for immediate power or save for a bigger upgrade later.
+  
      By combining constrained movement, automatic fire, meaningful build choices, and persistent upgrades, the game aims for the classic “one more run” loop—simple to control, but rich in strategy and replayability.
 
 
