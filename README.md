@@ -15,7 +15,8 @@ You will be developing your game using [P5.js](https://p5js.org) a javascript li
 
 ## Your Game (change to title of your game)
 
-(STRAPLINE. Add an exciting one sentence description of your game here.)
+(STRAPLINE. Add an exciting one sentence description of your game here.)  
+
 A pixel-art arcade survival shooter, maneuver left and right on an auto-scrolling battlefield while suppressing enemy fire. Weigh risks through “Buff/Debuff Selection Gates,” then use combat-dropped coins to unlock rewards outside the match to tackle tougher waves.
 
 IMAGE. Add an image of your game here, keep this updated with a snapshot of your latest development.
