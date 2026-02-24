@@ -15,7 +15,8 @@ You will be developing your game using [P5.js](https://p5js.org) a javascript li
 
 ## Your Game (change to title of your game)
 
-STRAPLINE. Add an exciting one sentence description of your game here.
+(STRAPLINE. Add an exciting one sentence description of your game here.)
+A pixel-art arcade survival shooter, maneuver left and right on an auto-scrolling battlefield while suppressing enemy fire. Weigh risks through “Buff/Debuff Selection Gates,” then use combat-dropped coins to unlock rewards outside the match to tackle tougher waves.
 
 IMAGE. Add an image of your game here, keep this updated with a snapshot of your latest development.
 
@@ -38,10 +39,14 @@ VIDEO. Include a demo video of your game here (you don't have to wait until the 
 
 ## Project Report
 
-### Introduction
+**1. Introduction**
 
 - 5% ~250 words 
 - Describe your game, what is based on, what makes it novel? (what's the "twist"?) 
+     Our game is a pixel-art, on-rails survival shooter, inspired by modern survival shooters and the punchy arcade feel of classics like _Contra_, _Metal Slug_. The player advances automatically through a hostile battlefield and can only move left and right, turning every second into a trade-off between positioning and firepower. Shooting is automatic, so survival depends on reading enemy patterns, dodging bullets, and choosing the safest lane under constant forward momentum.
+     The twist is a two-layer progression system that makes each run feel tactical and long-term. In-run “upgrade gates” and drops let players rapidly evolve their build by changing how they shoot (fire rate, bullet count, and bullet types such as spread shots, fire rounds, and piercing rounds). Meanwhile, defeated enemies drop coins that feed an out-of-run shop, where players permanently improve stats (damage, rate of fire, and elemental/attribute effects) and unlock stronger weapons. At fixed waves, the shop appears mid-run, forcing players to decide whether to spend now for immediate power or save for a bigger upgrade later.
+     By combining constrained movement, automatic fire, meaningful build choices, and persistent upgrades, the game aims for the classic “one more run” loop—simple to control, but rich in strategy and replayability.
+
 
 ### Requirements 
 
@@ -52,10 +57,12 @@ VIDEO. Include a demo video of your game here (you don't have to wait until the 
 
 Paper Prototype
 
-Idea 1
+Idea 1 (The version ultimately adopted)
+
 ![0217_1](https://github.com/user-attachments/assets/d578d5f3-0aec-4c03-8010-c235f9561890)
 
-Idea 2
+Idea 2 (Dismissed case)
+
 ![0217_2](https://github.com/user-attachments/assets/5f7a262b-34e9-45d0-8786-355abe415dfa)
 
 
