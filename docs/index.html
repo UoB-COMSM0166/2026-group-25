@@ -1,82 +1,239 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>p5.js Drawing App</title>
-  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Bridge Assault - 桥梁突击 (p5)</title>
+<link rel="stylesheet" href="style.css?v=1">
+<style>
+/* p5.js canvas sits behind all overlays.
+   Use "body > canvas" to target only the p5 canvas (direct child of body),
+   NOT the level-select mini-canvases which are nested inside divs. */
+body > canvas {
+    position: fixed !important;
+    top: 0; left: 0;
+    z-index: 0;
+    display: block;
+}
+</style>
+<script>
+// 移动端检测：在任何内容渲染之前运行，避免闪烁
+(function() {
+    var ua = navigator.userAgent;
+    var isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    var isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+    var isSmallScreen = Math.min(screen.width, screen.height) < 900;
+    if (isMobileUA || (isTouch && isSmallScreen)) {
+        document.documentElement.classList.add('is-mobile');
+    }
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.0/p5.min.js"></script>
 </head>
 <body>
-  <!-- Toolbar -->
-  <div class="toolbar">
-    <!-- Brush Tools -->
-    <div class="toolbar-group">
-      <span class="label">Brush:</span>
-      <button class="btn active" data-tool="pencil">Pencil</button>
-      <button class="btn" data-tool="brush">Brush</button>
-      <button class="btn" data-tool="marker">Marker</button>
-      <button class="btn" data-tool="highlighter">Highlighter</button>
-      <button class="btn" data-tool="spray">Spray</button>
-      <button class="btn" data-tool="crayon">Crayon</button>
+
+<!-- Hidden sprite preloads — gives DOM HTMLImageElements for level-select canvas drawing -->
+<div id="spritePreloads" style="display:none" aria-hidden="true">
+    <img id="spritePatrick"     src="assets/patrick.png">
+    <img id="spriteSmallDragon" src="assets/small_dragon.png">
+    <img id="spriteBoss"        src="assets/boss_dragon.png">
+    <img id="spriteCapybara"    src="assets/capybara.png">
+    <img id="spritePigEngineer" src="assets/pig_engineer.png">
+    <img id="spriteCowGun"      src="assets/cow_gun.png">
+    <img id="spriteCowCry"      src="assets/cow_cry.png">
+    <img id="spriteElephant"    src="assets/elephant.png">
+</div>
+
+<button id="pauseBtn">❚❚</button>
+
+<!-- Language toggle (always visible) -->
+<button id="langToggleBtn" onclick="toggleLang()">EN</button>
+
+<!-- Weapon slots: shown during gameplay, hidden on menu/gameover -->
+<div id="weaponSlots" style="display:none"></div>
+
+<div id="overlay">
+    <h1>BRIDGE ASSAULT</h1>
+    <h2 data-i18n="menu.subtitle">桥 梁 突 击</h2>
+    <div id="coinDisplay">
+        <span class="coin-icon"><svg viewBox="0 0 18 18" width="18" height="18"><circle cx="9" cy="9" r="8.5" fill="#b8820a"/><circle cx="9" cy="9" r="7" fill="#f0b828"/><ellipse cx="7" cy="6.5" rx="3" ry="1.5" fill="#f8d860" opacity="0.6"/></svg></span>
+        <span id="coinCount">0</span>
+        <span class="gem-icon"><svg viewBox="0 0 18 18" width="18" height="18"><polygon points="9,1 15,7 9,17 3,7" fill="#8822bb"/><polygon points="9,1 15,7 9,9 3,7" fill="#cc44ff"/><polygon points="6,4 12,4 9,1" fill="#ee88ff"/></svg></span>
+        <span id="gemCount" style="color:#cc44ff;">0</span>
     </div>
-
-    <!-- Eraser and Shapes -->
-    <div class="toolbar-group">
-      <span class="label">Eraser:</span>
-      <button class="btn" data-tool="eraser-round">Round</button>
-      <button class="btn" data-tool="eraser-square">Square</button>
-      <span class="label">Shape:</span>
-      <button class="btn" data-tool="line">Line</button>
-      <button class="btn" data-tool="rect">Rect</button>
-      <button class="btn" data-tool="ellipse">Ellipse</button>
-      <button class="btn" data-tool="triangle">Triangle</button>
+    <div id="menuButtons">
+        <button class="btn" id="startBtn">START GAME</button>
+        <button class="btn btn-shop" id="shopBtn">SHOP</button>
+        <button class="btn btn-leaderboard" data-i18n="lb.leaderboard.btn" onclick="showLeaderboard()">🏆 天梯榜</button>
     </div>
+</div>
 
-    <!-- Utility Tools -->
-    <div class="toolbar-group">
-      <span class="label">Tools:</span>
-      <button class="btn" data-tool="picker">Picker</button>
-      <button class="btn" data-tool="fill">Fill</button>
+<!-- Level select overlay -->
+<div id="levelSelectOverlay" class="hidden">
+    <div id="levelSelectPanel">
+        <h2 id="levelSelectTitle">选择关卡</h2>
+        <div id="levelSelectCards">
+            <div class="level-card level-card-1" id="levelCard1">
+                <div class="level-card-num">LEVEL I</div>
+                <div class="level-card-name">桥梁突击</div>
+                <div class="level-card-sprites">
+                    <div class="ls-sprite-wrap">
+                        <canvas id="lsCanvas1a" width="80" height="80"></canvas>
+                        <div class="ls-sprite-label">派大星</div>
+                    </div>
+                    <div class="ls-sprite-wrap ls-sprite-main">
+                        <canvas id="lsCanvas1b" width="96" height="96"></canvas>
+                        <div class="ls-sprite-label">大奶龙</div>
+                    </div>
+                    <div class="ls-sprite-wrap">
+                        <canvas id="lsCanvas1c" width="80" height="80"></canvas>
+                        <div class="ls-sprite-label">小奶龙</div>
+                    </div>
+                </div>
+                <div class="level-card-info">最高波次: <span id="l1BestWave">—</span> | 最高分: <span id="l1BestScore">—</span></div>
+                <button class="btn level-start-btn" onclick="startGameWithLevel(1)">开 始</button>
+            </div>
+            <div class="level-card level-card-2" id="levelCard2">
+                <div class="level-card-num">LEVEL II</div>
+                <div class="level-card-name">末日工厂</div>
+                <div class="level-card-sprites">
+                    <div class="ls-sprite-wrap">
+                        <canvas id="lsCanvas2a" width="80" height="80"></canvas>
+                        <div class="ls-sprite-label">水豚兵</div>
+                    </div>
+                    <div class="ls-sprite-wrap ls-sprite-main">
+                        <canvas id="lsCanvas2b" width="96" height="96"></canvas>
+                        <div class="ls-sprite-label">大象王</div>
+                    </div>
+                    <div class="ls-sprite-wrap">
+                        <canvas id="lsCanvas2c" width="80" height="80"></canvas>
+                        <div class="ls-sprite-label">哭泣奶牛</div>
+                    </div>
+                </div>
+                <div class="level-card-info" id="l2InfoText">🔒 通关第一关（66波）解锁</div>
+                <button class="btn level-start-btn" id="l2StartBtn" onclick="startGameWithLevel(2)">开 始</button>
+            </div>
+        </div>
+        <button class="btn btn-back-menu" onclick="showMainMenu()">← 主菜单</button>
     </div>
+</div>
 
-    <!-- Color Selection -->
-    <div class="toolbar-group">
-      <span class="label">Color:</span>
-      <input type="color" id="color-picker" value="#000000">
-      <div class="color-presets" id="color-presets"></div>
+<div id="shopOverlay" class="hidden">
+    <div id="shopPanel">
+        <div id="shopHeader">
+            <h2>SHOP</h2>
+            <div id="shopCurrencies">
+                <div id="shopCoins"><svg viewBox="0 0 14 14" width="14" height="14" style="vertical-align:-2px"><circle cx="7" cy="7" r="6.5" fill="#b8820a"/><circle cx="7" cy="7" r="5.5" fill="#f0b828"/><ellipse cx="5.5" cy="5" rx="2" ry="1" fill="#f8d860" opacity="0.65"/></svg> <span id="shopCoinCount">0</span></div>
+                <div id="shopGems"><svg viewBox="0 0 14 14" width="14" height="14" style="vertical-align:-2px"><polygon points="7,1 13,6 7,13 1,6" fill="#8822bb"/><polygon points="7,1 13,6 7,7 1,6" fill="#cc44ff"/><polygon points="5,3 9,3 7,1" fill="#ee88ff"/></svg> <span id="shopGemCount">0</span></div>
+            </div>
+        </div>
+        <div id="shopTabs">
+            <button class="shop-tab active" data-tab="weapon"><svg viewBox="0 0 16 10" width="15" height="10" style="vertical-align:-1px"><rect x="1" y="2" width="9" height="5" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="5" height="4" rx="0.5" fill="currentColor" opacity="0.85"/><rect x="14" y="3" width="2" height="3" fill="currentColor"/><rect x="3" y="6.5" width="3" height="3.5" rx="0.5" fill="currentColor" opacity="0.7"/></svg> <span data-i18n="tab.weapon">基础武器</span></button>
+            <button class="shop-tab" data-tab="special"><svg viewBox="0 0 14 14" width="13" height="13" style="vertical-align:-2px"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="7" cy="7" r="2" fill="currentColor"/><line x1="7" y1="1" x2="7" y2="3.5" stroke="currentColor" stroke-width="1.5"/><line x1="7" y1="10.5" x2="7" y2="13" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="7" x2="3.5" y2="7" stroke="currentColor" stroke-width="1.5"/><line x1="10.5" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.5"/></svg> <span data-i18n="tab.special">特种武器</span></button>
+            <button class="shop-tab" data-tab="defense"><svg viewBox="0 0 12 14" width="11" height="13" style="vertical-align:-2px"><polygon points="7,1 4,7 7,7 5,13 9,6.5 6,6.5" fill="currentColor"/></svg> <span data-i18n="tab.defense">特技</span></button>
+            <button class="shop-tab" data-tab="talent"><svg viewBox="0 0 14 14" width="13" height="13" style="vertical-align:-2px"><polygon points="7,1 13,6 7,13 1,6" fill="currentColor" opacity="0.85"/><polygon points="5,3 9,3 7,1" fill="currentColor"/></svg> <span data-i18n="tab.talent">天赋</span></button>
+        </div>
+        <div id="shopScrollArea">
+            <div id="shopWeaponPanel">
+                <div id="shopItems"></div>
+                <div id="equippedInfo"></div>
+            </div>
+            <div id="shopSpecialPanel" style="display:none">
+                <div id="shopSpecialItems"></div>
+            </div>
+            <div id="shopDefensePanel" style="display:none">
+                <div id="defenseItems"></div>
+                <div id="defenseInfo"></div>
+            </div>
+            <div id="shopTalentPanel" style="display:none">
+                <div id="talentItems"></div>
+                <div class="talent-hint" style="margin-top:min(14px,2vh)"><svg viewBox="0 0 14 14" width="13" height="13" style="vertical-align:-2px"><polygon points="7,1 13,6 7,13 1,6" fill="#8822bb"/><polygon points="7,1 13,6 7,7 1,6" fill="#cc44ff"/><polygon points="5,3 9,3 7,1" fill="#ee88ff"/></svg> <span data-i18n="shop.talent.hint">宝石由 Boss 随机掉落，用于永久提升角色属性</span></div>
+            </div>
+        </div>
+        <button class="btn btn-back" id="shopBackBtn">BACK</button>
     </div>
+</div>
 
-    <!-- Size and Alpha -->
-    <div class="toolbar-group">
-      <span class="label">Size:</span>
-      <input type="range" id="size-slider" min="1" max="50" value="5">
-      <span id="size-value">5</span>
-      <span class="label">Alpha:</span>
-      <input type="range" id="alpha-slider" min="0" max="255" value="255">
-      <span id="alpha-value">255</span>
+<!-- Mid-game shop (after mega boss) -->
+<div id="midShopOverlay" class="hidden">
+    <div id="midShopPanel">
+        <div id="midShopTitle" data-i18n="midshop.title">⚔️ 补给站</div>
+        <div id="midShopSubtitle" data-i18n="midshop.subtitle">大龙王已击败！消耗得分补充兵力</div>
+        <div id="midShopStats"></div>
+        <div id="midShopItems"></div>
+        <button class="btn btn-midshop-go" id="midShopGoBtn" data-i18n="midshop.continue">继续战斗</button>
     </div>
+</div>
 
-    <!-- Action Buttons -->
-    <div class="toolbar-group">
-      <button class="btn action" id="undo-btn">Undo</button>
-      <button class="btn action" id="redo-btn">Redo</button>
-      <button class="btn action" id="clear-btn">Clear</button>
-      <button class="btn action" id="save-btn">Save</button>
+<!-- Pause menu overlay -->
+<div id="pauseMenuOverlay" class="hidden">
+    <div id="pauseMenuPanel">
+        <div id="pauseMenuTitle">PAUSED</div>
+        <div id="pauseMenuSub" data-i18n="pause.sub">已暂停</div>
+        <div id="pauseMenuBtns">
+            <button id="pauseResumeBtn" onclick="resumeGame()" data-i18n="pause.resume">▶ 继续</button>
+            <button id="pauseRestartBtn" onclick="restartFromPause()" data-i18n="pause.restart">↺ 重新开始</button>
+            <button id="pauseToMenuBtn" onclick="menuFromPause()" data-i18n="pause.menu">⌂ 主菜单</button>
+        </div>
+        <div id="pauseHintText" data-i18n="pause.hint">ESC · P 继续</div>
     </div>
-  </div>
+</div>
 
-  <!-- Canvas Container -->
-  <div id="canvas-container"></div>
+<!-- Leaderboard overlay (content rendered by leaderboard.js) -->
+<div id="leaderboardOverlay" class="hidden">
+    <div id="leaderboardPanel"></div>
+</div>
 
-  <!-- Status Bar -->
-  <div class="statusbar">
-    <span>Tool: <strong id="status-tool">Pencil</strong></span>
-    <span>Size: <strong id="status-size">5</strong></span>
-    <span>Position: <strong id="status-coords">0, 0</strong></span>
-    <span class="shortcuts">Shortcuts: B-Pencil E-Eraser L-Line R-Rect O-Ellipse I-Picker G-Fill [/]-Size Ctrl+Z-Undo Ctrl+Y-Redo</span>
-  </div>
+<!-- Debug overlay (triple-I to toggle) -->
+<div id="debugOverlay" style="display:none"></div>
 
-  <script src="sketch.js"></script>
+<!-- Mobile block overlay -->
+<div id="mobileBlock">
+    <div id="mobileBlockInner">
+        <div id="mobileBlockIcon">
+            <svg viewBox="0 0 80 60" width="100" height="75">
+                <rect x="4" y="4" width="72" height="46" rx="4" fill="none" stroke="#f0b828" stroke-width="3"/>
+                <rect x="8" y="8" width="64" height="38" rx="2" fill="#0a0e1a"/>
+                <rect x="18" y="28" width="6" height="14" rx="1" fill="#4a6080"/>
+                <rect x="56" y="28" width="6" height="14" rx="1" fill="#4a6080"/>
+                <rect x="14" y="26" width="52" height="4" rx="1" fill="#6a8aaa"/>
+                <circle cx="32" cy="22" r="3" fill="#f0b828"/>
+                <circle cx="40" cy="22" r="3" fill="#f0b828"/>
+                <circle cx="48" cy="22" r="3" fill="#f0b828"/>
+                <rect x="28" y="50" width="24" height="4" rx="2" fill="#f0b828" opacity="0.6"/>
+                <rect x="22" y="54" width="36" height="3" rx="1.5" fill="#f0b828" opacity="0.4"/>
+            </svg>
+        </div>
+        <h2 id="mobileBlockTitle">请在电脑上游玩</h2>
+        <p id="mobileBlockMsg">
+            桥梁突击暂不支持移动端<br>
+            请使用电脑浏览器打开游戏
+        </p>
+        <div id="mobileBlockUrl">www.lzqqq.org/game</div>
+    </div>
+</div>
+
+<!-- Weapon unlock toast notification -->
+<div id="weaponUnlockToast" class="hidden">
+    <div id="weaponUnlockIcon"></div>
+    <div id="weaponUnlockText"></div>
+</div>
+
+<!-- Game modules (order matters: dependencies first) -->
+<script src="js/crypto.js?v=1"></script>
+<script src="js/config.js?v=1"></script>
+<script src="js/i18n.js?v=1"></script>
+<script src="js/globals.js?v=1"></script>
+<script src="js/audio.js?v=1"></script>
+<script src="js/core.js?v=1"></script>
+<script src="js/spawn.js?v=1"></script>
+<script src="js/combat.js?v=1"></script>
+<script src="js/draw.js?v=1"></script>
+<script src="js/hud.js?v=1"></script>
+<script src="js/update.js?v=1"></script>
+<script src="js/render.js?v=1"></script>
+<script src="js/shop.js?v=1"></script>
+<script src="js/leaderboard.js?v=1"></script>
+<script src="js/main.js?v=1"></script>
 </body>
 </html>
