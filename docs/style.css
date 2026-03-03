@@ -1,149 +1,1530 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    width: 100%; height: 100%;
+    background: #0a0a1a;
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #e8e8e8;
-  padding: 10px;
+#gameContainer {
+    width: 100%; height: 100%;
+    position: fixed;
+    top: 0; left: 0;
+}
+#gameContainer canvas {
+    display: block;
+    width: 100%; height: 100%;
 }
 
-/* 工具栏 */
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 10px;
-  background: #fff;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+/* Overlay (Start / Game Over) */
+#overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.85);
+    z-index: 10;
+    transition: opacity 0.3s;
+}
+#overlay.hidden { opacity: 0; pointer-events: none; }
+#overlay h1 {
+    font-size: min(72px, 12vw);
+    color: #f0c040;
+    text-shadow: 4px 4px 0 #804000, 0 0 30px rgba(240,192,64,0.6);
+    margin-bottom: 12px;
+    letter-spacing: min(6px, 1vw);
+    text-align: center;
+    padding: 0 10px;
+}
+#overlay h2 {
+    font-size: min(20px, 4vw);
+    color: #aaa;
+    margin-bottom: min(40px, 6vh);
+    font-weight: normal;
+}
+#overlay .btn {
+    padding: min(20px, 4vw) min(60px, 12vw);
+    font-size: min(28px, 5.5vw);
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    background: linear-gradient(180deg, #f0c040, #c08020);
+    color: #1a0a00;
+    border: 3px solid #f0d060;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+}
+#overlay .btn:hover { transform: scale(1.05); }
+#overlay .btn:active { transform: scale(0.95); }
+#scoreDisplay { color: #f0c040; font-size: min(28px, 5vw); margin: 16px 0 8px; }
+#finalScore { color: #fff; font-size: min(56px, 10vw); margin: 8px 0 20px; font-weight: bold; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
+
+/* Language toggle button */
+#langToggleBtn {
+    position: fixed;
+    bottom: 10px; left: 10px;
+    z-index: 6000;
+    width: 40px; height: 26px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: rgba(255,255,255,0.75);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+#langToggleBtn:hover {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border-color: rgba(255,255,255,0.4);
+}
+#langToggleBtn:active { transform: scale(0.93); }
+
+/* Pause button — top-right, touch-friendly */
+#pauseBtn {
+    position: fixed;
+    top: 8px; right: 8px;
+    z-index: 5;
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    border: 2px solid rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.45);
+    color: #fff;
+    font-size: 18px;
+    line-height: 44px;
+    text-align: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    display: none; /* shown by JS on touch devices */
+}
+#pauseBtn:active { background: rgba(255,255,255,0.2); }
+
+/* Skill activation button — bottom-right, touch-friendly */
+#skillBtn {
+    position: fixed;
+    bottom: 20px; right: 20px;
+    z-index: 5;
+    width: 70px; height: 70px;
+    border-radius: 50%;
+    border: 3px solid rgba(255,200,0,0.6);
+    background: rgba(0,0,0,0.5);
+    color: #ffd700;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    text-align: center;
+    line-height: 70px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    display: none; /* shown by JS when skill weapon equipped */
+    box-shadow: 0 0 15px rgba(255,200,0,0.2);
+}
+#skillBtn:active { background: rgba(255,200,0,0.3); transform: scale(0.92); }
+
+/* ============================================================
+   COIN DISPLAY (on overlay)
+   ============================================================ */
+#coinDisplay {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: min(24px, 3vh);
+    font-size: min(24px, 5vw);
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255,215,0,0.5);
+}
+.coin-icon, .gem-icon {
+    display: flex;
+    align-items: center;
+}
+.gem-icon {
+    margin-left: 8px;
 }
 
-.toolbar-group {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background: #f8f8f8;
-  border-radius: 4px;
+/* Menu buttons row */
+#menuButtons {
+    display: flex;
+    gap: min(20px, 4vw);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.btn-shop {
+    background: linear-gradient(180deg, #6040f0, #4020c0) !important;
+    border-color: #7050ff !important;
+    color: #fff !important;
+}
+.btn-shop:hover { transform: scale(1.05); }
+
+/* ============================================================
+   SHOP OVERLAY
+   ============================================================ */
+#shopOverlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.92);
+    z-index: 20;
+    transition: opacity 0.3s;
+}
+#shopOverlay.hidden { opacity: 0; pointer-events: none; }
+#shopScrollArea::-webkit-scrollbar { display: none; }
+
+#shopPanel {
+    width: min(600px, 90vw);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: min(30px, 5vw);
+    background: linear-gradient(180deg, #1a1a30, #0a0a1a);
+    border: 2px solid #4030a0;
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(80,50,200,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
-.label {
-  font-size: 12px;
-  color: #666;
-  margin-right: 4px;
+#shopScrollArea {
+    overflow-y: auto;
+    scrollbar-width: none;
+    /* 3.5 items visible: 3×94px + 2×16px + 47px(half) = 375px */
+    height: 375px;
+    min-height: 80px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: min(16px, 2.5vh);
 }
 
-/* 按钮 */
-.btn {
-  padding: 5px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: #fff;
-  cursor: pointer;
-  font-size: 12px;
-  transition: all 0.15s;
+#shopHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: min(24px, 3vh);
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+#shopHeader h2 {
+    font-size: min(28px, 5.5vw);
+    color: #c0a0ff;
+    letter-spacing: 3px;
+    margin: 0;
+}
+#shopCurrencies {
+    display: flex;
+    gap: min(16px, 3vw);
+    align-items: center;
+}
+#shopCoins {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: min(20px, 4vw);
+    color: #ffd700;
+    font-weight: bold;
+}
+#shopGems {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: min(20px, 4vw);
+    color: #cc44ff;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(180,50,255,0.5);
 }
 
-.btn:hover {
-  background: #f0f0f0;
-  border-color: #ccc;
+/* Shop tabs */
+#shopTabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: min(18px, 2.5vh);
+}
+.shop-tab {
+    flex: 1;
+    padding: min(10px, 2vw) 0;
+    font-size: min(13px, 2.8vw);
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    color: #aaa;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+.shop-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.shop-tab.active {
+    background: rgba(100,60,220,0.35);
+    border-color: #6040e0;
+    color: #c0a0ff;
 }
 
-.btn.active {
-  background: #4a90d9;
-  color: #fff;
-  border-color: #4a90d9;
+/* Shop items grid */
+#shopItems,
+#shopSpecialItems {
+    display: flex;
+    flex-direction: column;
+    gap: min(16px, 2.5vw);
+    margin-bottom: min(20px, 3vh);
 }
 
-.btn.action {
-  background: #f5f5f5;
+.shop-section-header {
+    font-size: 13px;
+    font-weight: bold;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 1px;
+    padding: 8px 4px 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-top: 6px;
+    margin-bottom: 4px;
+}
+.shop-section-hint {
+    font-size: 10px;
+    font-weight: normal;
+    color: rgba(255,255,255,0.3);
+    margin-left: 8px;
+    letter-spacing: 0;
+}
+.shop-item {
+    display: flex;
+    align-items: center;
+    gap: min(16px, 3vw);
+    padding: min(16px, 3vw);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    transition: background 0.15s, border-color 0.15s;
+}
+.shop-item:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.15);
+}
+.shop-item.owned {
+    border-color: rgba(100,200,100,0.3);
+}
+.shop-item.equipped {
+    border-color: rgba(255,215,0,0.5);
+    background: rgba(255,215,0,0.06);
 }
 
-.btn.action:hover {
-  background: #e8e8e8;
+.shop-item-icon {
+    font-size: min(40px, 8vw);
+    width: min(56px, 11vw);
+    height: min(56px, 11vw);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+.shop-item-icon svg {
+    width: min(40px, 8vw);
+    height: min(40px, 8vw);
 }
 
-/* 颜色选择器 */
-#color-picker {
-  width: 32px;
-  height: 28px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  cursor: pointer;
-  padding: 0;
+.shop-item-info {
+    flex: 1;
+    min-width: 0;
+}
+.shop-item-name {
+    font-size: min(18px, 3.8vw);
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 4px;
+}
+.shop-item-desc {
+    font-size: min(13px, 2.8vw);
+    color: #999;
+    margin-bottom: 6px;
+}
+.shop-item-duration {
+    font-size: min(12px, 2.5vw);
+    color: #888;
 }
 
-.color-presets {
-  display: flex;
-  gap: 2px;
-  flex-wrap: wrap;
-  max-width: 130px;
+.shop-item-action {
+    flex-shrink: 0;
 }
 
-.color-preset {
-  width: 16px;
-  height: 16px;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  cursor: pointer;
-  transition: transform 0.1s;
+.btn-buy, .btn-equip, .btn-equipped {
+    padding: min(10px, 2vw) min(20px, 4vw);
+    font-size: min(14px, 3vw);
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    border: 2px solid;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+}
+.btn-buy {
+    background: linear-gradient(180deg, #ffd700, #c0a000);
+    color: #1a0a00;
+    border-color: #ffe040;
+}
+.btn-buy:hover { transform: scale(1.05); }
+.btn-buy:active { transform: scale(0.95); }
+.btn-buy:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
 }
 
-.color-preset:hover {
-  transform: scale(1.2);
-  z-index: 1;
+.btn-equip {
+    background: linear-gradient(180deg, #4080ff, #2060d0);
+    color: #fff;
+    border-color: #5090ff;
+}
+.btn-equip:hover { transform: scale(1.05); }
+
+.btn-equipped {
+    background: rgba(255,215,0,0.15);
+    color: #ffd700;
+    border-color: #ffd700;
+    cursor: default;
 }
 
-/* 滑块 */
-input[type="range"] {
-  width: 80px;
-  cursor: pointer;
+.btn-back {
+    display: block;
+    margin: 0 auto 0;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #555, #333) !important;
+    border-color: #777 !important;
+    color: #ddd !important;
+    padding: min(14px, 3vw) min(40px, 8vw) !important;
+    font-size: min(20px, 4vw) !important;
 }
 
-#size-value,
-#alpha-value {
-  font-size: 12px;
-  color: #666;
-  min-width: 24px;
-  text-align: center;
+#equippedInfo {
+    text-align: center;
+    margin-bottom: min(16px, 2.5vh);
+    font-size: min(14px, 3vw);
+    color: #aaa;
+    min-height: 20px;
 }
 
-/* 画布容器 */
-#canvas-container {
-  display: inline-block;
-  background: #fff;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  border-radius: 4px;
-  overflow: hidden;
+/* ============================================================
+   TALENT SYSTEM
+   ============================================================ */
+.talent-hint {
+    text-align: center;
+    font-size: min(14px, 3vw);
+    color: #aaa;
+    min-height: 20px;
+    margin-bottom: min(14px, 2vh);
 }
 
-#canvas-container canvas {
-  display: block;
+#defenseInfo {
+    text-align: center;
+    font-size: min(14px, 3vw);
+    color: #aaa;
+    min-height: 20px;
+    margin-bottom: min(16px, 2.5vh);
 }
 
-/* 状态栏 */
-.statusbar {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 8px 12px;
-  background: #333;
-  color: #ccc;
-  font-size: 12px;
-  border-radius: 4px;
-  margin-top: 10px;
+#talentItems {
+    display: flex;
+    flex-direction: column;
+    gap: min(14px, 2.2vw);
+    margin-bottom: min(16px, 2.5vh);
 }
 
-.statusbar strong {
-  color: #fff;
+.talent-item {
+    border-color: rgba(150,50,200,0.2) !important;
+}
+.talent-item:hover {
+    border-color: rgba(180,80,255,0.4) !important;
+    background: rgba(150,50,200,0.06) !important;
+}
+.talent-maxed {
+    border-color: rgba(200,100,255,0.5) !important;
+    background: rgba(150,50,200,0.1) !important;
 }
 
-.statusbar .shortcuts {
-  margin-left: auto;
-  color: #888;
-  font-size: 11px;
+.talent-icon {
+    font-size: min(32px, 6.5vw) !important;
+}
+
+.talent-level-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+.talent-pips {
+    display: flex;
+    gap: 4px;
+}
+.talent-pip {
+    width: min(12px, 2.5vw);
+    height: min(12px, 2.5vw);
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    display: inline-block;
+}
+.talent-pip.filled {
+    background: #cc44ff;
+    border-color: #ee88ff;
+    box-shadow: 0 0 5px rgba(200,80,255,0.7);
+}
+.talent-effect {
+    font-size: min(12px, 2.6vw);
+    font-weight: bold;
+}
+
+.btn-talent-buy {
+    padding: min(8px, 1.8vw) min(14px, 3vw);
+    font-size: min(14px, 3vw);
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    background: linear-gradient(180deg, #9933ff, #6600cc);
+    color: #fff;
+    border: 2px solid #bb55ff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    text-align: center;
+    min-width: min(64px, 14vw);
+}
+.btn-talent-buy:hover { transform: scale(1.05); }
+.btn-talent-buy:active { transform: scale(0.95); }
+.btn-talent-buy:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+    background: linear-gradient(180deg, #553388, #331166);
+}
+.talent-btn-sub {
+    font-size: min(10px, 2.2vw);
+    color: rgba(255,255,255,0.7);
+    margin-top: 2px;
+}
+.talent-maxed-btn {
+    background: rgba(200,100,255,0.2) !important;
+    color: #cc88ff !important;
+    border-color: #9944cc !important;
+    cursor: default !important;
+}
+
+/* ============================================================
+   DEFENSE / ARMOR SYSTEM
+   ============================================================ */
+#defenseItems {
+    display: flex;
+    flex-direction: column;
+    gap: min(14px, 2.2vw);
+    margin-bottom: min(16px, 2.5vh);
+}
+
+.armor-item {
+    border-color: rgba(50, 100, 220, 0.2) !important;
+}
+.armor-item:hover {
+    border-color: rgba(80, 150, 255, 0.4) !important;
+    background: rgba(50, 100, 200, 0.06) !important;
+}
+.armor-item.owned {
+    border-color: rgba(100, 180, 255, 0.5) !important;
+    background: rgba(50, 100, 200, 0.08) !important;
+}
+
+/* 充能数量徽章 */
+.skill-charge-badge {
+    font-size: min(20px, 4.2vw);
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px currentColor;
+}
+
+/* ============================================================
+   WEAPON SLOTS (top-left, horizontal row, shown during gameplay)
+   ============================================================ */
+#weaponSlots {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    z-index: 5;
+    pointer-events: auto;
+    padding: 7px;
+    background: rgba(8,8,20,0.72);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.07);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.wslot {
+    position: relative;
+    width: min(72px, 15vw);
+    height: min(72px, 15vw);
+    border-radius: 9px;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 4px 4px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, opacity 0.2s;
+    overflow: hidden;
+}
+.wslot:active { transform: scale(0.96); }
+
+/* Key badge */
+.wslot-key {
+    font-family: 'Courier New', monospace;
+    font-size: min(10px, 2vw);
+    font-weight: bold;
+    color: rgba(255,255,255,0.3);
+    line-height: 1;
+    text-align: center;
+}
+
+.wslot-icon {
+    font-size: min(26px, 5.5vw);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.wslot-icon svg {
+    width: min(24px, 5vw);
+    height: min(24px, 5vw);
+}
+
+.wslot-count {
+    font-family: 'Courier New', monospace;
+    font-size: min(12px, 2.5vw);
+    font-weight: bold;
+    line-height: 1;
+    text-align: center;
+    transition: color 0.2s;
+}
+
+/* Cooldown / active overlay */
+.wslot-cd {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 7px;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', monospace;
+    font-size: min(18px, 4vw);
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+}
+
+/* Duration progress bar at bottom edge */
+.wslot-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    display: none;
+}
+.wslot-bar-fill {
+    height: 100%;
+    border-radius: 0 0 7px 7px;
+    transition: width 0.1s linear;
+}
+
+/* Pulse animation for ready state */
+@keyframes wslot-glow {
+    0%, 100% { box-shadow: 0 0 6px color-mix(in srgb, var(--wcolor) 40%, transparent); }
+    50%       { box-shadow: 0 0 14px color-mix(in srgb, var(--wcolor) 70%, transparent); }
+}
+
+/* State classes */
+.wslot-active {
+    background: rgba(255,215,0,0.08);
+    box-shadow: 0 0 12px rgba(255,215,0,0.4);
+}
+.wslot-empty {
+    opacity: 0.22;
+}
+.wslot-ready {
+    animation: wslot-glow 2s ease-in-out infinite;
+}
+.wslot-dim {
+    opacity: 0.4;
+}
+
+/* ============================================================
+   MID-GAME SHOP (after mega boss)
+   ============================================================ */
+#midShopOverlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.82);
+    z-index: 15;
+    transition: opacity 0.3s;
+}
+#midShopOverlay.hidden { opacity: 0; pointer-events: none; }
+
+#midShopPanel {
+    width: min(420px, 88vw);
+    padding: min(28px, 5vw);
+    background: linear-gradient(180deg, #1a1020, #0a0a18);
+    border: 2px solid #ff6600;
+    border-radius: 16px;
+    box-shadow: 0 0 50px rgba(255,100,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05);
+    text-align: center;
+}
+
+#midShopTitle {
+    font-size: min(32px, 6vw);
+    font-weight: bold;
+    color: #ff8833;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+    text-shadow: 0 0 20px rgba(255,120,0,0.5);
+}
+
+#midShopSubtitle {
+    font-size: min(14px, 3vw);
+    color: #aaa;
+    margin-bottom: min(18px, 3vh);
+}
+
+#midShopStats {
+    display: flex;
+    justify-content: center;
+    gap: min(30px, 6vw);
+    margin-bottom: min(18px, 3vh);
+    font-size: min(16px, 3.5vw);
+    font-weight: bold;
+}
+
+#midShopItems {
+    display: flex;
+    flex-direction: column;
+    gap: min(10px, 2vw);
+    margin-bottom: min(20px, 3vh);
+}
+
+.midshop-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: min(12px, 2.5vw) min(16px, 3vw);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    transition: background 0.15s, border-color 0.15s;
+}
+.midshop-item:hover {
+    background: rgba(255,136,0,0.08);
+    border-color: rgba(255,136,0,0.3);
+}
+
+.midshop-item-info {
+    text-align: left;
+}
+.midshop-item-name {
+    font-size: min(16px, 3.5vw);
+    font-weight: bold;
+    color: #ffaa44;
+}
+.midshop-item-desc {
+    font-size: min(12px, 2.6vw);
+    color: #999;
+    margin-top: 2px;
+}
+
+.btn-midshop-buy {
+    padding: min(8px, 1.8vw) min(16px, 3.5vw);
+    font-size: min(14px, 3vw);
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    background: linear-gradient(180deg, #ff9933, #cc6600);
+    color: #1a0a00;
+    border: 2px solid #ffaa44;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+}
+.btn-midshop-buy:hover { transform: scale(1.05); }
+.btn-midshop-buy:active { transform: scale(0.95); }
+.btn-midshop-buy:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.midshop-bought {
+    opacity: 0.45;
+    border-color: rgba(100,200,100,0.3) !important;
+}
+.midshop-sold {
+    font-size: min(14px, 3vw);
+    font-weight: bold;
+    color: #66cc66;
+    letter-spacing: 1px;
+}
+
+.btn-midshop-go {
+    background: linear-gradient(180deg, #44cc44, #228822) !important;
+    border-color: #55dd55 !important;
+    color: #fff !important;
+    padding: min(16px, 3.5vw) min(50px, 10vw) !important;
+    font-size: min(22px, 4.5vw) !important;
+    letter-spacing: 2px;
+}
+
+/* ============================================================
+   PAUSE MENU OVERLAY
+   ============================================================ */
+#pauseMenuOverlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.80);
+    z-index: 15;
+    transition: opacity 0.2s;
+}
+#pauseMenuOverlay.hidden { opacity: 0; pointer-events: none; }
+
+#pauseMenuPanel {
+    width: min(340px, 86vw);
+    padding: min(32px, 6vw) min(28px, 5vw);
+    background: linear-gradient(180deg, #141428, #0a0a1a);
+    border: 2px solid #f0c040;
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(240,192,64,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+    text-align: center;
+}
+#pauseMenuTitle {
+    font-size: min(48px, 11vw);
+    font-weight: bold;
+    color: #f0c040;
+    letter-spacing: 6px;
+    text-shadow: 4px 4px 0 #804000, 0 0 20px rgba(240,192,64,0.5);
+    margin-bottom: 6px;
+}
+#pauseMenuSub {
+    font-size: min(15px, 3.5vw);
+    color: #888;
+    margin-bottom: min(28px, 5vh);
+}
+#pauseMenuBtns {
+    display: flex;
+    flex-direction: column;
+    gap: min(12px, 2.5vh);
+    margin-bottom: min(18px, 3.5vh);
+}
+#pauseResumeBtn, #pauseRestartBtn, #pauseToMenuBtn {
+    width: 100%;
+    padding: min(14px, 3.5vw) 0;
+    font-size: min(18px, 4.5vw);
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    border: 2px solid;
+    transition: transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+}
+#pauseResumeBtn:hover, #pauseRestartBtn:hover, #pauseToMenuBtn:hover { transform: scale(1.03); }
+#pauseResumeBtn:active, #pauseRestartBtn:active, #pauseToMenuBtn:active { transform: scale(0.97); }
+#pauseResumeBtn {
+    background: linear-gradient(180deg, #44cc44, #228822);
+    color: #fff;
+    border-color: #55ee55;
+}
+#pauseRestartBtn {
+    background: linear-gradient(180deg, #f0c040, #c08020);
+    color: #1a0a00;
+    border-color: #f0d060;
+}
+#pauseToMenuBtn {
+    background: linear-gradient(180deg, #555, #333);
+    color: #ccc;
+    border-color: #777;
+}
+#pauseHintText {
+    font-size: min(12px, 2.8vw);
+    color: rgba(255,255,255,0.22);
+    letter-spacing: 2px;
+}
+
+/* ============================================================
+   MOBILE PORTRAIT ADAPTATIONS (portrait phones)
+   ============================================================ */
+@media screen and (max-width: 480px) {
+    /* 1. Weapon slots: move to bottom-center on mobile */
+    #weaponSlots {
+        top: auto;
+        left: 50%;
+        bottom: 10px;
+        transform: translateX(-50%);
+        gap: 5px;
+        padding: 5px 7px;
+    }
+    .wslot {
+        width: min(62px, 20vw);
+        height: min(62px, 20vw);
+        padding: 4px 3px 3px;
+    }
+    .wslot-key { display: none; } /* keyboard hint not needed on mobile */
+    #langToggleBtn { bottom: auto; top: 8px; left: 8px; }
+    .wslot-icon { font-size: min(22px, 6vw); }
+    .wslot-count { font-size: min(11px, 3vw); }
+
+    /* 2. Shop: full-width starting from top */
+    #shopOverlay {
+        align-items: flex-start;
+        padding-top: 0;
+    }
+    #shopPanel {
+        width: 100vw;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        border-top: none;
+        padding: 14px 12px;
+    }
+    #shopScrollArea {
+        height: min(380px, calc(100svh - 215px));
+    }
+    .shop-item {
+        padding: 10px;
+        gap: 10px;
+    }
+    .shop-item-icon {
+        font-size: min(32px, 7.5vw);
+        width: min(44px, 11vw);
+        height: min(44px, 11vw);
+    }
+    /* Shop tabs slightly compact */
+    .shop-tab {
+        padding: min(8px, 1.8vw) 0;
+        font-size: min(13px, 3.5vw);
+    }
+}
+
+/* ============================================================
+   DEBUG OVERLAY (triple-i)
+   ============================================================ */
+#debugOverlay {
+    position: fixed;
+    top: 60px;
+    right: 16px;
+    width: 300px;
+    max-height: calc(100vh - 80px);
+    background: rgba(0, 8, 4, 0.88);
+    border: 1px solid rgba(0, 255, 136, 0.35);
+    border-radius: 8px;
+    color: #88ffcc;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    line-height: 1.5;
+    padding: 8px 12px 10px;
+    overflow-y: auto;
+    z-index: 9999;
+    pointer-events: none;
+}
+#debugOverlay h3 {
+    color: #00ff88;
+    margin: 0 0 4px 0;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.25);
+    padding-bottom: 3px;
+}
+#debugOverlay .debug-section {
+    margin-top: 8px;
+}
+#debugOverlay .debug-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 1px 0;
+}
+#debugOverlay .debug-label {
+    color: #77aaaa;
+    flex-shrink: 0;
+    margin-right: 8px;
+}
+#debugOverlay .debug-val {
+    color: #ffffff;
+    text-align: right;
+}
+#debugOverlay .debug-enemy {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 1px 0;
+    color: #ffcc88;
+}
+
+/* ============================================================
+   MOBILE BLOCK OVERLAY
+   ============================================================ */
+#mobileBlock {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #07091a;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+/* 检测到移动端时显示 */
+.is-mobile #mobileBlock {
+    display: flex;
+}
+/* 同时隐藏游戏内容，避免 PixiJS 在后台初始化 */
+.is-mobile body > *:not(#mobileBlock) {
+    visibility: hidden;
+}
+#mobileBlockInner {
+    text-align: center;
+    padding: 40px 32px;
+    max-width: 340px;
+}
+#mobileBlockIcon {
+    margin-bottom: 28px;
+    filter: drop-shadow(0 0 18px rgba(240,184,40,0.4));
+}
+#mobileBlockTitle {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f0b828;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+    text-shadow: 0 0 12px rgba(240,184,40,0.5);
+}
+#mobileBlockMsg {
+    font-size: 15px;
+    color: #a0b0cc;
+    line-height: 1.8;
+    margin-bottom: 28px;
+}
+#mobileBlockUrl {
+    display: inline-block;
+    font-size: 13px;
+    color: #4a6080;
+    border: 1px solid #1e2a3a;
+    border-radius: 6px;
+    padding: 8px 16px;
+    letter-spacing: 1px;
+}
+
+/* ============================================================
+   LEADERBOARD OVERLAY
+   ============================================================ */
+#leaderboardOverlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.92);
+    z-index: 25;
+    transition: opacity 0.25s;
+}
+#leaderboardOverlay.hidden { opacity: 0; pointer-events: none; }
+
+#leaderboardPanel {
+    width: min(480px, 92vw);
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding: min(28px, 5vw);
+    background: linear-gradient(180deg, #0f1a10, #070d0a);
+    border: 2px solid #f0c040;
+    border-radius: 16px;
+    box-shadow: 0 0 50px rgba(240,192,64,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+#leaderboardTitle {
+    font-size: min(30px, 6vw);
+    font-weight: bold;
+    color: #f0c040;
+    letter-spacing: 4px;
+    text-align: center;
+    text-shadow: 0 0 20px rgba(240,192,64,0.5);
+    margin-bottom: min(18px, 3vh);
+}
+
+/* Column headers */
+.lb-header {
+    display: grid;
+    grid-template-columns: 48px 1fr 52px 90px 52px;
+    padding: 0 10px 8px;
+    border-bottom: 1px solid rgba(240,192,64,0.25);
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+/* Scrollable list */
+#leaderboardList {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(240,192,64,0.3) transparent;
+    margin-bottom: min(16px, 2.5vh);
+}
+#leaderboardList::-webkit-scrollbar { width: 4px; }
+#leaderboardList::-webkit-scrollbar-thumb { background: rgba(240,192,64,0.3); border-radius: 2px; }
+
+.lb-row {
+    display: grid;
+    grid-template-columns: 48px 1fr 52px 90px 52px;
+    align-items: center;
+    padding: 9px 10px;
+    border-radius: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: background 0.1s;
+}
+.lb-row:hover { background: rgba(255,255,255,0.04); }
+.lb-top3 { background: rgba(240,192,64,0.06); }
+.lb-top3:hover { background: rgba(240,192,64,0.1); }
+
+.lb-rank {
+    font-size: min(18px, 3.8vw);
+    text-align: center;
+    flex-shrink: 0;
+}
+.lb-row:not(.lb-top3) .lb-rank { color: #f0c040; font-weight: bold; }
+.lb-name {
+    font-size: min(15px, 3.2vw);
+    color: #e0e0e0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 8px;
+}
+.lb-level {
+    font-size: min(13px, 2.8vw);
+    color: #cc44ff;
+    text-align: right;
+    padding-right: 4px;
+}
+.lb-score {
+    font-size: min(16px, 3.4vw);
+    font-weight: bold;
+    color: #f0c040;
+    text-align: right;
+    padding-right: 8px;
+}
+.lb-wave {
+    font-size: min(13px, 2.8vw);
+    color: #88aaff;
+    text-align: right;
+}
+
+.lb-status {
+    text-align: center;
+    padding: 30px 0;
+    font-size: min(15px, 3.2vw);
+    color: #888;
+}
+.lb-error { color: #ff6666; }
+.lb-empty { color: #aaa; }
+
+/* Leaderboard close button */
+.lb-btn-close {
+    display: block;
+    margin: 0 auto;
+    background: linear-gradient(180deg, #555, #333) !important;
+    border-color: #777 !important;
+    color: #ddd !important;
+    padding: min(12px, 2.5vw) min(36px, 7vw) !important;
+    font-size: min(18px, 4vw) !important;
+}
+
+/* ── My row highlight ── */
+.lb-mine {
+    background: rgba(240,192,64,0.18) !important;
+    border-left: 3px solid rgba(240,192,64,0.8);
+}
+.lb-me-tag {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-weight: bold;
+    background: rgba(240,192,64,0.2);
+    border: 1px solid rgba(240,192,64,0.4);
+    border-radius: 4px;
+    color: #f0c040;
+    vertical-align: middle;
+    line-height: 1.4;
+}
+
+/* ── My rank separator ── */
+.lb-my-rank-sep {
+    text-align: center;
+    padding: 8px 0 5px;
+    color: rgba(240,192,64,0.45);
+    font-size: 15px;
+    letter-spacing: 6px;
+    border-top: 1px dashed rgba(240,192,64,0.25);
+    margin-top: 4px;
+}
+
+/* ── Join form (inside leaderboard panel) ── */
+.lb-join-desc {
+    text-align: center;
+    font-size: min(15px, 3.2vw);
+    color: #aaa;
+    line-height: 1.7;
+    margin-bottom: min(22px, 3.5vh);
+}
+.lb-join-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+.lb-join-input {
+    padding: 10px 16px;
+    font-size: min(17px, 3.6vw);
+    font-family: 'Courier New', monospace;
+    background: rgba(255,255,255,0.07);
+    border: 1.5px solid rgba(240,192,64,0.4);
+    border-radius: 10px;
+    color: #fff;
+    outline: none;
+    width: min(280px, 70vw);
+    text-align: center;
+    -webkit-user-select: text;
+    user-select: text;
+    transition: border-color 0.15s, background 0.15s;
+}
+.lb-join-input:focus {
+    border-color: #f0c040;
+    background: rgba(255,255,255,0.1);
+}
+.lb-join-input::placeholder { color: rgba(255,255,255,0.28); font-size: min(14px, 3vw); }
+.lb-join-status {
+    text-align: center;
+    font-size: min(13px, 2.8vw);
+    color: #ff6666;
+    min-height: 18px;
+    margin-bottom: 4px;
+}
+.lb-join-btns {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: min(16px, 2.5vh);
+}
+.lb-btn-join {
+    background: linear-gradient(180deg, #f0c040, #c08020) !important;
+    border-color: #f0d060 !important;
+    color: #1a0a00 !important;
+    padding: min(12px, 2.5vw) min(32px, 7vw) !important;
+    font-size: min(18px, 4vw) !important;
+}
+.lb-btn-join:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+.lb-btn-skip {
+    background: linear-gradient(180deg, #444, #282828) !important;
+    border-color: #666 !important;
+    color: #aaa !important;
+    padding: min(12px, 2.5vw) min(24px, 5vw) !important;
+    font-size: min(18px, 4vw) !important;
+}
+
+/* ── Footer row (close + toggle) ── */
+.lb-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: min(14px, 2.5vh);
+    flex-wrap: wrap;
+}
+
+/* Toggle visibility button */
+.lb-btn-toggle {
+    background: rgba(255,255,255,0.06) !important;
+    border-color: rgba(255,255,255,0.18) !important;
+    color: rgba(255,255,255,0.55) !important;
+    padding: min(10px, 2vw) min(20px, 4vw) !important;
+    font-size: min(13px, 2.8vw) !important;
+    letter-spacing: 0 !important;
+    transition: background 0.15s, color 0.15s !important;
+}
+.lb-btn-toggle:hover {
+    background: rgba(255,80,80,0.12) !important;
+    border-color: rgba(255,80,80,0.35) !important;
+    color: #ff8888 !important;
+}
+.lb-btn-toggle:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Hidden notice */
+.lb-hidden-notice {
+    text-align: center;
+    font-size: min(13px, 2.8vw);
+    color: #ff9966;
+    background: rgba(255,100,50,0.08);
+    border: 1px solid rgba(255,100,50,0.2);
+    border-radius: 8px;
+    padding: 8px 14px;
+    margin-top: min(10px, 2vh);
+}
+
+/* Leaderboard button in main menu */
+.btn-leaderboard {
+    background: linear-gradient(180deg, #204060, #102030) !important;
+    border-color: #4080c0 !important;
+    color: #88ccff !important;
+}
+
+/* Weapon unlock toast notification */
+#weaponUnlockToast {
+    position: fixed;
+    top: 18%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(10, 14, 26, 0.92);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+    padding: 10px 20px 10px 14px;
+    box-shadow: 0 0 24px rgba(0,0,0,0.7);
+    pointer-events: none;
+    white-space: nowrap;
+    animation: weaponUnlockFadeIn 0.25s ease;
+}
+#weaponUnlockToast.hidden {
+    display: none;
+}
+@keyframes weaponUnlockFadeIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(0.95); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0)     scale(1);    }
+}
+#weaponUnlockIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+}
+#weaponUnlockIcon svg {
+    width: 36px;
+    height: 36px;
+}
+#weaponUnlockText {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #ccddee;
+}
+#weaponUnlockText .unlock-label {
+    font-size: 11px;
+    color: rgba(180, 200, 220, 0.6);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+#weaponUnlockText .unlock-name {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* ============================================================
+   LEVEL SELECT OVERLAY
+   ============================================================ */
+#levelSelectOverlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.88);
+    z-index: 10;
+    transition: opacity 0.3s;
+}
+#levelSelectOverlay.hidden { opacity: 0; pointer-events: none; }
+
+#levelSelectPanel {
+    width: min(720px, 94vw);
+    padding: min(30px, 5vw) min(28px, 4.5vw);
+    background: linear-gradient(180deg, #141428, #0a0a1a);
+    border: 2px solid #f0c040;
+    border-radius: 20px;
+    box-shadow: 0 0 60px rgba(240,192,64,0.18), inset 0 1px 0 rgba(255,255,255,0.05);
+    text-align: center;
+}
+
+#levelSelectTitle {
+    font-size: min(30px, 6.5vw);
+    font-weight: bold;
+    color: #f0c040;
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(240,192,64,0.5);
+    margin-bottom: min(20px, 3.5vh);
+}
+
+#levelSelectCards {
+    display: flex;
+    gap: min(20px, 3.5vw);
+    justify-content: center;
+    margin-bottom: min(20px, 3.5vh);
+    flex-wrap: wrap;
+}
+
+.level-card {
+    width: min(290px, 44vw);
+    padding: min(16px, 2.8vw) min(16px, 2.5vw) min(18px, 3vw);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: min(7px, 1.3vh);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: default;
+    border: 2px solid transparent;
+}
+.level-card-1 {
+    background: linear-gradient(170deg, rgba(15,25,55,0.95), rgba(8,10,25,0.95));
+    border-color: rgba(80,140,255,0.4);
+    box-shadow: 0 0 20px rgba(80,140,255,0.08);
+}
+.level-card-1:hover {
+    border-color: rgba(80,180,255,0.7);
+    box-shadow: 0 0 28px rgba(80,180,255,0.2);
+}
+.level-card-2 {
+    background: linear-gradient(170deg, rgba(48,8,8,0.95), rgba(18,4,4,0.95));
+    border-color: rgba(220,60,60,0.4);
+    box-shadow: 0 0 20px rgba(220,60,60,0.08);
+}
+.level-card-2:hover {
+    border-color: rgba(255,80,80,0.7);
+    box-shadow: 0 0 28px rgba(255,80,80,0.2);
+}
+.level-card.locked {
+    opacity: 0.7;
+    filter: grayscale(0.5);
+}
+.level-card.locked:hover { box-shadow: none !important; border-color: rgba(120,120,160,0.35) !important; }
+
+.level-card-num {
+    font-size: min(11px, 2.3vw);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+.level-card-1 .level-card-num { color: rgba(100,170,255,0.65); }
+.level-card-2 .level-card-num { color: rgba(255,110,90,0.65); }
+
+.level-card-name {
+    font-size: min(18px, 3.8vw);
+    font-weight: bold;
+    letter-spacing: 3px;
+    margin-bottom: 2px;
+}
+.level-card-1 .level-card-name { color: #88bbff; text-shadow: 0 0 12px rgba(100,170,255,0.4); }
+.level-card-2 .level-card-name { color: #ff8866; text-shadow: 0 0 12px rgba(255,100,80,0.4); }
+
+/* Sprite preview row */
+.level-card-sprites {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: min(6px, 1.2vw);
+    margin: min(2px, 0.5vh) 0;
+    height: min(114px, 18.5vh);
+}
+.ls-sprite-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+.ls-sprite-wrap canvas {
+    display: block;
+    image-rendering: pixelated;
+}
+.ls-sprite-main canvas {
+    filter: drop-shadow(0 0 6px rgba(240,192,64,0.4));
+}
+.ls-sprite-label {
+    font-size: min(10px, 2vw);
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 1px;
+}
+
+.level-card-info {
+    font-size: min(11px, 2.4vw);
+    color: #888;
+    min-height: 16px;
+    line-height: 1.5;
+}
+.level-card-multi {
+    font-size: min(13px, 2.7vw);
+    font-weight: bold;
+    color: #ffcc00;
+    letter-spacing: 1px;
+}
+.level-card.locked .level-start-btn {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.level-start-btn {
+    margin-top: min(4px, 0.8vh);
+    padding: min(9px, 1.8vw) min(28px, 5.5vw) !important;
+    font-size: min(15px, 3.2vw) !important;
+    letter-spacing: 2px;
+}
+.level-card-1 .level-start-btn {
+    background: linear-gradient(180deg, #1a4488, #122d5a) !important;
+    border-color: #3366cc !important;
+}
+.level-card-1 .level-start-btn:hover {
+    background: linear-gradient(180deg, #2255aa, #1a4488) !important;
+}
+.level-card-2 .level-start-btn {
+    background: linear-gradient(180deg, #7a1818, #4e0f0f) !important;
+    border-color: #bb2222 !important;
+}
+.level-card-2 .level-start-btn:hover {
+    background: linear-gradient(180deg, #992222, #7a1818) !important;
+}
+.btn-back-menu {
+    background: linear-gradient(180deg, #444, #282828) !important;
+    border-color: #666 !important;
+    color: #ccc !important;
+    padding: min(10px, 2vw) min(28px, 6vw) !important;
+    font-size: min(15px, 3.2vw) !important;
 }
