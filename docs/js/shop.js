@@ -353,6 +353,22 @@ function getMidShopOption(idx) {
 function openMidShop() {
     const g = game;
     if (!g) return;
+    // Clean up residual effects before freezing update loop —
+    // prevents particles/bullets from accumulating while state is 'midShop'
+    g.enemyBullets = [];
+    g.particles = [];
+    g.slamWarnings = [];
+    g.explosions = [];
+    g.speedLines = [];
+    g.gateShatterPieces = [];
+    g.screenFlash = 0;
+    g.vignetteFlash = 0;
+    g.gateFlash = null;
+    g.slowMo = 0;
+    g.slowMoFactor = 1;
+    g.shakeTimer = 0;
+    g.shakeX = 0;
+    g.shakeY = 0;
     g.state = 'midShop';
     g.midShopOpen = true;
     g.midShopBought = []; // reset per opening

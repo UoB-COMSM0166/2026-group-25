@@ -675,6 +675,28 @@ function update(dt) {
             Math.abs(eb.x) > CONFIG.ROAD_HALF_WIDTH + 50) {
             eb.dead = true; return;
         }
+        // Lava drip trail particles (moved from render to avoid frame-rate dependent spawn)
+        if (eb.type === 'lava' && Math.random() < 0.5) {
+            g.particles.push({
+                x: eb.x + (Math.random() - 0.5) * 5, z: eb.z,
+                vx: (Math.random() - 0.5) * 0.6, vz: 0.08,
+                vy: -0.5 - Math.random() * 0.6, y: 0,
+                life: 5 + Math.random() * 5, maxLife: 10,
+                color: Math.random() < 0.5 ? 0xff4400 : 0xffaa00,
+                size: 2 + Math.random() * 2.5,
+            });
+        }
+        // Flame trail particles (moved from render)
+        if (eb.type === 'flame' && Math.random() < 0.3) {
+            g.particles.push({
+                x: eb.x + (Math.random() - 0.5) * 4, z: eb.z,
+                vx: (Math.random() - 0.5) * 0.5, vz: 0.1,
+                vy: -0.8 - Math.random() * 0.4, y: 0,
+                life: 6 + Math.random() * 4, maxLife: 10,
+                color: Math.random() < 0.5 ? 0xff6600 : 0xffaa00,
+                size: 1.5 + Math.random() * 2,
+            });
+        }
         // Hit player?
         const pz = g.cameraZ + 10;
         if (Math.abs(eb.z - pz) < 18 && Math.abs(eb.x - g.player.x) < 30) {
@@ -771,6 +793,9 @@ function update(dt) {
         }
     });
     g.enemyBullets = g.enemyBullets.filter(eb => !eb.dead);
+    // Cap enemy bullets to prevent performance freeze during multi-boss fights
+    const ebLimit = _proj.isMobile ? 80 : 200;
+    if (g.enemyBullets.length > ebLimit) g.enemyBullets.splice(0, g.enemyBullets.length - Math.floor(ebLimit * 0.7));
 
     // Gate collision
     g.gates.forEach(gate => {
@@ -1079,10 +1104,22 @@ function update(dt) {
 
     // Cleanup
     g.enemies = g.enemies.filter(e => e.alive || e.z > g.cameraZ - 50);
+    // Cap non-boss enemies to prevent performance issues during multi-boss summon spam
+    const maxEnemies = _proj.isMobile ? 40 : 80;
+    if (g.enemies.length > maxEnemies) {
+        // Keep bosses, remove oldest non-boss enemies
+        const bosses = g.enemies.filter(e => e.isBoss);
+        const nonBosses = g.enemies.filter(e => !e.isBoss);
+        if (nonBosses.length > maxEnemies - bosses.length) {
+            nonBosses.splice(0, nonBosses.length - (maxEnemies - bosses.length));
+        }
+        g.enemies = bosses.concat(nonBosses);
+    }
     g.gates = g.gates.filter(gate => gate.z > g.cameraZ - 50 && (!gate.triggered || gate.fadeTimer > 0));
     g.barrels = g.barrels.filter(b => b.alive && b.z > g.cameraZ - 50);
     g.deadBodies.forEach(d => d.timer -= dtF);
     g.deadBodies = g.deadBodies.filter(d => d.timer > 0 && d.z > g.cameraZ - 50);
+    if (g.deadBodies.length > 60) g.deadBodies.splice(0, g.deadBodies.length - 40);
 
     // Particles
     g.particles.forEach(p => { p.x += p.vx * dtF; p.z += p.vz * dtF; p.y += p.vy * dtF; p.vy += 0.3 * dtF; p.life -= dtF; });
@@ -1095,6 +1132,7 @@ function update(dt) {
     // Explosions
     g.explosions.forEach(e => e.timer++);
     g.explosions = g.explosions.filter(e => e.timer < e.maxTimer);
+    if (g.explosions.length > 40) g.explosions.splice(0, g.explosions.length - 30);
 
     // Shake
     if (g.shakeTimer > 0) {
