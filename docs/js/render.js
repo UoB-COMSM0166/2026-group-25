@@ -567,17 +567,7 @@ function _renderLavaBullet(eb, ep, relZ, s) {
     hexFill(0xffcc44, 0.90 * 255); circle(ep.x, ep.y, s * 0.55 * 2);
     hexFill(0xffffff, 0.70 * 255); circle(ep.x, ep.y, s * 0.22 * 2);
 
-    // Drip particles (push into particle system)
-    if (Math.random() < 0.5) {
-        game.particles.push({
-            x: eb.x + (Math.random() - 0.5) * 5, z: eb.z,
-            vx: (Math.random() - 0.5) * 0.6, vz: 0.08,
-            vy: -0.5 - Math.random() * 0.6, y: 0,
-            life: 5 + Math.random() * 5, maxLife: 10,
-            color: Math.random() < 0.5 ? 0xff4400 : 0xffaa00,
-            size: 2 + Math.random() * 2.5,
-        });
-    }
+    // Drip particles moved to update loop (enemyBullet tick) to avoid render-update coupling
 }
 
 function _renderDefaultBullet(eb, ep, relZ, s, isFlame) {
@@ -596,15 +586,5 @@ function _renderDefaultBullet(eb, ep, relZ, s, isFlame) {
     hexFill(eb.color, 0.95 * 255);                     circle(ep.x, ep.y, s * 2.0);
     hexFill(isFlame ? 0xffee44 : 0xffffff, 0.9 * 255); circle(ep.x, ep.y, s * 0.45 * 2);
 
-    // Flame particle trail
-    if (isFlame && Math.random() < 0.3) {
-        game.particles.push({
-            x: eb.x + (Math.random() - 0.5) * 4, z: eb.z,
-            vx: (Math.random() - 0.5) * 0.5, vz: 0.1,
-            vy: -0.8 - Math.random() * 0.4, y: 0,
-            life: 6 + Math.random() * 4, maxLife: 10,
-            color: Math.random() < 0.5 ? 0xff6600 : 0xffaa00,
-            size: 1.5 + Math.random() * 2,
-        });
-    }
+    // Flame particle trail moved to update loop (enemyBullet tick) to avoid render-update coupling
 }
