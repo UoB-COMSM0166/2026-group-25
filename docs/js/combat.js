@@ -155,23 +155,7 @@ function explodeBarrel(br) {
             e.hitFlash = 6;
             addDamageNumber(e.x, e.z, br.aoeDamage, 0xff8800);
             if (e.hp <= 0) {
-                const killScoreBase = e.isMegaBoss ? 300 : e.isBoss ? 100 : (L2_KILL_SCORES[e.type] || (e.isHeavy ? 25 : 10));
-                const killScore = Math.ceil(killScoreBase * (LEVEL_CONFIGS[g.currentLevel] ? LEVEL_CONFIGS[g.currentLevel].scoreMultiplier : 1));
-                e.alive = false; g.score += killScore; g.killCount++;
-                addExplosion(e.x, e.z);
-                g.deadBodies.push({ x: e.x, z: e.z, timer: 300 });
-                g.comboCount++; g.comboTimer = CONFIG.COMBO_TIMEOUT;
-                g.bestCombo = Math.max(g.bestCombo, g.comboCount);
-                if (e.isBoss) {
-                    spawnBossCoins(e.x, e.z);
-                    if (e.isMegaBoss) spawnBossCoins(e.x, e.z);
-                    awardBossExp(e.isMegaBoss, e.x, e.z);
-                    const stillBossAlive = g.enemies.some(o => o !== e && o.alive && o.isBoss);
-                    if (!stillBossAlive) {
-                        g.enemyBullets = [];
-                        if (e.isMegaBoss) g.midShopTimer = 90;
-                    }
-                }
+                processEnemyKill(g, e, { skipSound: true });
             }
         }
     });
