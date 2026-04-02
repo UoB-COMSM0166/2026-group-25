@@ -25,6 +25,10 @@ function initAudio() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
+    // Resume suspended context (browser requires user gesture)
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
     if (!_audioLoaded) {
         _audioLoaded = true;
         _preloadAudioBuffers();
@@ -51,19 +55,23 @@ async function _preloadAudioBuffers() {
 
 function playSound(type) {
     if (!audioCtx) return;
+    // Ensure context is running (user gesture may have happened since init)
+    if (audioCtx.state === 'suspended') audioCtx.resume();
 
     // Try real audio buffer first
     const buffer = _audioBuffers[type];
     if (buffer) {
-        const source = audioCtx.createBufferSource();
-        const gain = audioCtx.createGain();
-        source.buffer = buffer;
-        const def = SOUND_DEFS[type] || {};
-        gain.gain.value = (def.vol || 0.5) * _audioVolume;
-        source.connect(gain);
-        gain.connect(audioCtx.destination);
-        source.start(0);
-        return;
+        try {
+            const source = audioCtx.createBufferSource();
+            const gain = audioCtx.createGain();
+            source.buffer = buffer;
+            const def = SOUND_DEFS[type] || {};
+            gain.gain.value = (def.vol || 0.5) * _audioVolume;
+            source.connect(gain);
+            gain.connect(audioCtx.destination);
+            source.start(0);
+            return;
+        } catch (_) { /* fall through to synth */ }
     }
 
     // Fallback: synthesized sound
