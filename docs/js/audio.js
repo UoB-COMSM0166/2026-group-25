@@ -1,12 +1,79 @@
 // ============================================================
-// AUDIO SYSTEM
+// AUDIO SYSTEM — real sound effects with synthesized fallback
 // ============================================================
+
+// Audio buffer cache: type → AudioBuffer
+const _audioBuffers = {};
+let _audioLoaded = false;
+let _audioVolume = 0.5;
+
+// Sound definitions: file path + per-sound volume adjustment
+const SOUND_DEFS = {
+    shoot:          { file: 'assets/audio/shoot.mp3',          vol: 0.3  },
+    shoot_shotgun:  { file: 'assets/audio/shoot_shotgun.mp3',  vol: 0.35 },
+    shoot_laser:    { file: 'assets/audio/shoot_laser.mp3',    vol: 0.3  },
+    shoot_rocket:   { file: 'assets/audio/shoot_rocket.mp3',   vol: 0.3  },
+    explosion:      { file: 'assets/audio/explosion.mp3',      vol: 0.4  },
+    gate_good:      { file: 'assets/audio/gate_good.mp3',      vol: 0.5  },
+    gate_bad:       { file: 'assets/audio/gate_bad.mp3',       vol: 0.5  },
+    weapon_pickup:  { file: 'assets/audio/weapon_pickup.mp3',  vol: 0.5  },
+    hit:            { file: 'assets/audio/hit.mp3',            vol: 0.25 },
+    wave_start:     { file: 'assets/audio/wave_start.mp3',     vol: 0.5  },
+};
+
 function initAudio() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (!_audioLoaded) {
+        _audioLoaded = true;
+        _preloadAudioBuffers();
+    }
+}
+
+async function _preloadAudioBuffers() {
+    const entries = Object.entries(SOUND_DEFS);
+    const results = await Promise.allSettled(
+        entries.map(async ([type, def]) => {
+            const resp = await fetch(def.file);
+            if (!resp.ok) throw new Error(`${resp.status} ${def.file}`);
+            const buf = await resp.arrayBuffer();
+            _audioBuffers[type] = await audioCtx.decodeAudioData(buf);
+        })
+    );
+    const loaded = results.filter(r => r.status === 'fulfilled').length;
+    const failed = results.filter(r => r.status === 'rejected');
+    console.log(`Audio: ${loaded}/${entries.length} sounds loaded`);
+    if (failed.length > 0) {
+        console.warn('Audio: failed to load:', failed.map(r => r.reason.message));
+    }
 }
 
 function playSound(type) {
     if (!audioCtx) return;
+
+    // Try real audio buffer first
+    const buffer = _audioBuffers[type];
+    if (buffer) {
+        const source = audioCtx.createBufferSource();
+        const gain = audioCtx.createGain();
+        source.buffer = buffer;
+        const def = SOUND_DEFS[type] || {};
+        gain.gain.value = (def.vol || 0.5) * _audioVolume;
+        source.connect(gain);
+        gain.connect(audioCtx.destination);
+        source.start(0);
+        return;
+    }
+
+    // Fallback: synthesized sound
+    _playSynthSound(type);
+}
+
+// ============================================================
+// SYNTHESIZED FALLBACK (original oscillator-based sounds)
+// ============================================================
+function _playSynthSound(type) {
     const now = audioCtx.currentTime;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
