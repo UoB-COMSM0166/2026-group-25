@@ -524,10 +524,12 @@ function restoreMainMenu() {
             <span id="gemCount" style="color:#cc44ff;">${playerData.gems || 0}</span>
         </div>
         <div id="menuButtons">
-            <button class="btn" id="startBtn" onclick="showLevelSelect()">${T('menu.start')}</button>
-            <button class="btn btn-shop" id="shopBtn" onclick="openShop()">${T('menu.shop')}</button>
-            <button class="btn btn-achievements${_hasUnclaimedAch() ? ' has-unclaimed' : ''}" onclick="showAchievementPanel()">ACHIEVEMENTS${_hasUnclaimedAch() ? ' !' : ''}</button>
-            <button class="btn btn-leaderboard" onclick="showLeaderboard()">${T('lb.leaderboard.btn')}</button>
+            <button class="btn btn-start" onclick="showLevelSelect()">${T('menu.start')}</button>
+        </div>
+        <div id="menuNav">
+            <button class="btn btn-secondary btn-shop" onclick="openShop()">${T('menu.shop')}</button>
+            <button class="btn btn-secondary btn-achievements${_hasUnclaimedAch() ? ' has-unclaimed' : ''}" onclick="showAchievementPanel()">ACHIEVEMENTS${_hasUnclaimedAch() ? ' !' : ''}</button>
+            <button class="btn btn-secondary btn-leaderboard" onclick="showLeaderboard()">${T('lb.leaderboard.btn')}</button>
         </div>
     `;
 }

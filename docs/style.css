@@ -50,8 +50,8 @@ html, body {
     font-weight: normal;
 }
 #overlay .btn {
-    padding: min(16px, 3.5vw) min(20px, 4vw);
-    font-size: min(20px, 4.2vw);
+    padding: min(16px, 3.5vw) min(28px, 6vw);
+    font-size: min(22px, 4.5vw);
     font-family: 'Courier New', monospace;
     font-weight: bold;
     background: linear-gradient(180deg, #f0c040, #c08020);
@@ -61,9 +61,25 @@ html, body {
     letter-spacing: 2px;
     transition: transform 0.1s;
     -webkit-tap-highlight-color: transparent;
+    border-radius: 6px;
 }
 #overlay .btn:hover { transform: scale(1.05); }
 #overlay .btn:active { transform: scale(0.95); }
+/* Primary start button — large and prominent */
+#overlay .btn-start {
+    padding: min(22px, 4.5vw) min(70px, 15vw);
+    font-size: min(30px, 6vw);
+    letter-spacing: 4px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(240,192,64,0.3);
+}
+/* Secondary nav buttons — smaller, positioned at bottom */
+#overlay .btn-secondary {
+    padding: min(12px, 2.5vw) min(22px, 4.5vw);
+    font-size: min(15px, 3.2vw);
+    letter-spacing: 1px;
+    border-width: 2px;
+}
 #scoreDisplay { color: #f0c040; font-size: min(28px, 5vw); margin: 16px 0 8px; }
 #finalScore { color: #fff; font-size: min(56px, 10vw); margin: 8px 0 20px; font-weight: bold; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
 
@@ -156,13 +172,20 @@ html, body {
     margin-left: 8px;
 }
 
-/* Menu buttons grid */
+/* Main menu: start button container */
 #menuButtons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: min(14px, 3vw);
-    max-width: min(480px, 85vw);
-    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    margin-top: min(20px, 3vh);
+}
+/* Bottom nav bar */
+#menuNav {
+    position: absolute;
+    bottom: min(36px, 6vh);
+    left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    gap: min(18px, 3.5vw);
 }
 .btn-shop {
     background: linear-gradient(180deg, #6040f0, #4020c0) !important;
