@@ -526,7 +526,7 @@ function restoreMainMenu() {
         <div id="menuButtons">
             <button class="btn" id="startBtn" onclick="showLevelSelect()">${T('menu.start')}</button>
             <button class="btn btn-shop" id="shopBtn" onclick="openShop()">${T('menu.shop')}</button>
-            <button class="btn" style="background:linear-gradient(180deg,#f0c040,#c87800);border-color:#ffd700;${_hasUnclaimedAch() ? 'box-shadow:0 0 12px #ffd700;' : ''}" onclick="showAchievementPanel()">ACHIEVEMENTS${_hasUnclaimedAch() ? ' !' : ''}</button>
+            <button class="btn btn-achievements${_hasUnclaimedAch() ? ' has-unclaimed' : ''}" onclick="showAchievementPanel()">ACHIEVEMENTS${_hasUnclaimedAch() ? ' !' : ''}</button>
             <button class="btn btn-leaderboard" onclick="showLeaderboard()">${T('lb.leaderboard.btn')}</button>
         </div>
     `;

@@ -50,8 +50,8 @@ html, body {
     font-weight: normal;
 }
 #overlay .btn {
-    padding: min(20px, 4vw) min(60px, 12vw);
-    font-size: min(28px, 5.5vw);
+    padding: min(16px, 3.5vw) min(20px, 4vw);
+    font-size: min(20px, 4.2vw);
     font-family: 'Courier New', monospace;
     font-weight: bold;
     background: linear-gradient(180deg, #f0c040, #c08020);
@@ -156,12 +156,13 @@ html, body {
     margin-left: 8px;
 }
 
-/* Menu buttons row */
+/* Menu buttons grid */
 #menuButtons {
-    display: flex;
-    gap: min(20px, 4vw);
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: min(14px, 3vw);
+    max-width: min(480px, 85vw);
+    margin: 0 auto;
 }
 .btn-shop {
     background: linear-gradient(180deg, #6040f0, #4020c0) !important;
@@ -169,6 +170,14 @@ html, body {
     color: #fff !important;
 }
 .btn-shop:hover { transform: scale(1.05); }
+.btn-achievements {
+    background: linear-gradient(180deg, #e0a820, #a87810) !important;
+    border-color: #f0c040 !important;
+    color: #1a0a00 !important;
+}
+.btn-achievements.has-unclaimed {
+    box-shadow: 0 0 12px #ffd700;
+}
 
 /* ============================================================
    SHOP OVERLAY
