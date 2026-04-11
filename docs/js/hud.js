@@ -483,12 +483,12 @@ function drawLevelUpAnim() {
     let alpha, sc;
     if (t < 0.10) {
         const p = t / 0.10;
-        alpha = p; sc = 0.25 + 0.75 * (1 - Math.pow(1 - p, 3));
-    } else if (t < 0.75) {
-        alpha = 1; sc = 1 + Math.sin((t - 0.10) / 0.65 * Math.PI * 3) * 0.013;
+        alpha = p * 0.85; sc = 0.25 + 0.75 * (1 - Math.pow(1 - p, 3));
+    } else if (t < 0.70) {
+        alpha = 0.85; sc = 1 + Math.sin((t - 0.10) / 0.60 * Math.PI * 3) * 0.013;
     } else {
-        const p = (t - 0.75) / 0.25;
-        alpha = 1 - p; sc = 1 + p * 0.18;
+        const p = (t - 0.70) / 0.30;
+        alpha = 0.85 * (1 - p); sc = 1 + p * 0.18;
     }
     if (alpha <= 0) return;
 
@@ -497,7 +497,7 @@ function drawLevelUpAnim() {
     for (let i = 0; i < 3; i++) {
         const rp = (t * 1.5 + i / 3) % 1.0;
         const rR = rp * maxRingR;
-        const rA = (1 - rp) * 0.5 * alpha;
+        const rA = (1 - rp) * 0.3 * alpha;
         if (rA < 0.015) continue;
         hexStroke(0x88ffcc, Math.floor(rA * 255));
         strokeWeight(Math.max(1, (1 - rp) * 5)); noFill();
@@ -509,9 +509,9 @@ function drawLevelUpAnim() {
     const panelH = 175 * sc;
     const px = cx - panelW / 2, py = cy - panelH * 0.50;
 
-    hexFill(0x00cc66, Math.floor(0.10 * alpha * 255)); noStroke();
+    hexFill(0x00cc66, Math.floor(0.08 * alpha * 255)); noStroke();
     rect(px - 10, py - 10, panelW + 20, panelH + 20, 20);
-    hexFill(0x00100a, Math.floor(0.90 * alpha * 255));
+    hexFill(0x00100a, Math.floor(0.55 * alpha * 255));
     rect(px, py, panelW, panelH, 13);
     hexStroke(0x88ffcc, Math.floor(0.75 * alpha * 255)); strokeWeight(2.5); noFill();
     rect(px, py, panelW, panelH, 13);

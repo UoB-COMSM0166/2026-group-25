@@ -294,7 +294,7 @@ function checkLevelUp(g, bigEffect) {
         // Notify when a new pistol tier is unlocked at this level (DOM toast with SVG icon)
         const unlockedTier = PISTOL_TIERS.find(t => t.requireLevel === g.level && t.price > 0);
         if (unlockedTier) showWeaponUnlockToast(unlockedTier);
-        g.levelUpAnim = { level: g.level, bonusDesc, timer: 0, maxTimer: 185 };
+        g.levelUpAnim = { level: g.level, bonusDesc, timer: 0, maxTimer: 120 };
         playSound('weapon_pickup');
     }
 }
