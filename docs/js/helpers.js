@@ -44,6 +44,10 @@ function handleBossDeath(g, enemy) {
     if (!otherBossAlive) {
         g.enemyBullets = [];
         if (enemy.isMegaBoss) g.midShopTimer = 90;
+        // Track boss wave with zero troop loss
+        if (g.preBossSquad && g.squadCount >= g.preBossSquad) {
+            addStat('bossZeroLossWaves', 1);
+        }
     }
 }
 
@@ -62,6 +66,9 @@ function processEnemyKill(g, enemy, opts) {
     g.comboCount++;
     g.comboTimer = CONFIG.COMBO_TIMEOUT;
     if (g.comboCount > g.bestCombo) g.bestCombo = g.comboCount;
+    // Achievement stat tracking
+    addStat('totalKills', 1);
+    setStat('bestComboEver', g.comboCount);
     addExplosion(enemy.x, enemy.z);
     g.deadBodies.push({ x: enemy.x, z: enemy.z, timer: 300 });
 
@@ -81,6 +88,9 @@ function processEnemyKill(g, enemy, opts) {
         g.slowMo = 400;
         const label = enemy.isElephantBoss ? '🐘 ELEPHANT KING' : '🔥 MEGA BOSS';
         addScorePopup(`${label} +${killScore}!`, ep.x, ep.y - 40, 0xff4400);
+        addStat('totalBossKills', 1);
+        addStat('totalMegaBossKills', 1);
+        if (enemy.spawnTime && (Date.now() - enemy.spawnTime) < 5000) _achTempFlags.speedKill = true;
         handleBossDeath(g, enemy);
     } else if (enemy.isBoss) {
         addExplosion(enemy.x + 20, enemy.z + 15);
@@ -91,6 +101,8 @@ function processEnemyKill(g, enemy, opts) {
         const label = enemy.isCowCryBoss ? '🎵 CRY COW' : 'BOSS DRAGON';
         const labelColor = enemy.isCowCryBoss ? 0xff9944 : 0xcc66ff;
         addScorePopup(`${label} +${killScore}!`, ep.x, ep.y - 30, labelColor);
+        addStat('totalBossKills', 1);
+        if (enemy.spawnTime && (Date.now() - enemy.spawnTime) < 5000) _achTempFlags.speedKill = true;
         handleBossDeath(g, enemy);
     } else {
         g.shakeTimer = 5;

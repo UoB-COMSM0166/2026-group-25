@@ -116,4 +116,7 @@ if (playerData.equippedPistolTier === undefined) playerData.equippedPistolTier =
 if (!playerData.ownedPistolTiers) playerData.ownedPistolTiers = [0];
 if (!playerData.unlockedLevels) playerData.unlockedLevels = [1];
 if (playerData.l2HighScore === undefined) playerData.l2HighScore = { score: 0, wave: 0 };
+if (!playerData.stats) playerData.stats = {};
+if (!playerData.achievements) playerData.achievements = {};
+if (!playerData.achievementsClaimed) playerData.achievementsClaimed = {};
 savePlayerData(playerData);

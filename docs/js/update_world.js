@@ -196,6 +196,7 @@ function updateWorld(g, dt, dtF, bossAlive) {
             coin.collected = true;
             g.coinsCollected += coin.value;
             playerData.coins += coin.value;
+            addStat('totalCoinsEarned', coin.value);
             markPlayerDataDirty();
             // Pickup effect — golden burst with speed lines
             const cp = project(coin.x, coin.z - g.cameraZ);
@@ -242,6 +243,7 @@ function updateWorld(g, dt, dtF, bossAlive) {
             gem.collected = true;
             g.gemsCollected += gem.value;
             playerData.gems = (playerData.gems || 0) + gem.value;
+            addStat('totalGemsEarned', gem.value);
             markPlayerDataDirty();
             // Pickup effect — purple explosion with blast ring + speed lines
             const gp = project(gem.x, gem.z - g.cameraZ);

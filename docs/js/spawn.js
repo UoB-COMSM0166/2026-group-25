@@ -106,6 +106,7 @@ function spawnCowCryBoss(z) {
         bossHoldZ: CONFIG.SPAWN_DISTANCE,
         animFrame: 0, animTimer: Math.random() * 500, hitFlash: 0,
         type: 8, // cow cry boss type
+        spawnTime: Date.now(),
         // CowCry skill system
         cowSkillTimer: 0,
         cowSkillCooldown: Math.max(200, 420 - bossLevel * 20),
@@ -140,6 +141,7 @@ function spawnElephantBoss(z, xPos) {
         bossHoldZ: CONFIG.SPAWN_DISTANCE,
         animFrame: 0, animTimer: Math.random() * 500, hitFlash: 0,
         type: L2_TYPE_ELEPHANT,
+        spawnTime: Date.now(),
         // Mega skill system (reuse dragon skills)
         megaSkillTimer: 0,
         megaSkillCooldown: Math.max(180, 350 - megaLevel * 25),
@@ -258,7 +260,7 @@ function spawnBoss(z) {
             bossShootInterval: shootInterval,
             bossHoldZ: CONFIG.SPAWN_DISTANCE,
             animFrame: 0, animTimer: Math.random() * 500, hitFlash: 0,
-            type: 0,
+            type: 0, spawnTime: Date.now(),
         });
     }
 }
@@ -297,7 +299,7 @@ function spawnMegaBoss(z, xPos) {
         bossShootInterval: shootInterval,
         bossHoldZ: CONFIG.SPAWN_DISTANCE,
         animFrame: 0, animTimer: Math.random() * 500, hitFlash: 0,
-        type: 0,
+        type: 0, spawnTime: Date.now(),
         // Mega boss skill system
         megaSkillTimer: 0,
         megaSkillCooldown: Math.max(180, 350 - megaLevel * 25), // ticks between skills

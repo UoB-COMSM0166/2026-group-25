@@ -321,6 +321,7 @@ function render() {
     drawWaveBanner();
     drawLevelUpAnim();
     drawComboCounter();
+    drawAchievementToast();
 
     if (g.state === 'paused') drawPauseOverlay();
 }

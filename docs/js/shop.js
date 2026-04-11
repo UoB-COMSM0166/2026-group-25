@@ -166,6 +166,7 @@ function buyPistolTier(idx) {
     playerData.ownedPistolTiers.push(idx);
     playerData.equippedPistolTier = idx; // auto-equip on purchase
     savePlayerData(playerData);
+    checkAchievements();
     renderShopItems();
     updateShopCurrencies();
 }
@@ -231,7 +232,9 @@ function upgradeWeapon(weaponKey) {
     if (playerData.coins < cost) return;
     playerData.coins -= cost;
     playerData.weaponLevels[weaponKey] = level + 1;
+    addStat('weaponUpgradesBought', 1);
     savePlayerData(playerData);
+    checkAchievements();
     renderSpecialItems();
     updateShopCurrencies();
 }
@@ -249,7 +252,9 @@ function buyTalent(talentId) {
     } else {
         playerData.talents[talentId] = currentLevel + 1;
     }
+    addStat('talentLevelsBought', 1);
     savePlayerData(playerData);
+    checkAchievements();
     renderTalentItems();
     updateShopCurrencies();
 }

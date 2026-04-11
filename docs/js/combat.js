@@ -161,12 +161,16 @@ function explodeBarrel(br) {
     });
 
     // Chain reaction to nearby barrels
+    let chainCount = 0;
     g.barrels.forEach(otherBr => {
         if (otherBr === br || !otherBr.alive || otherBr.chainTimer >= 0) return;
         if (Math.abs(otherBr.x - br.x) < aoeRadius && Math.abs(otherBr.z - br.z) < aoeRadius) {
             otherBr.chainTimer = 8;
+            chainCount++;
         }
     });
+    // Track chain explosions (3+ barrels in a chain)
+    if (chainCount >= 2) addStat('chainExplosions', 1);
 }
 
 function spawnBossCoins(x, z) {

@@ -163,6 +163,8 @@ function startGameWithLevel(level) {
 function triggerLevelComplete() {
     stopBGM();
     const g = game;
+    g.levelCompleted = true;
+    updateEndOfGameStats();
     if (!playerData.unlockedLevels) playerData.unlockedLevels = [1];
     if (!playerData.unlockedLevels.includes(2)) {
         playerData.unlockedLevels.push(2);
@@ -212,6 +214,7 @@ function startGame(level) {
     const slotsDiv = document.getElementById('weaponSlots');
     if (slotsDiv) slotsDiv.style.display = 'none';
     _skyBgW = 0; _skyBgH = 0; _skyBgLevel = 0;
+    resetAchTempFlags();
     // Start BGM matching current level
     playBGM(game.currentLevel);
 }
@@ -441,6 +444,7 @@ function revivePlayer() {
     playerData.gems -= cost;
     savePlayerData(playerData);
     g.reviveCount++;
+    addStat('totalRevives', 1);
     g.squadCount = g.peakSquad;
     g.state = 'playing';
     g.shieldActive = true;
@@ -471,6 +475,7 @@ function showGameOver() {
     playerData.level = game.level;
     playerData.exp = game.exp;
     savePlayerData(playerData);
+    updateEndOfGameStats();
     const currentLvl = game.currentLevel || 1;
     let isNewRecord;
     if (currentLvl === 2) {
@@ -521,6 +526,7 @@ function restoreMainMenu() {
         <div id="menuButtons">
             <button class="btn" id="startBtn" onclick="showLevelSelect()">${T('menu.start')}</button>
             <button class="btn btn-shop" id="shopBtn" onclick="openShop()">${T('menu.shop')}</button>
+            <button class="btn" style="background:linear-gradient(180deg,#f0c040,#c87800);border-color:#ffd700;${_hasUnclaimedAch() ? 'box-shadow:0 0 12px #ffd700;' : ''}" onclick="showAchievementPanel()">ACHIEVEMENTS${_hasUnclaimedAch() ? ' !' : ''}</button>
             <button class="btn btn-leaderboard" onclick="showLeaderboard()">${T('lb.leaderboard.btn')}</button>
         </div>
     `;
