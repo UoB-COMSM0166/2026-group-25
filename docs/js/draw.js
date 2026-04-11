@@ -59,73 +59,166 @@ function hexPolyStroke(pts, hex, a, sw) {
 // SKY
 // g: optional p5.Graphics; null/undefined = draw to main canvas
 // ============================================================
+function _lerpHex(a, b, t) {
+    const ar = (a >> 16) & 0xFF, ag = (a >> 8) & 0xFF, ab = a & 0xFF;
+    const br = (b >> 16) & 0xFF, bg = (b >> 8) & 0xFF, bb = b & 0xFF;
+    return (Math.round(ar + (br - ar) * t) << 16)
+         | (Math.round(ag + (bg - ag) * t) << 8)
+         |  Math.round(ab + (bb - ab) * t);
+}
+
+function _multiGrad(gfx, colors, y0, y1, w) {
+    const steps = 40;
+    const ns = gfx ? (x => gfx.noStroke()) : (() => noStroke());
+    const sf = (hex) => {
+        const r = (hex >> 16) & 0xFF, gv = (hex >> 8) & 0xFF, b = hex & 0xFF;
+        gfx ? gfx.fill(r, gv, b) : fill(r, gv, b);
+    };
+    const dr = (x, y, ww, h) => gfx ? gfx.rect(x, y, ww, h) : rect(x, y, ww, h);
+    ns();
+    for (let i = 0; i < steps; i++) {
+        const t = i / (steps - 1);
+        const ci = t * (colors.length - 1);
+        const idx = Math.min(Math.floor(ci), colors.length - 2);
+        sf(_lerpHex(colors[idx], colors[idx + 1], ci - idx));
+        dr(0, y0 + (i / steps) * (y1 - y0), w, (y1 - y0) / steps + 1);
+    }
+}
+
 function drawSky(g) {
     const hY = screenH * getHorizonRatio();
     const isL2 = game && game.currentLevel === 2;
 
-    const setFill = (hex, a) => {
+    const sf = (hex, a) => {
         const r = (hex >> 16) & 0xFF, gv = (hex >> 8) & 0xFF, b = hex & 0xFF;
         if (g) { if (a !== undefined) g.fill(r, gv, b, a); else g.fill(r, gv, b); }
-        else    { if (a !== undefined) fill(r, gv, b, a);   else fill(r, gv, b); }
+        else   { if (a !== undefined) fill(r, gv, b, a);   else fill(r, gv, b); }
     };
-    const drawRct = (x, y, w, h) => g ? g.rect(x, y, w, h) : rect(x, y, w, h);
-    if (g) g.noStroke(); else noStroke();
+    const ss = (hex, a) => {
+        const r = (hex >> 16) & 0xFF, gv = (hex >> 8) & 0xFF, b = hex & 0xFF;
+        if (g) g.stroke(r, gv, b, a !== undefined ? a : 255);
+        else   stroke(r, gv, b, a !== undefined ? a : 255);
+    };
+    const dr = (x, y, w, h, rd) => {
+        if (rd) { g ? g.rect(x, y, w, h, rd) : rect(x, y, w, h, rd); }
+        else    { g ? g.rect(x, y, w, h)      : rect(x, y, w, h); }
+    };
+    const dc = (x, y, d) => g ? g.circle(x, y, d) : circle(x, y, d);
+    const ns = () => { g ? g.noStroke() : noStroke(); };
+    const nf = () => { g ? g.noFill()   : noFill();   };
+    const sw = (w) => { g ? g.strokeWeight(w) : strokeWeight(w); };
+
+    ns();
 
     if (isL2) {
-        const colors = [0x0a0608, 0x2a1008, 0x4a1a08, 0x7a2808, 0xaa4410];
-        const steps = 25;
-        for (let i = 0; i < steps; i++) {
-            const t = i / (steps - 1);
-            const ci = t * (colors.length - 1);
-            const idx = Math.floor(ci);
-            const frac = ci - idx;
-            const c = idx >= colors.length - 1 ? colors[colors.length - 1]
-                : lerpColor(colors[idx], colors[idx + 1], frac);
-            setFill(c);
-            drawRct(0, (i / steps) * (hY + 10), screenW, (hY + 10) / steps + 1);
+        // --- LEVEL 2: Volcanic hellscape ---
+        _multiGrad(g, [0x050204, 0x0e0408, 0x220a0c, 0x3a1008, 0x5a1e0a, 0x882e0c, 0xbb4c12, 0xdd6a18], 0, hY + 10, screenW);
+
+        // Distant mountains silhouette
+        ns();
+        sf(0x120608);
+        const mSeed = [0, 0.06, 0.13, 0.22, 0.30, 0.40, 0.48, 0.56, 0.65, 0.73, 0.82, 0.90, 1.0];
+        const mH    = [0.12, 0.28, 0.45, 0.22, 0.55, 0.38, 0.60, 0.42, 0.50, 0.25, 0.40, 0.18, 0.10];
+        if (g) g.beginShape(); else beginShape();
+        if (g) g.vertex(0, hY); else vertex(0, hY);
+        for (let i = 0; i < mSeed.length; i++) {
+            const mx = mSeed[i] * screenW;
+            const my = hY - mH[i] * hY * 0.35;
+            if (g) g.vertex(mx, my); else vertex(mx, my);
         }
-        setFill(0x1a0c0a);
-        for (let i = 0; i < 18; i++) {
-            const bx = (i / 18) * screenW, bw = screenW / 18;
-            const bh = 18 + Math.sin(i * 1.9) * 22 + Math.sin(i * 3.1) * 10;
-            drawRct(bx, hY - bh, bw - 2, bh);
-            setFill(0x150a08);
-            if (i % 3 === 0) { const sh = bh * 0.55; drawRct(bx + bw * 0.3, hY - bh - sh, 6, sh); }
-            if (i % 4 === 1) { const sh = bh * 0.45; drawRct(bx + bw * 0.65, hY - bh - sh, 5, sh); }
-            setFill(0x1a0c0a);
+        if (g) g.vertex(screenW, hY); else vertex(screenW, hY);
+        if (g) g.endShape(CLOSE); else endShape(CLOSE);
+
+        // Closer ridge with subtle red tint
+        sf(0x1a0a06);
+        if (g) g.beginShape(); else beginShape();
+        if (g) g.vertex(0, hY); else vertex(0, hY);
+        for (let i = 0; i <= 20; i++) {
+            const t = i / 20;
+            const bh = (12 + Math.sin(t * 11.3) * 18 + Math.sin(t * 5.7) * 12 + Math.sin(t * 23) * 4);
+            if (g) g.vertex(t * screenW, hY - bh); else vertex(t * screenW, hY - bh);
         }
-        setFill(0xcc3300);
-        drawRct(0, hY - 3, screenW, 9);
+        if (g) g.vertex(screenW, hY); else vertex(screenW, hY);
+        if (g) g.endShape(CLOSE); else endShape(CLOSE);
+
+        // Lava glow at horizon
+        sf(0xff4400, 40); dr(0, hY - 8, screenW, 16);
+        sf(0xff6600, 25); dr(0, hY - 4, screenW, 10);
+        sf(0xffaa22, 18); dr(0, hY - 2, screenW, 6);
+
     } else {
-        const colors = [0x2a3a5a, 0x4a6a8a, 0x6a8aaa, 0x8aaacc, 0xaac0da];
-        const steps = 25;
-        for (let i = 0; i < steps; i++) {
-            const t = i / (steps - 1);
-            const ci = t * (colors.length - 1);
-            const idx = Math.floor(ci);
-            const frac = ci - idx;
-            const c = idx >= colors.length - 1 ? colors[colors.length - 1]
-                : lerpColor(colors[idx], colors[idx + 1], frac);
-            setFill(c);
-            drawRct(0, (i / steps) * (hY + 10), screenW, (hY + 10) / steps + 1);
+        // --- LEVEL 1: Twilight cityscape ---
+        _multiGrad(g, [0x0a0e1e, 0x141e38, 0x1e3050, 0x2a4a6e, 0x3e6a90, 0x5588aa, 0x72a4c0, 0x99c4dd, 0xc0daea], 0, hY + 10, screenW);
+
+        // Stars in upper sky
+        ns();
+        const starSeed = 91;
+        for (let i = 0; i < 60; i++) {
+            const sx = ((i * 137 + starSeed) % 1000) / 1000 * screenW;
+            const sy = ((i * 251 + starSeed * 3) % 1000) / 1000 * hY * 0.55;
+            const sa = 0.3 + ((i * 73) % 100) / 100 * 0.5;
+            const sr = 1 + ((i * 31) % 3) * 0.4;
+            sf(0xffffff, Math.floor(sa * 255));
+            dc(sx, sy, sr);
         }
-        for (let i = 0; i < 25; i++) {
-            const bx = (i / 25) * screenW, bw = screenW / 25;
-            const bh = 10 + Math.sin(i * 2.7) * 15 + Math.sin(i * 1.3) * 10;
-            setFill(0x556677);
-            drawRct(bx, hY - bh, bw - 1, bh);
-            if (bh > 12) {
-                for (let w = 0; w < 3; w++) {
-                    const wx = bx + 3 + ((i * 17 + w * 31) % Math.max(1, bw - 8 | 0));
-                    const wy = hY - bh + 3 + ((i * 13 + w * 7) % Math.max(1, bh - 8 | 0));
-                    const wa = 0.3 + ((i * w * 7 + 1) % 10) * 0.03;
-                    setFill(0xffdd88, Math.floor(wa * 255));
-                    drawRct(wx, wy, 2, 2);
+
+        // Moon
+        ns();
+        const moonX = screenW * 0.82, moonY = hY * 0.18, moonR = Math.min(28, screenW * 0.035);
+        sf(0xffffff, 12); dc(moonX, moonY, moonR * 5);
+        sf(0xddeeff, 20); dc(moonX, moonY, moonR * 3);
+        sf(0xeef4ff); dc(moonX, moonY, moonR * 2);
+        sf(0xd0d8e4); dc(moonX - moonR * 0.25, moonY - moonR * 0.15, moonR * 1.5);
+
+        // Distant buildings layer (darker, further)
+        ns();
+        const bldgData1 = [
+            [0.00, 0.08], [0.04, 0.14], [0.08, 0.20], [0.12, 0.10], [0.16, 0.25],
+            [0.20, 0.16], [0.24, 0.30], [0.28, 0.12], [0.33, 0.22], [0.38, 0.35],
+            [0.42, 0.18], [0.46, 0.26], [0.50, 0.15], [0.54, 0.32], [0.58, 0.20],
+            [0.62, 0.28], [0.66, 0.12], [0.70, 0.24], [0.74, 0.38], [0.78, 0.16],
+            [0.82, 0.22], [0.86, 0.30], [0.90, 0.14], [0.94, 0.20], [0.98, 0.10],
+        ];
+        sf(0x2a3848);
+        for (const [bx, bh] of bldgData1) {
+            const x = bx * screenW, w = screenW / 25 - 1;
+            const h = bh * hY * 0.45;
+            dr(x, hY - h, w, h);
+        }
+
+        // Front building layer with window lights
+        const bldgData2 = [
+            [0.00, 0.06, 0.05], [0.05, 0.18, 0.06], [0.11, 0.10, 0.04], [0.15, 0.24, 0.05],
+            [0.20, 0.14, 0.06], [0.26, 0.28, 0.04], [0.30, 0.08, 0.05], [0.35, 0.22, 0.06],
+            [0.41, 0.32, 0.05], [0.46, 0.12, 0.04], [0.50, 0.20, 0.06], [0.56, 0.16, 0.05],
+            [0.61, 0.26, 0.05], [0.66, 0.10, 0.04], [0.70, 0.30, 0.06], [0.76, 0.18, 0.05],
+            [0.81, 0.24, 0.04], [0.85, 0.12, 0.06], [0.91, 0.20, 0.05], [0.96, 0.08, 0.04],
+        ];
+        for (let bi = 0; bi < bldgData2.length; bi++) {
+            const [bx, bh, bw] = bldgData2[bi];
+            const x = bx * screenW, w = bw * screenW, h = bh * hY * 0.5;
+            sf(0x1e2a3a); dr(x, hY - h, w, h);
+            // Rooftop accent
+            sf(0x3a5068); dr(x + 1, hY - h, w - 2, 2);
+            // Window grid
+            const cols = Math.max(1, Math.floor(w / 6));
+            const rows = Math.max(1, Math.floor(h / 8));
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const lit = ((bi * 7 + r * 13 + c * 31) % 10) < 4;
+                    if (!lit) continue;
+                    const wx = x + 2 + c * (w - 4) / cols;
+                    const wy = hY - h + 4 + r * (h - 6) / rows;
+                    const warm = ((bi + r + c) % 3 === 0) ? 0xffdd88 : 0xffcc66;
+                    sf(warm, Math.floor((0.35 + ((bi * r + c) % 5) * 0.06) * 255));
+                    dr(wx, wy, 2, 2);
                 }
             }
         }
-        setFill(0x3a5a7a);
-        drawRct(0, hY - 2, screenW, 8);
+
+        // Horizon glow
+        sf(0x8ab0cc, 30); dr(0, hY - 6, screenW, 14);
+        sf(0xaaccdd, 20); dr(0, hY - 3, screenW, 8);
     }
 }
 
@@ -142,18 +235,21 @@ function drawClouds() {
         cloud.blocks.forEach(b => {
             const bx = cx + b.dx * cloud.width, by = cy + b.dy * cloud.height;
             const bw = b.w * cloud.width * 0.5, bh = b.h * cloud.height * 0.5;
+            noStroke();
             if (isL2) {
-                hexFill(0x120a08, Math.floor(cloud.opacity * 0.75 * 255));
-                noStroke();
-                rect(bx - bw / 2, by - bh / 2, bw, bh);
-                if (by > hY * 0.4) {
-                    hexFill(0x3a1005, Math.floor(cloud.opacity * 0.35 * 255));
-                    rect(bx - bw * 0.45, by - bh * 0.45, bw * 0.9, bh * 0.9);
+                // Smoky dark clouds with ember underglow
+                hexFill(0x0e0604, Math.floor(cloud.opacity * 0.6 * 255));
+                rect(bx - bw / 2, by - bh / 2, bw, bh, bw * 0.3);
+                if (by > hY * 0.35) {
+                    hexFill(0x441508, Math.floor(cloud.opacity * 0.2 * 255));
+                    rect(bx - bw * 0.4, by, bw * 0.8, bh * 0.3, bw * 0.2);
                 }
             } else {
+                // Soft rounded clouds with subtle shadow
+                hexFill(0xc8ddef, Math.floor(cloud.opacity * 0.3 * 255));
+                rect(bx - bw / 2, by + bh * 0.1, bw, bh * 0.4, bw * 0.3);
                 hexFill(0xddeeff, Math.floor(cloud.opacity * 255));
-                noStroke();
-                rect(bx - bw / 2, by - bh / 2, bw, bh);
+                rect(bx - bw / 2, by - bh / 2, bw, bh, bw * 0.35);
             }
         });
     });
@@ -161,22 +257,22 @@ function drawClouds() {
     if (isL2) {
         const t = Date.now() * 0.0015;
         const pulse = Math.sin(t) * 0.5 + 0.5;
-        hexFill(0xff3300, Math.floor((0.07 + pulse * 0.05) * 255));
         noStroke();
-        rect(0, hY - 5, screenW, 14);
-        hexFill(0xff6600, Math.floor((0.10 + pulse * 0.06) * 255));
-        rect(0, hY - 2, screenW, 6);
+        hexFill(0xff3300, Math.floor((0.06 + pulse * 0.04) * 255));
+        rect(0, hY - 6, screenW, 14);
+        hexFill(0xff6600, Math.floor((0.08 + pulse * 0.05) * 255));
+        rect(0, hY - 3, screenW, 8);
         // Rising embers
-        for (let i = 0; i < 14; i++) {
+        for (let i = 0; i < 20; i++) {
             const ex = ((Math.sin(t * 0.9 + i * 1.73) * 0.4 + 0.5 + (i * 0.07) % 0.5) % 1.0) * screenW;
-            const rise = (t * (0.22 + (i % 5) * 0.055)) % 1.4;
-            const ey = hY - rise * hY * 0.55;
+            const rise = (t * (0.18 + (i % 5) * 0.045)) % 1.6;
+            const ey = hY - rise * hY * 0.6;
             if (ey < 0) continue;
-            const alpha = Math.max(0, 0.65 - rise * 0.65);
-            if (alpha < 0.05) continue;
-            const r = 1.2 + Math.sin(i * 2.1) * 0.9;
-            hexFill(i % 3 === 0 ? 0xff6600 : 0xff2200, Math.floor(alpha * 255));
-            noStroke();
+            const alpha = Math.max(0, 0.55 - rise * 0.5);
+            if (alpha < 0.04) continue;
+            const r = 1.0 + Math.sin(i * 2.1) * 0.7;
+            const eColor = i % 4 === 0 ? 0xffaa44 : i % 3 === 0 ? 0xff6600 : 0xff3300;
+            hexFill(eColor, Math.floor(alpha * 255));
             circle(ex, ey, r * 2);
         }
     }
