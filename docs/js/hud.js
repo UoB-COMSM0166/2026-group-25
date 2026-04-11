@@ -361,61 +361,58 @@ function drawWaveBanner() {
     const t = wb.timer / wb.maxTimer;
 
     let alpha = 1, offsetY = 0;
-    if (t < 0.15) {
-        const p = t / 0.15;
-        offsetY = (1 - p) * -80; alpha = p;
-    } else if (t > 0.7) {
-        const p = (t - 0.7) / 0.3;
-        offsetY = p * 80; alpha = 1 - p;
+    if (t < 0.12) {
+        const p = t / 0.12;
+        offsetY = (1 - p) * -40; alpha = p * 0.9;
+    } else if (t < 0.65) {
+        alpha = 0.9;
+    } else {
+        const p = (t - 0.65) / 0.35;
+        alpha = 0.9 * (1 - p); offsetY = p * 30;
     }
     if (alpha <= 0) return;
 
-    const cy = screenH * 0.3 + offsetY;
+    const cx = screenW / 2;
+    const cy = screenH * 0.22 + offsetY;
     const af = getAdaptiveFactor();
     const afLabel = af >= 1.15 ? ` | POWER x${af.toFixed(1)}`
         : af <= 0.85 ? ` | POWER x${af.toFixed(1)}` : '';
     const isL2 = g.currentLevel === 2;
 
-    let subText, subColor;
+    // Determine boss tier for glow color
+    let subText, subColor, glowColor;
     if (wb.wave === 66 && !isL2) {
-        subText = '\u2694\uFE0F FINAL BATTLE! DUAL MEGA BOSS!';
-        subColor = 0xff0000;
+        subText = 'FINAL BATTLE! DUAL MEGA BOSS!';
+        subColor = 0xff0000; glowColor = 'rgba(255,0,0,';
     } else if (wb.wave % 10 === 0) {
-        subText = isL2 ? `\u{1F418} ELEPHANT KING!${afLabel}` : `\u{1F525} MEGA BOSS!${afLabel}`;
+        subText = isL2 ? `ELEPHANT KING!${afLabel}` : `MEGA BOSS!${afLabel}`;
         subColor = isL2 ? 0xff6600 : 0xff4400;
+        glowColor = isL2 ? 'rgba(255,102,0,' : 'rgba(255,68,0,';
     } else if (wb.wave % 5 === 0) {
-        subText = isL2 ? `\u{1F62D} CRY COW INCOMING!${afLabel}` : `BOSS INCOMING!${afLabel}`;
+        subText = isL2 ? `CRY COW INCOMING!${afLabel}` : `BOSS INCOMING!${afLabel}`;
         subColor = isL2 ? 0x44ddff : 0xcc66ff;
+        glowColor = isL2 ? 'rgba(68,221,255,' : 'rgba(204,102,255,';
     } else {
         subText = `INCOMING!${afLabel}`;
-        subColor = 0xcccccc;
+        subColor = 0xaabbcc; glowColor = 'rgba(68,136,204,';
     }
 
-    // Background panel
-    const panelW = Math.min(360, screenW * 0.7);
-    const panelH = 80;
-    const panelX = screenW / 2 - panelW / 2;
-    const panelY = cy - panelH / 2;
-
-    hexFill(0x000a1a, Math.floor(alpha * 0.75 * 255)); noStroke();
-    rect(panelX, panelY, panelW, panelH, 8);
-    hexStroke(0x4488cc, Math.floor(alpha * 0.5 * 255)); strokeWeight(1.5); noFill();
-    rect(panelX, panelY, panelW, panelH, 8);
-    hexFill(0x4488cc, Math.floor(alpha * 0.6 * 255)); noStroke();
-    rect(panelX + 12, panelY, panelW - 24, 2);
-
-    // Wave text
+    // Floating text with glow — no opaque panel
     push();
-    textFont('Arial'); textSize(32); textStyle(BOLD); textAlign(CENTER, CENTER);
-    drawingContext.shadowColor = 'rgba(0,0,0,0.9)'; drawingContext.shadowBlur = 6;
-    hexFill(0xffffff, Math.floor(alpha * 255)); noStroke();
-    text(`WAVE ${wb.wave}`, screenW / 2, panelY + 26);
-    drawingContext.shadowBlur = 0; drawingContext.shadowColor = 'transparent';
+    textFont('Arial'); textAlign(CENTER, CENTER);
 
-    textSize(14); textStyle(NORMAL);
-    drawingContext.shadowColor = 'rgba(0,0,0,0.8)'; drawingContext.shadowBlur = 3;
+    drawingContext.shadowColor = glowColor + (0.6 * alpha) + ')';
+    drawingContext.shadowBlur = 20;
+    textSize(34); textStyle(BOLD);
+    hexFill(0xffffff, Math.floor(alpha * 255)); noStroke();
+    text(`WAVE ${wb.wave}`, cx, cy);
+
+    drawingContext.shadowColor = glowColor + (0.4 * alpha) + ')';
+    drawingContext.shadowBlur = 10;
+    textSize(15); textStyle(NORMAL);
     hexFill(subColor, Math.floor(alpha * 255));
-    text(subText, screenW / 2, panelY + 56);
+    text(subText, cx, cy + 28);
+
     drawingContext.shadowBlur = 0; drawingContext.shadowColor = 'transparent';
     pop();
 }
