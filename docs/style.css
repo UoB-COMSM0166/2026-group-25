@@ -73,13 +73,6 @@ html, body {
     border-radius: 8px;
     box-shadow: 0 0 20px rgba(240,192,64,0.3);
 }
-/* Secondary nav buttons — smaller, positioned at bottom */
-#overlay .btn-secondary {
-    padding: min(12px, 2.5vw) min(22px, 4.5vw);
-    font-size: min(15px, 3.2vw);
-    letter-spacing: 1px;
-    border-width: 2px;
-}
 #scoreDisplay { color: #f0c040; font-size: min(28px, 5vw); margin: 16px 0 8px; }
 #finalScore { color: #fff; font-size: min(56px, 10vw); margin: 8px 0 20px; font-weight: bold; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
 
@@ -172,24 +165,25 @@ html, body {
     margin-left: 8px;
 }
 
-/* Main menu: start button container */
+/* Main menu button group — vertical stack */
 #menuButtons {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: min(16px, 3vh);
     margin-top: min(24px, 4vh);
 }
-/* Bottom nav — three buttons spread across bottom edge */
+/* Secondary nav row below start button */
 #menuNav {
-    position: absolute;
-    bottom: min(32px, 5vh);
-    left: min(32px, 5vw);
-    right: min(32px, 5vw);
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    pointer-events: none;
+    gap: min(12px, 2.5vw);
 }
-#menuNav .btn { pointer-events: auto; }
+#overlay .btn-nav {
+    padding: min(10px, 2.2vw) min(22px, 4.5vw);
+    font-size: min(14px, 3vw);
+    letter-spacing: 1px;
+    border-width: 2px;
+}
 .btn-shop {
     background: linear-gradient(180deg, #6040f0, #4020c0) !important;
     border-color: #7050ff !important;
@@ -204,6 +198,77 @@ html, body {
 .btn-achievements.has-unclaimed {
     box-shadow: 0 0 12px #ffd700;
 }
+
+/* ============================================================
+   ACHIEVEMENT OVERLAY — mirrors shop style
+   ============================================================ */
+#achOverlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    display: flex; justify-content: center; align-items: center;
+    background: rgba(0,0,0,0.92); z-index: 9999;
+    font-family: 'Courier New', monospace;
+}
+#achPanel {
+    width: min(600px, 90vw); overflow: hidden;
+    display: flex; flex-direction: column;
+    padding: min(30px, 5vw);
+    background: linear-gradient(180deg, #1a1a30, #0a0a1a);
+    border: 2px solid #c89020; border-radius: 16px;
+    box-shadow: 0 0 40px rgba(200,144,32,0.25), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+#achHeader {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: min(18px, 2.5vh); padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+#achHeader h2 {
+    font-size: min(24px, 5vw); color: #ffd700; letter-spacing: 2px; margin: 0;
+    display: flex; align-items: center; gap: 8px;
+}
+.ach-header-right { display: flex; align-items: center; gap: 14px; }
+.ach-count { font-size: min(14px, 3vw); color: #888; }
+#achTabs {
+    display: flex; gap: 4px; margin-bottom: min(14px, 2vh);
+}
+.ach-tab {
+    flex: 1; padding: min(8px, 1.8vw) 0;
+    font-size: min(11px, 2.4vw); font-family: 'Courier New', monospace; font-weight: bold;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px; color: #888; cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.ach-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.ach-tab.active { background: rgba(200,144,32,0.25); border-color: #c89020; color: #ffd700; }
+#achScrollArea {
+    overflow-y: auto; scrollbar-width: none;
+    max-height: min(420px, 55vh);
+}
+#achScrollArea::-webkit-scrollbar { display: none; }
+.ach-item {
+    display: flex; align-items: center; gap: min(12px, 2.5vw);
+    padding: min(14px, 2.8vw); margin-bottom: min(10px, 2vw);
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; transition: background 0.15s, border-color 0.15s;
+}
+.ach-item:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+.ach-item.unlocked { border-color: rgba(255,215,0,0.5); background: rgba(255,215,0,0.06); }
+.ach-item.claimed { opacity: 0.45; border-color: rgba(100,200,100,0.25); }
+.ach-item-icon {
+    width: min(44px, 9vw); height: min(44px, 9vw);
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px; flex-shrink: 0;
+}
+.ach-item-icon svg { width: 22px; height: 22px; }
+.ach-item-info { flex: 1; min-width: 0; }
+.ach-item-name { font-size: min(15px, 3.2vw); font-weight: bold; color: #eee; margin-bottom: 2px; }
+.ach-item-desc { font-size: min(11px, 2.5vw); color: #888; margin-bottom: 5px; }
+.ach-item-bar-row { display: flex; align-items: center; gap: 8px; }
+.ach-item-bar { flex: 1; height: 5px; background: #1a1a2a; border-radius: 3px; overflow: hidden; }
+.ach-item-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+.ach-item-progress { font-size: 10px; color: #666; min-width: 45px; text-align: right; }
+.ach-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.ach-item-reward { font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 4px; }
+.ach-claimed-label { font-size: 10px; color: #555; }
 
 /* ============================================================
    SHOP OVERLAY
