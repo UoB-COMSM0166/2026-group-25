@@ -387,38 +387,38 @@ function _renderEnemy(e, p, relZ) {
     if (monsterSpritesLoaded) {
         if (e.isElephantBoss && elephantFrames.length > 0) {
             frame    = elephantFrames[Math.floor(e.animFrame * 0.35) % elephantFrames.length];
-            frameH   = ELEPHANT_FRAME_SIZE; sizeMult = 7.5;
+            frameH   = ELEPHANT_FRAME_SIZE; sizeMult = 8.0;
         } else if (e.isCowCryBoss && cowCryFrames.length > 0) {
             frame    = cowCryFrames[Math.floor(e.animFrame * 0.4) % cowCryFrames.length];
-            frameH   = COW_CRY_FRAME_SIZE; sizeMult = 4.8;
+            frameH   = COW_CRY_FRAME_SIZE; sizeMult = 5.5;
         } else if (e.isBoss) {
             frame    = bossFrames[Math.floor(e.animFrame * 0.4) % bossFrames.length];
-            frameH   = MONSTER_FRAME_SIZE; sizeMult = e.isMegaBoss ? 7.0 : 4.2;
+            frameH   = MONSTER_FRAME_SIZE; sizeMult = e.isMegaBoss ? 7.5 : 5.0;
         } else if (e.type === 1 && xiaoNaiLongFrames.length > 0) {
             frame    = xiaoNaiLongFrames[Math.floor(e.animFrame * 0.4) % xiaoNaiLongFrames.length];
-            frameH   = XIAO_NAI_LONG_FRAME_SIZE; sizeMult = 1.4;
+            frameH   = XIAO_NAI_LONG_FRAME_SIZE; sizeMult = 2.0;
         } else if (e.type === 3 && fireEnemyFrames.length > 0) {
             frame    = fireEnemyFrames[Math.floor(e.animFrame * 0.25) % fireEnemyFrames.length];
-            frameH   = FIRE_ENEMY_FRAME_SIZE; sizeMult = 2.2;
+            frameH   = FIRE_ENEMY_FRAME_SIZE; sizeMult = 3.0;
         } else if (e.type === L2_TYPE_PIG_ENGINEER && pigEngineerFrames.length > 0) {
             frame    = pigEngineerFrames[Math.floor(e.animFrame * 0.4) % pigEngineerFrames.length];
-            frameH   = PIG_ENGINEER_FRAME_SIZE; sizeMult = 2.0;
+            frameH   = PIG_ENGINEER_FRAME_SIZE; sizeMult = 2.8;
         } else if (e.type === L2_TYPE_COW_GUN && cowGunFrames.length > 0) {
             frame    = cowGunFrames[Math.floor(e.animFrame * 0.4) % cowGunFrames.length];
-            frameH   = COW_GUN_FRAME_SIZE; sizeMult = 1.8;
+            frameH   = COW_GUN_FRAME_SIZE; sizeMult = 2.5;
         } else if ((e.type === L2_TYPE_PIG_HERO || e.type === L2_TYPE_MINI) && capybaraFrames.length > 0) {
             frame    = capybaraFrames[Math.floor(e.animFrame * 0.4) % capybaraFrames.length];
             frameH   = CAPYBARA_FRAME_SIZE;
-            sizeMult = e.type === L2_TYPE_MINI ? 0.8 : 1.6;
+            sizeMult = e.type === L2_TYPE_MINI ? 1.1 : 2.2;
         } else if (e.type === L2_TYPE_ELEPHANT && elephantFrames.length > 0) {
             frame    = elephantFrames[Math.floor(e.animFrame * 0.35) % elephantFrames.length];
-            frameH   = ELEPHANT_FRAME_SIZE; sizeMult = 2.2;
+            frameH   = ELEPHANT_FRAME_SIZE; sizeMult = 3.0;
         } else if (normalMonsterFrames.length > 0) {
             frame    = normalMonsterFrames[Math.floor(e.animFrame * 0.4) % normalMonsterFrames.length];
-            frameH   = PATRICK_FRAME_H; sizeMult = 1.3;
+            frameH   = PATRICK_FRAME_H; sizeMult = 1.8;
         }
 
-        if (e.isHeavy && !e.isBoss) sizeMult = Math.max(sizeMult, 1.6);
+        if (e.isHeavy && !e.isBoss) sizeMult = Math.max(sizeMult, 2.2);
 
         tintHex = e.hitFlash > 0 ? 0xffaaaa
             : e.isElephantBoss ? 0xff6600
