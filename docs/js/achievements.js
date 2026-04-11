@@ -464,10 +464,11 @@ function showAchievementPanel() {
             <div id="achHeader">
                 <h2>${_ACH_SVG.trophy} ACHIEVEMENTS</h2>
                 <div class="ach-header-right">
-                    <span class="ach-count">${_countUnlockedAchs()} / ${_countTotalAchs()}</span>
+                    <span class="ach-currencies">${_ACH_SVG.coin} <span style="color:#ffd700">${playerData.coins}</span> &nbsp;${_ACH_SVG.gem} <span style="color:#cc44ff">${playerData.gems || 0}</span></span>
                     <button class="btn-back" onclick="closeAchievementPanel()">BACK</button>
                 </div>
             </div>
+            <div style="color:#888;font-size:12px;margin-bottom:10px;">${_countUnlockedAchs()} / ${_countTotalAchs()} unlocked</div>
             <div id="achTabs">`;
 
     for (const cat of ACH_CATEGORIES) {
@@ -541,6 +542,11 @@ function _achSwitchTab(catKey) {
 function closeAchievementPanel() {
     const el = document.getElementById('achPanelWrap');
     if (el) el.remove();
+    // Refresh main menu coin/gem display
+    const coinEl = document.getElementById('coinCount');
+    if (coinEl) coinEl.textContent = playerData.coins;
+    const gemEl = document.getElementById('gemCount');
+    if (gemEl) gemEl.textContent = playerData.gems || 0;
 }
 
 function claimAndRefresh(achId, tier) {
