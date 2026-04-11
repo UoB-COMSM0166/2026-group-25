@@ -277,7 +277,9 @@ let _achCurrentToast = null;
 function _queueAchToast(achId, tier) {
     const def = ACHIEVEMENTS[achId];
     if (!def) return;
-    _achToastQueue.push({ id: achId, name: def.name, tier, desc: def.desc[tier - 1] });
+    const reward = def.rewards[tier - 1];
+    const rewardText = reward.coins ? `+${reward.coins} coins` : `+${reward.gems} gems`;
+    _achToastQueue.push({ id: achId, name: def.name, tier, desc: def.desc[tier - 1], reward: rewardText });
 }
 
 // --- Core: check & unlock ---
@@ -451,6 +453,7 @@ function _achRewardHtml(reward) {
 
 function showAchievementPanel() {
     ensureStats();
+    checkAchievements();
     const stats = playerData.stats;
     const achs = playerData.achievements || {};
     const claimed = playerData.achievementsClaimed || {};
@@ -509,7 +512,7 @@ function showAchievementPanel() {
                     </div>
                     <div class="ach-item-right">
                         <div class="ach-item-reward">${_achRewardHtml(reward)}</div>
-                        ${unlocked && !isClaimed ? `<button class="btn-buy" onclick="claimAndRefresh('${id}',${tierNum})">CLAIM</button>` : ''}
+                        ${unlocked && !isClaimed ? `<button class="ach-claim-btn" onclick="claimAndRefresh('${id}',${tierNum})">CLAIM</button>` : ''}
                         ${isClaimed ? '<span class="ach-claimed-label">Claimed</span>' : ''}
                     </div>
                 </div>`;

@@ -268,7 +268,22 @@ html, body {
 .ach-item-progress { font-size: 10px; color: #666; min-width: 45px; text-align: right; }
 .ach-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
 .ach-item-reward { font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 4px; }
-.ach-claimed-label { font-size: 10px; color: #555; }
+.ach-claim-btn {
+    padding: 6px 16px; font-size: 13px; font-weight: bold;
+    font-family: 'Courier New', monospace; letter-spacing: 1px;
+    background: linear-gradient(180deg, #ffd700, #c0a000);
+    color: #1a0a00; border: 2px solid #ffe040; border-radius: 6px;
+    cursor: pointer; transition: transform 0.1s;
+    box-shadow: 0 0 10px rgba(255,215,0,0.4);
+    animation: ach-pulse 1.5s ease-in-out infinite;
+}
+.ach-claim-btn:hover { transform: scale(1.08); }
+.ach-claim-btn:active { transform: scale(0.95); }
+@keyframes ach-pulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(255,215,0,0.3); }
+    50% { box-shadow: 0 0 18px rgba(255,215,0,0.6); }
+}
+.ach-claimed-label { font-size: 11px; color: #4a4a4a; letter-spacing: 1px; }
 
 /* ============================================================
    SHOP OVERLAY
