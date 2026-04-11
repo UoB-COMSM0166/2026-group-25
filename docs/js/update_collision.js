@@ -62,8 +62,7 @@ function updateBulletCollisions(g, dtF) {
                 }
                 e.hp -= hitDmg;
                 e.hitFlash = 4;
-                // Throttle hit sound to once per frame (max shotgun = 16 hits/frame)
-                if (!hitSoundedThisFrame) { playSound('hit'); hitSoundedThisFrame = true; }
+                // hit sound disabled — too noisy during rapid combat
                 // Skip hit particles when near the particle cap to avoid wasted work
                 if (g.particles.length < 320) addParticles(e.x, e.z, 3, 0xffaa00, 2, 10);
                 // Accumulate damage per enemy; emit merged damage number after loop

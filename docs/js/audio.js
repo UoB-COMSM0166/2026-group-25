@@ -7,6 +7,17 @@ const _audioBuffers = {};
 let _audioLoaded = false;
 let _audioVolume = 0.5;
 
+// BGM state
+let _bgmSource = null;
+let _bgmGain = null;
+let _bgmBuffers = {};  // level → AudioBuffer
+let _bgmPlaying = false;
+const BGM_FILES = {
+    1: 'assets/audio/bgm.mp3',
+    2: 'assets/audio/bgm_l2.mp3',
+};
+const BGM_VOLUME = 0.2;
+
 // Sound definitions: file path + per-sound volume adjustment
 const SOUND_DEFS = {
     shoot:          { file: 'assets/audio/shoot.mp3',          vol: 0.3  },
@@ -35,11 +46,13 @@ function initAudio() {
     }
 }
 
+const _AUDIO_VERSION = 4;  // bump to bust browser cache
+
 async function _preloadAudioBuffers() {
     const entries = Object.entries(SOUND_DEFS);
     const results = await Promise.allSettled(
         entries.map(async ([type, def]) => {
-            const resp = await fetch(def.file);
+            const resp = await fetch(def.file + '?v=' + _AUDIO_VERSION);
             if (!resp.ok) throw new Error(`${resp.status} ${def.file}`);
             const buf = await resp.arrayBuffer();
             _audioBuffers[type] = await audioCtx.decodeAudioData(buf);
@@ -51,6 +64,49 @@ async function _preloadAudioBuffers() {
     if (failed.length > 0) {
         console.warn('Audio: failed to load:', failed.map(r => r.reason.message));
     }
+
+    // Preload BGM for all levels
+    for (const [lvl, file] of Object.entries(BGM_FILES)) {
+        try {
+            const bgmResp = await fetch(file + '?v=' + _AUDIO_VERSION);
+            if (bgmResp.ok) {
+                _bgmBuffers[lvl] = await audioCtx.decodeAudioData(await bgmResp.arrayBuffer());
+            }
+        } catch (_) {}
+    }
+    console.log(`Audio: BGM loaded for ${Object.keys(_bgmBuffers).length} level(s)`);
+}
+
+// ============================================================
+// BGM CONTROL
+// ============================================================
+function playBGM(level) {
+    stopBGM();
+    const buf = _bgmBuffers[level || 1];
+    if (!audioCtx || !buf) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    _bgmGain = audioCtx.createGain();
+    _bgmGain.gain.value = BGM_VOLUME;
+    _bgmGain.connect(audioCtx.destination);
+
+    _bgmSource = audioCtx.createBufferSource();
+    _bgmSource.buffer = buf;
+    _bgmSource.loop = true;
+    _bgmSource.connect(_bgmGain);
+    _bgmSource.start(0);
+    _bgmPlaying = true;
+}
+
+function stopBGM() {
+    if (_bgmSource && _bgmPlaying) {
+        try { _bgmSource.stop(); } catch (_) {}
+        _bgmSource = null;
+        _bgmPlaying = false;
+    }
+}
+
+function setBGMVolume(vol) {
+    if (_bgmGain) _bgmGain.gain.value = vol;
 }
 
 function playSound(type) {

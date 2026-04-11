@@ -28,6 +28,7 @@ function restartFromPause() {
 
 function menuFromPause() {
     hidePauseMenu();
+    stopBGM();
     if (game) {
         playerData.level = game.level;
         playerData.exp = game.exp;
@@ -160,6 +161,7 @@ function startGameWithLevel(level) {
 }
 
 function triggerLevelComplete() {
+    stopBGM();
     const g = game;
     if (!playerData.unlockedLevels) playerData.unlockedLevels = [1];
     if (!playerData.unlockedLevels.includes(2)) {
@@ -210,6 +212,8 @@ function startGame(level) {
     const slotsDiv = document.getElementById('weaponSlots');
     if (slotsDiv) slotsDiv.style.display = 'none';
     _skyBgW = 0; _skyBgH = 0; _skyBgLevel = 0;
+    // Start BGM matching current level
+    playBGM(game.currentLevel);
 }
 
 // ============================================================
@@ -463,6 +467,7 @@ function declineRevive() {
 // GAME OVER
 // ============================================================
 function showGameOver() {
+    stopBGM();
     playerData.level = game.level;
     playerData.exp = game.exp;
     savePlayerData(playerData);
