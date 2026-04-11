@@ -528,8 +528,8 @@ function restoreMainMenu() {
         </div>
         <div id="menuNav">
             <button class="btn btn-secondary btn-shop" onclick="openShop()">${T('menu.shop')}</button>
-            <button class="btn btn-secondary btn-achievements${_hasUnclaimedAch() ? ' has-unclaimed' : ''}" onclick="showAchievementPanel()">ACHIEVEMENTS${_hasUnclaimedAch() ? ' !' : ''}</button>
             <button class="btn btn-secondary btn-leaderboard" onclick="showLeaderboard()">${T('lb.leaderboard.btn')}</button>
+            <button class="btn btn-secondary btn-achievements${_hasUnclaimedAch() ? ' has-unclaimed' : ''}" onclick="showAchievementPanel()">ACHIEVEMENTS${_hasUnclaimedAch() ? ' !' : ''}</button>
         </div>
     `;
 }

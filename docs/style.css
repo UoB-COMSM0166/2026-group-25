@@ -176,17 +176,20 @@ html, body {
 #menuButtons {
     display: flex;
     justify-content: center;
-    margin-top: min(20px, 3vh);
+    margin-top: min(24px, 4vh);
 }
-/* Bottom nav bar */
+/* Bottom nav — three buttons spread across bottom edge */
 #menuNav {
     position: absolute;
-    bottom: min(36px, 6vh);
-    left: 0; right: 0;
+    bottom: min(32px, 5vh);
+    left: min(32px, 5vw);
+    right: min(32px, 5vw);
     display: flex;
-    justify-content: center;
-    gap: min(18px, 3.5vw);
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
 }
+#menuNav .btn { pointer-events: auto; }
 .btn-shop {
     background: linear-gradient(180deg, #6040f0, #4020c0) !important;
     border-color: #7050ff !important;
