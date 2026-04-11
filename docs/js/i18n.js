@@ -1,13 +1,13 @@
 // ============================================================
 // INTERNATIONALIZATION (i18n)
 // ============================================================
-let LANG = localStorage.getItem('bridgeAssault_lang') || 'zh';
+let LANG = localStorage.getItem('bridgeAssault_lang') || 'en';
 
 // T(key, ...args) — look up translation, replace {0} {1} placeholders
 function T(key) {
     const args = Array.prototype.slice.call(arguments, 1);
-    const t = TRANSLATIONS[LANG] || TRANSLATIONS.zh;
-    let s = (t[key] !== undefined) ? t[key] : ((TRANSLATIONS.zh[key] !== undefined) ? TRANSLATIONS.zh[key] : key);
+    const t = TRANSLATIONS[LANG] || TRANSLATIONS.en;
+    let s = (t[key] !== undefined) ? t[key] : ((TRANSLATIONS.en[key] !== undefined) ? TRANSLATIONS.en[key] : key);
     args.forEach(function(a, i) { s = s.replace('{' + i + '}', a); });
     return s;
 }
