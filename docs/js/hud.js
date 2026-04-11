@@ -28,16 +28,16 @@ function updateHUD() {
     const g = game;
     if (!g) return;
 
-    const hs = Math.min(200, screenW * 0.22);
-    const panelW = hs * 2 + 160;
-    const panelH = 60;
+    const hs = Math.min(240, screenW * 0.25);
+    const panelW = hs * 2 + 190;
+    const panelH = 76;
     const panelX = screenW / 2 - panelW / 2;
 
     // Dark panel body
     hexFill(0x0a0a1a, Math.floor(0.55 * 255)); noStroke();
-    rect(panelX, -2, panelW, panelH + 4, 10);
+    rect(panelX, -2, panelW, panelH + 4, 12);
     hexStroke(0xffffff, Math.floor(0.08 * 255)); strokeWeight(1); noFill();
-    rect(panelX, -2, panelW, panelH + 4, 10);
+    rect(panelX, -2, panelW, panelH + 4, 12);
 
     // Gold accent top bar
     hexFill(0xf0c040, Math.floor(0.5 * 255)); noStroke();
@@ -45,26 +45,26 @@ function updateHUD() {
 
     // Vertical separators
     hexFill(0xffffff, Math.floor(0.1 * 255));
-    rect(screenW / 2 - hs / 2, 8, 1, 32);
-    rect(screenW / 2 + hs / 2, 8, 1, 32);
+    rect(screenW / 2 - hs / 2, 10, 1, 38);
+    rect(screenW / 2 + hs / 2, 10, 1, 38);
 
     // Coin pill (right)
-    const pillW = 70, pillH = 18, pillR = 9;
+    const pillW = 82, pillH = 22, pillR = 11;
     hexFill(0xffd700, Math.floor(0.1 * 255)); noStroke();
-    rect(screenW / 2 + hs - pillW / 2, 30, pillW, pillH, pillR);
+    rect(screenW / 2 + hs - pillW / 2, 38, pillW, pillH, pillR);
     hexStroke(0xffd700, Math.floor(0.2 * 255)); strokeWeight(1); noFill();
-    rect(screenW / 2 + hs - pillW / 2, 30, pillW, pillH, pillR);
+    rect(screenW / 2 + hs - pillW / 2, 38, pillW, pillH, pillR);
 
     // Gem pill (left)
     hexFill(0xcc44ff, Math.floor(0.1 * 255)); noStroke();
-    rect(screenW / 2 - hs - pillW / 2, 30, pillW, pillH, pillR);
+    rect(screenW / 2 - hs - pillW / 2, 38, pillW, pillH, pillR);
     hexStroke(0xcc44ff, Math.floor(0.2 * 255)); strokeWeight(1); noFill();
-    rect(screenW / 2 - hs - pillW / 2, 30, pillW, pillH, pillR);
+    rect(screenW / 2 - hs - pillW / 2, 38, pillW, pillH, pillR);
 
     // XP bar
     const lvl = Math.min(g.level, LEVEL_CONFIG.maxLevel);
     const isMaxLvl = lvl >= LEVEL_CONFIG.maxLevel;
-    const xpBarPad = 18, xpBarW = panelW - xpBarPad * 2, xpBarH = 5, xpBarY = panelH - 8;
+    const xpBarPad = 20, xpBarW = panelW - xpBarPad * 2, xpBarH = 6, xpBarY = panelH - 8;
     let xpFill = 1;
     if (!isMaxLvl) {
         const xpPrev = lvl <= 1 ? 0 : LEVEL_CONFIG.xpThresholds[lvl - 2];
@@ -73,28 +73,28 @@ function updateHUD() {
     }
     const xpColor = isMaxLvl ? 0xffd700 : 0x88ffcc;
     hexFill(0x111122, Math.floor(0.8 * 255)); noStroke();
-    rect(panelX + xpBarPad, xpBarY, xpBarW, xpBarH, 2);
+    rect(panelX + xpBarPad, xpBarY, xpBarW, xpBarH, 3);
     if (xpFill > 0) {
         hexFill(xpColor); noStroke();
-        rect(panelX + xpBarPad, xpBarY, Math.max(4, xpBarW * xpFill), xpBarH, 2);
+        rect(panelX + xpBarPad, xpBarY, Math.max(4, xpBarW * xpFill), xpBarH, 3);
     }
     hexStroke(xpColor, Math.floor(0.22 * 255)); strokeWeight(1); noFill();
-    rect(panelX + xpBarPad, xpBarY, xpBarW, xpBarH, 2);
+    rect(panelX + xpBarPad, xpBarY, xpBarW, xpBarH, 3);
 
     // Text: score (center), squad (left), wave (right)
-    _hudText('SCORE: ' + g.score, screenW / 2, 14, 16, 0xffffff);
+    _hudText('SCORE: ' + g.score, screenW / 2, 17, 19, 0xffffff);
     const squadStr = g.stimulantActive ? `SQUAD: ${g.squadCount * 2} x2` : `SQUAD: ${g.squadCount}`;
-    _hudText(squadStr, screenW / 2 - hs, 14, 15, g.stimulantActive ? 0x44ff88 : 0xffffff);
+    _hudText(squadStr, screenW / 2 - hs, 17, 18, g.stimulantActive ? 0x44ff88 : 0xffffff);
     const maxWaves = g.currentLevel === 2 ? MAX_WAVES_LEVEL2 : MAX_WAVES_LEVEL1;
-    _hudText(`WAVE: ${g.wave} / ${maxWaves}`, screenW / 2 + hs, 14, 15, 0xffffff);
+    _hudText(`WAVE: ${g.wave} / ${maxWaves}`, screenW / 2 + hs, 17, 18, 0xffffff);
 
     // Coins
-    _hudText(`\u{1FA99} ${playerData.coins}`, screenW / 2 + hs, 38, 12, 0xffd700, CENTER, false);
+    _hudText(`\u{1FA99} ${playerData.coins}`, screenW / 2 + hs, 48, 14, 0xffd700, CENTER, false);
     // Gems
-    _hudText(`\u{1F48E} ${playerData.gems || 0}`, screenW / 2 - hs, 38, 12, 0xcc44ff, CENTER, false);
+    _hudText(`\u{1F48E} ${playerData.gems || 0}`, screenW / 2 - hs, 48, 14, 0xcc44ff, CENTER, false);
     // Level
     const isMax = g.level >= LEVEL_CONFIG.maxLevel;
-    _hudText(isMax ? '\u2B50 MAX' : `\u2B50 Lv.${g.level}`, screenW / 2, 38, 11, isMax ? 0xffd700 : 0x88ffcc, CENTER, false);
+    _hudText(isMax ? '\u2B50 MAX' : `\u2B50 Lv.${g.level}`, screenW / 2, 48, 13, isMax ? 0xffd700 : 0x88ffcc, CENTER, false);
 
     // Weapon timer bar
     const hasGateWeapon = g.weapon !== 'pistol' && g.weaponTimer > 0;
@@ -478,76 +478,55 @@ function drawLevelUpAnim() {
     if (!g || !g.levelUpAnim) return;
     const la = g.levelUpAnim;
     const t = la.timer / la.maxTimer;
-    const cx = screenW / 2, cy = screenH * 0.37;
+    const cx = screenW / 2, cy = screenH * 0.18;
 
+    // Fast fade-in, quick fade-out — lightweight overlay
     let alpha, sc;
-    if (t < 0.10) {
-        const p = t / 0.10;
-        alpha = p * 0.85; sc = 0.25 + 0.75 * (1 - Math.pow(1 - p, 3));
-    } else if (t < 0.70) {
-        alpha = 0.85; sc = 1 + Math.sin((t - 0.10) / 0.60 * Math.PI * 3) * 0.013;
+    if (t < 0.08) {
+        const p = t / 0.08;
+        alpha = p * 0.9; sc = 0.6 + 0.4 * (1 - Math.pow(1 - p, 3));
+    } else if (t < 0.60) {
+        alpha = 0.9; sc = 1;
     } else {
-        const p = (t - 0.70) / 0.30;
-        alpha = 0.85 * (1 - p); sc = 1 + p * 0.18;
+        const p = (t - 0.60) / 0.40;
+        alpha = 0.9 * (1 - p); sc = 1 + p * 0.08;
     }
     if (alpha <= 0) return;
 
-    // Expanding shockwave rings
-    const maxRingR = Math.min(screenW, screenH) * 0.58;
-    for (let i = 0; i < 3; i++) {
-        const rp = (t * 1.5 + i / 3) % 1.0;
-        const rR = rp * maxRingR;
-        const rA = (1 - rp) * 0.3 * alpha;
-        if (rA < 0.015) continue;
+    // Single subtle shockwave ring
+    const maxRingR = Math.min(screenW, screenH) * 0.3;
+    const rp = Math.min(1, t * 2);
+    const rR = rp * maxRingR;
+    const rA = (1 - rp) * 0.2 * alpha;
+    if (rA > 0.01) {
         hexStroke(0x88ffcc, Math.floor(rA * 255));
-        strokeWeight(Math.max(1, (1 - rp) * 5)); noFill();
+        strokeWeight(Math.max(1, (1 - rp) * 3)); noFill();
         circle(cx, cy, rR * 2);
     }
 
-    // Main panel
-    const panelW = Math.min(490, screenW * 0.74) * sc;
-    const panelH = 175 * sc;
-    const px = cx - panelW / 2, py = cy - panelH * 0.50;
-
-    hexFill(0x00cc66, Math.floor(0.08 * alpha * 255)); noStroke();
-    rect(px - 10, py - 10, panelW + 20, panelH + 20, 20);
-    hexFill(0x00100a, Math.floor(0.55 * alpha * 255));
-    rect(px, py, panelW, panelH, 13);
-    hexStroke(0x88ffcc, Math.floor(0.75 * alpha * 255)); strokeWeight(2.5); noFill();
-    rect(px, py, panelW, panelH, 13);
-    hexStroke(0xffffff, Math.floor(0.07 * alpha * 255)); strokeWeight(1);
-    rect(px + 3, py + 3, panelW - 6, panelH - 6, 11);
-
-    // Accent bars
-    hexFill(0x88ffcc, Math.floor(0.6 * alpha * 255)); noStroke();
-    rect(px + 18, py, panelW - 36, 2);
-    rect(px + 18, py + panelH - 2, panelW - 36, 2);
-
-    // Corner diamonds
-    const dpCoords = [[px + 14, py], [px + panelW - 14, py], [px + 14, py + panelH], [px + panelW - 14, py + panelH]];
-    dpCoords.forEach(([ox, oy]) => {
-        hexFill(0x88ffcc, Math.floor(0.85 * alpha * 255)); noStroke();
-        beginShape();
-        vertex(ox, oy - 5); vertex(ox + 5, oy); vertex(ox, oy + 5); vertex(ox - 5, oy);
-        endShape(CLOSE);
-    });
-
-    // Text
+    // No opaque panel — just text with glow
     push();
     textFont('Arial'); textAlign(CENTER, CENTER);
-    drawingContext.shadowColor = 'rgba(0,0,0,0.9)'; drawingContext.shadowBlur = 6;
 
-    textSize(Math.floor(26 * sc)); textStyle(BOLD);
+    // Outer glow via shadow
+    drawingContext.shadowColor = `rgba(0,204,102,${0.6 * alpha})`;
+    drawingContext.shadowBlur = 18;
+
+    textSize(Math.floor(20 * sc)); textStyle(BOLD);
     hexFill(0x88ffcc, Math.floor(alpha * 255)); noStroke();
-    text('\u2B50  LEVEL  UP  \u2B50', cx, py + panelH * 0.22);
+    text('LEVEL  UP', cx, cy - 18 * sc);
 
-    textSize(Math.floor(52 * sc)); textStyle(BOLD);
+    drawingContext.shadowColor = `rgba(255,215,0,${0.5 * alpha})`;
+    drawingContext.shadowBlur = 14;
+    textSize(Math.floor(40 * sc)); textStyle(BOLD);
     hexFill(0xffd700, Math.floor(alpha * 255));
-    text(`LV.${la.level}`, cx, py + panelH * 0.52);
+    text(`LV.${la.level}`, cx, cy + 14 * sc);
 
-    textSize(Math.floor(16 * sc)); textStyle(NORMAL);
-    hexFill(0xaaffcc, Math.floor(alpha * 255));
-    text(la.bonusDesc || '', cx, py + panelH * 0.82);
+    drawingContext.shadowColor = 'rgba(0,0,0,0.7)';
+    drawingContext.shadowBlur = 4;
+    textSize(Math.floor(14 * sc)); textStyle(NORMAL);
+    hexFill(0xaaffcc, Math.floor(alpha * 0.85 * 255));
+    text(la.bonusDesc || '', cx, cy + 44 * sc);
 
     drawingContext.shadowBlur = 0; drawingContext.shadowColor = 'transparent';
     pop();
