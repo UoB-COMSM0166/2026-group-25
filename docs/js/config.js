@@ -25,6 +25,10 @@ const CONFIG = {
 
     SHOOT_INTERVAL: 100,
     SPAWN_DISTANCE: 650,
+    // Fixed z offset bosses hold in front of the player — pulled further
+    // back than SPAWN_DISTANCE so the boss silhouette sits mid-perspective
+    // rather than dominating the camera.
+    BOSS_HOLD_Z: 1000,
     GATE_DISTANCE: 300,
     ENEMY_HP: 3,
     PIXEL_SIZE: 2,

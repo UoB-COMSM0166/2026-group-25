@@ -13,50 +13,49 @@ const TUTORIAL_MAX_WAVE = 10;
 // cam: camera-speed multiplier while this step is active
 //  - 0   freeze camera (player stays put and engages what's in front)
 //  - 0.4 slow crawl (used for gate walks so camera carries the player through)
-// cam values are camera speed multipliers while the step is active.
-// Kill-steps use a small positive value (0.15~0.2) for a gentle drift forward
-// so the road still feels alive even when the player stands still. Gate steps
-// use a higher value so the camera carries the player through the panel.
+// Tutorial uses normal camera speed (cam=1) so the spacing/pacing matches
+// the real levels exactly. Goal-locking prevents the wave from auto-advancing
+// on camera crossings, so the player has all the time they need.
 const TUTORIAL_SCRIPT = [
     { titleKey: 'tutorial.w1.title', bodyKey: 'tutorial.w1.body',
-      enemies: 2, setup: null, cam: 0.15,
+      enemies: 2, setup: null, cam: 1.0,
       goal: { type: 'kills', count: 2 } },
 
     { titleKey: 'tutorial.w2.title', bodyKey: 'tutorial.w2.body',
-      enemies: 3, setup: null, cam: 0.15,
+      enemies: 3, setup: null, cam: 1.0,
       goal: { type: 'kills', count: 3 } },
 
     { titleKey: 'tutorial.w3.title', bodyKey: 'tutorial.w3.body',
-      enemies: 3, setup: null, cam: 0.15,
+      enemies: 3, setup: null, cam: 1.0,
       goal: { type: 'coins', count: 2 } },
 
     { titleKey: 'tutorial.w4.title', bodyKey: 'tutorial.w4.body',
-      enemies: 0, setup: 'troopGate', cam: 0.6,
+      enemies: 0, setup: 'troopGate', cam: 1.0,
       goal: { type: 'troopUp' } },
 
     { titleKey: 'tutorial.w5.title', bodyKey: 'tutorial.w5.body',
-      enemies: 0, setup: 'weaponGate', cam: 0.6,
+      enemies: 0, setup: 'weaponGate', cam: 1.0,
       goal: { type: 'weaponChange' } },
 
     { titleKey: 'tutorial.w6.title', bodyKey: 'tutorial.w6.body',
-      enemies: 0, setup: 'barrels', cam: 0.15,
+      enemies: 0, setup: 'barrels', cam: 1.0,
       goal: { type: 'barrelExploded' } },
 
     // Mini boss fight — teaches the "bosses drop gems" lesson for real.
     { titleKey: 'tutorial.w7.title', bodyKey: 'tutorial.w7.body',
-      enemies: 0, setup: 'miniBoss', cam: 0.15,
+      enemies: 0, setup: 'miniBoss', cam: 1.0,
       goal: { type: 'miniBossAndGem' } },
 
     { titleKey: 'tutorial.w8.title', bodyKey: 'tutorial.w8.body',
-      enemies: 3, setup: 'giftShield', cam: 0.15,
+      enemies: 3, setup: 'giftShield', cam: 1.0,
       goal: { type: 'shieldUsed' } },
 
     { titleKey: 'tutorial.w9.title', bodyKey: 'tutorial.w9.body',
-      enemies: 3, setup: 'giftFrenzy', cam: 0.15,
+      enemies: 3, setup: 'giftFrenzy', cam: 1.0,
       goal: { type: 'frenzyUsed' } },
 
     { titleKey: 'tutorial.w10.title', bodyKey: 'tutorial.w10.body',
-      enemies: 3, setup: null, cam: 0.15,
+      enemies: 3, setup: null, cam: 1.0,
       goal: { type: 'pausedOnce' } },
 ];
 
@@ -103,16 +102,17 @@ function spawnTutorialWaveContent() {
     g.tutorialGoalMet = false;
     g.tutorialCamMult = step.cam;
 
-    // Content spawns right in front of the player so there is an immediate
-    // visual association between hint and gameplay, no long approach.
-    const closeZ = g.cameraZ + 240;
+    // Spawn content at the same distance as real levels so the pacing
+    // (approach time, threat reading) matches what the player will see
+    // during actual play.
+    const baseZ = g.cameraZ + CONFIG.SPAWN_DISTANCE;
     const n = step.enemies;
     for (let i = 0; i < n; i++) {
         const spread = CONFIG.ROAD_HALF_WIDTH * 0.55;
         const x = n === 1 ? 0 : -spread + (spread * 2) * i / (n - 1);
         g.enemies.push({
             x: x + (Math.random() - 0.5) * 14,
-            z: closeZ + Math.random() * 20,
+            z: baseZ + Math.random() * 25,
             hp: 3, maxHp: 3, alive: true,
             damage: 1, isHeavy: false,
             animFrame: 0, animTimer: Math.random() * 500, hitFlash: 0,
@@ -133,17 +133,23 @@ function spawnTutorialWaveContent() {
 
 function _tutorialSpawnMiniBoss() {
     const g = game;
-    const hp = 30;
+    // Match the real level-1 boss parameters (same bossHoldZ, similar
+    // shoot interval) so the player sees the fight at the real distance.
+    // HP is scaled with current firepower: 15 full volleys on default squad.
+    const bulletCount = Math.min(g.squadCount, 8);
+    const bulletDmg   = 1 + Math.floor(g.squadCount / 6);
+    const volleyDmg   = bulletCount * bulletDmg;
+    const hp = Math.max(220, volleyDmg * 30);
     g.enemies.push({
         x: 0,
-        z: g.cameraZ + 320,
+        z: g.cameraZ + CONFIG.BOSS_HOLD_Z,
         hp, maxHp: hp, alive: true,
-        damage: 1,
+        damage: 2,
         isBoss: true, isHeavy: false,
         bossShootTimer: 0,
-        bossShootInterval: 180,
-        bossHoldZ: 180,
-        animFrame: 0, animTimer: 0, hitFlash: 0,
+        bossShootInterval: 135,
+        bossHoldZ: CONFIG.BOSS_HOLD_Z,
+        animFrame: 0, animTimer: Math.random() * 500, hitFlash: 0,
         type: 0,
         spawnTime: Date.now(),
         tutorialMiniBoss: true,
@@ -152,8 +158,7 @@ function _tutorialSpawnMiniBoss() {
 
 function _tutorialSpawnGate(kind) {
     const g = game;
-    // Far enough ahead that the slow camera gives the player time to read.
-    const z = g.cameraZ + 420;
+    const z = g.cameraZ + CONFIG.SPAWN_DISTANCE;
     const options = [];
     if (kind === 'troop') {
         // Wide +5 panel centred on the road — guaranteed pickup at x=0.
@@ -166,7 +171,7 @@ function _tutorialSpawnGate(kind) {
 
 function _tutorialSpawnBarrelSet() {
     const g = game;
-    const baseZ = g.cameraZ + 220;
+    const baseZ = g.cameraZ + CONFIG.SPAWN_DISTANCE;
     [-90, 0, 90].forEach((dx, i) => {
         g.barrels.push({
             x: dx, z: baseZ + (i % 2) * 20,

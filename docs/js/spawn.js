@@ -103,7 +103,7 @@ function spawnCowCryBoss(z) {
         isBoss: true, isCowCryBoss: true, isMegaBoss: false, isHeavy: false,
         bossShootTimer: Math.floor(Math.random() * shootInterval),
         bossShootInterval: shootInterval,
-        bossHoldZ: CONFIG.SPAWN_DISTANCE,
+        bossHoldZ: CONFIG.BOSS_HOLD_Z,
         animFrame: 0, animTimer: Math.random() * 500, hitFlash: 0,
         type: 8, // cow cry boss type
         spawnTime: Date.now(),
@@ -138,7 +138,7 @@ function spawnElephantBoss(z, xPos) {
         isBoss: true, isElephantBoss: true, isMegaBoss: true, isHeavy: false,
         bossShootTimer: 0,
         bossShootInterval: shootInterval,
-        bossHoldZ: CONFIG.SPAWN_DISTANCE,
+        bossHoldZ: CONFIG.BOSS_HOLD_Z,
         animFrame: 0, animTimer: Math.random() * 500, hitFlash: 0,
         type: L2_TYPE_ELEPHANT,
         spawnTime: Date.now(),
@@ -259,7 +259,7 @@ function spawnBoss(z) {
             isBoss: true, isHeavy: false,
             bossShootTimer: Math.floor(Math.random() * shootInterval), // stagger initial shots
             bossShootInterval: shootInterval,
-            bossHoldZ: CONFIG.SPAWN_DISTANCE,
+            bossHoldZ: CONFIG.BOSS_HOLD_Z,
             animFrame: 0, animTimer: Math.random() * 500, hitFlash: 0,
             type: 0, spawnTime: Date.now(),
         });
@@ -298,7 +298,7 @@ function spawnMegaBoss(z, xPos) {
         isBoss: true, isMegaBoss: true, isHeavy: false,
         bossShootTimer: 0,
         bossShootInterval: shootInterval,
-        bossHoldZ: CONFIG.SPAWN_DISTANCE,
+        bossHoldZ: CONFIG.BOSS_HOLD_Z,
         animFrame: 0, animTimer: Math.random() * 500, hitFlash: 0,
         type: 0, spawnTime: Date.now(),
         // Mega boss skill system

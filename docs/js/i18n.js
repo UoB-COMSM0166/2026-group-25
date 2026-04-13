@@ -127,7 +127,7 @@ const TRANSLATIONS = {
         'tutorial.goal.done':         '✓ 完成！',
         'tutorial.complete.title':    '教程完成',
         'tutorial.complete.subtitle': '你已掌握核心机制',
-        'tutorial.complete.body':     '移动 · 金币 · 宝石 · 武器门 · 油桶 · 特技 — 祝你好运！',
+        'tutorial.complete.body':     '祝你在正式战场上好运，士兵！',
         'tutorial.complete.continue': '▶ 进入正式关卡',
 
         // Level select
@@ -379,7 +379,7 @@ const TRANSLATIONS = {
         'tutorial.goal.done':         '✓ COMPLETED!',
         'tutorial.complete.title':    'TUTORIAL COMPLETE',
         'tutorial.complete.subtitle': 'You have learned the core mechanics',
-        'tutorial.complete.body':     'Movement · coins · gems · gates · barrels · specials — good luck out there!',
+        'tutorial.complete.body':     'Good luck out there, soldier!',
         'tutorial.complete.continue': '▶ GO TO LEVEL SELECT',
 
         // Level select

@@ -390,7 +390,10 @@ function _renderEnemy(e, p, relZ) {
     if (monsterSpritesLoaded) {
         if (e.tutorialMiniBoss && tutorialBossFrames.length > 0) {
             frame    = tutorialBossFrames[Math.floor(e.animFrame * 0.3) % tutorialBossFrames.length];
-            frameH   = TUTORIAL_BOSS_FRAME_SIZE; sizeMult = 2.6;
+            // The big-demon sprite only fills ~50% of its 192-pixel frame
+            // (lots of transparent padding), so the effective size needs to
+            // be ~2x that of the regular dragon boss to visually match.
+            frameH   = TUTORIAL_BOSS_FRAME_SIZE; sizeMult = 10.0;
         } else if (e.isElephantBoss && elephantFrames.length > 0) {
             frame    = elephantFrames[Math.floor(e.animFrame * 0.35) % elephantFrames.length];
             frameH   = ELEPHANT_FRAME_SIZE; sizeMult = 8.0;
@@ -421,7 +424,8 @@ function _renderEnemy(e, p, relZ) {
             frameH   = ELEPHANT_FRAME_SIZE; sizeMult = 3.0;
         } else if (e.type === TUTORIAL_IMP_TYPE && tutorialImpFrames.length > 0) {
             frame    = tutorialImpFrames[Math.floor(e.animFrame * 0.28) % tutorialImpFrames.length];
-            frameH   = TUTORIAL_IMP_FRAME_SIZE; sizeMult = 1.6;
+            // Chort sprite fills only the lower half of its padded frame.
+            frameH   = TUTORIAL_IMP_FRAME_SIZE; sizeMult = 3.0;
         } else if (normalMonsterFrames.length > 0) {
             frame    = normalMonsterFrames[Math.floor(e.animFrame * 0.4) % normalMonsterFrames.length];
             frameH   = PATRICK_FRAME_H; sizeMult = 1.8;
