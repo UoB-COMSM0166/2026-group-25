@@ -16,9 +16,13 @@ function updateBulletCollisions(g, dtF) {
             });
         }
     });
+    // Far-z cull — extended to cover bosses holding at CONFIG.BOSS_HOLD_Z,
+    // otherwise player bullets die before reaching the boss at its new
+    // hold distance.
+    const maxBulletRelZ = Math.max(CONFIG.SPAWN_DISTANCE, CONFIG.BOSS_HOLD_Z) + 100;
     g.bullets = g.bullets.filter(b => {
         if (b.dead) return false;
-        if (b.z - g.cameraZ > CONFIG.SPAWN_DISTANCE + 100 || b.z < g.cameraZ - 10) return false;
+        if (b.z - g.cameraZ > maxBulletRelZ || b.z < g.cameraZ - 10) return false;
         if (b.maxRange && b.z - b.startZ > b.maxRange) return false;
         return true;
     });
@@ -45,8 +49,10 @@ function updateBulletCollisions(g, dtF) {
                     addParticles(e.x, e.z, 4, 0x00ffff, 2, 8);
                     break;
                 }
-                // Shotgun falloff: close range bonus, far range penalty
-                // ≤50: 400%, 50~150: 400%→100%, 150~500: 100%→25%
+                // Shotgun falloff: close range bonus, far range penalty.
+                // ≤50: 400%, 50~150: 400%→100%, 150~700: 100%→40%, >700: 40% floor.
+                // Tuned so the shotgun still deals meaningful damage to bosses
+                // at CONFIG.BOSS_HOLD_Z without breaking the close-range identity.
                 let hitDmg = b.damage || 1;
                 if (b.falloff) {
                     const travelDist = b.z - b.startZ;
@@ -56,7 +62,7 @@ function updateBulletCollisions(g, dtF) {
                     } else if (travelDist <= 150) {
                         mult = 4.0 - (travelDist - 50) / 100 * 3.0; // 4.0 → 1.0
                     } else {
-                        mult = Math.max(0.25, 1.0 - (travelDist - 150) / 350 * 0.75);
+                        mult = Math.max(0.4, 1.0 - (travelDist - 150) / 550 * 0.6);
                     }
                     hitDmg = Math.max(1, Math.round(hitDmg * mult));
                 }

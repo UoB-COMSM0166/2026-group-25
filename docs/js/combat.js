@@ -52,7 +52,7 @@ function fireWeapon() {
             for (let i = 0; i < pellets; i++) {
                 const angle = -spread + 2 * spread * i / (pellets - 1) + (Math.random() - 0.5) * 0.06;
                 const speed = CONFIG.BULLET_SPEED * (0.8 + Math.random() * 0.15);
-                g.bullets.push({ x: g.player.x, z: g.cameraZ + 10, vx: Math.sin(angle) * speed, vz: Math.cos(angle) * speed, weapon: 'shotgun', level: wLv, damage: sgDmg, maxRange: 700, startZ: g.cameraZ + 10, falloff: true });
+                g.bullets.push({ x: g.player.x, z: g.cameraZ + 10, vx: Math.sin(angle) * speed, vz: Math.cos(angle) * speed, weapon: 'shotgun', level: wLv, damage: sgDmg, maxRange: 1500, startZ: g.cameraZ + 10, falloff: true });
             }
             playSound('shoot_shotgun'); break;
         }

@@ -531,7 +531,7 @@ function drawMuzzleFlash(sx, sy, scale, weapon) {
 function drawGate(gate) {
     const g = game;
     const relZ = gate.z - g.cameraZ;
-    if (relZ < -20 || relZ > CONFIG.SPAWN_DISTANCE + 200) return;
+    if (relZ < -20 || relZ > Math.max(CONFIG.SPAWN_DISTANCE, CONFIG.BOSS_HOLD_Z) + 200) return;
     const allLeft = project(-CONFIG.ROAD_HALF_WIDTH, relZ);
     const panelHeight = 150 * allLeft.scale;
     const shimmer = Math.sin(Date.now() / 400) * 0.1;
@@ -684,9 +684,10 @@ function drawGate(gate) {
 // ============================================================
 function drawBullets() {
     const g = game;
+    const farCullZ = Math.max(CONFIG.SPAWN_DISTANCE, CONFIG.BOSS_HOLD_Z) + 100;
     g.bullets.forEach(b => {
         const relZ = b.z - g.cameraZ;
-        if (relZ < 0 || relZ > CONFIG.SPAWN_DISTANCE + 100) return;
+        if (relZ < 0 || relZ > farCullZ) return;
         const p = project(b.x, relZ);
 
         switch (b.weapon) {

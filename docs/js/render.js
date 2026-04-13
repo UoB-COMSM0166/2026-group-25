@@ -66,9 +66,12 @@ function render() {
     });
     renderList.sort((a, b) => b.z - a.z);
 
+    // Far-cull threshold — extended to cover bosses, which now hold at
+    // CONFIG.BOSS_HOLD_Z (further than SPAWN_DISTANCE).
+    const maxRelZ = Math.max(CONFIG.SPAWN_DISTANCE, CONFIG.BOSS_HOLD_Z) + 200;
     renderList.forEach(item => {
         const relZ = item.z - g.cameraZ;
-        if (relZ < -20 || relZ > CONFIG.SPAWN_DISTANCE + 200) return;
+        if (relZ < -20 || relZ > maxRelZ) return;
         const p = project(item.data.x !== undefined ? item.data.x : 0, relZ);
 
         switch (item.type) {
@@ -102,9 +105,10 @@ function render() {
     });
 
     // ---- Coins ----
+    const farCullZ = Math.max(CONFIG.SPAWN_DISTANCE, CONFIG.BOSS_HOLD_Z) + 100;
     g.coins.forEach(coin => {
         const relZ = coin.z - g.cameraZ;
-        if (relZ < -10 || relZ > CONFIG.SPAWN_DISTANCE + 100) return;
+        if (relZ < -10 || relZ > farCullZ) return;
         const p         = project(coin.x, relZ);
         const s         = Math.max(2, 6 * p.scale);
         const bob       = Math.sin(coin.bobPhase) * 3 * p.scale;
@@ -125,7 +129,7 @@ function render() {
     // ---- Gems (boss drops — purple diamond) ----
     g.gems.forEach(gem => {
         const relZ = gem.z - g.cameraZ;
-        if (relZ < -10 || relZ > CONFIG.SPAWN_DISTANCE + 100) return;
+        if (relZ < -10 || relZ > farCullZ) return;
         const p         = project(gem.x, relZ);
         const s         = Math.max(3, 9 * p.scale);
         const bob       = Math.sin(gem.bobPhase) * 4 * p.scale;
@@ -170,7 +174,7 @@ function render() {
     const playerZ = g.cameraZ + 10;
     g.enemyBullets.forEach(eb => {
         const relZ = eb.z - g.cameraZ;
-        if (relZ < -10 || relZ > CONFIG.SPAWN_DISTANCE + 100) return;
+        if (relZ < -10 || relZ > farCullZ) return;
         const ep     = project(eb.x, relZ);
         const isFlame = eb.type === 'flame';
         const isNote  = eb.type === 'note';
@@ -208,7 +212,7 @@ function render() {
     // ---- Ground slam warnings ----
     g.slamWarnings.forEach(sw => {
         const relZ = sw.z - g.cameraZ;
-        if (relZ < -20 || relZ > CONFIG.SPAWN_DISTANCE + 200) return;
+        if (relZ < -20 || relZ > maxRelZ) return;
         const progress = sw.timer / sw.maxTimer;
         const pulse    = Math.sin(progress * Math.PI * 6) * 0.15 + 0.35;
         const urgency  = 0.3 + progress * 0.7;

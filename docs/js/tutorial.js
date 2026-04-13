@@ -197,9 +197,9 @@ function _tutorialGrantCharge(key) {
     playerData.weaponCharges[key] = (playerData.weaponCharges[key] || 0) + 1;
     if (key === 'invincibility') game.skillReady = true;
     savePlayerData(playerData);
-    const slotsDiv = document.getElementById('weaponSlots');
-    if (slotsDiv && slotsDiv.style.display === 'none') initWeaponSlots();
-    else if (typeof updateWeaponSlots === 'function') updateWeaponSlots();
+    // Don't touch #weaponSlots (the DOM inventory panel) — the canvas
+    // drawSkillHud() already reflects charge changes automatically, and
+    // opening both stacks two HUDs on the top-left corner.
 }
 
 function _checkStepGoal(step) {
@@ -337,7 +337,10 @@ function drawTutorialHint() {
     const boxW = Math.min(620, screenW * 0.78);
     const boxH = 100;
     const boxX = screenW / 2 - boxW / 2;
-    const boxY = 92;
+    // If a boss is alive, drawBossHud occupies y≈92…180. Push the tutorial
+    // banner below that band so the two HUDs never overlap.
+    const bossAlive = g.enemies.some(e => e.alive && e.isBoss);
+    const boxY = bossAlive ? 190 : 92;
 
     const borderAlpha = done ? 0.85 : (0.40 + 0.18 * Math.sin(h.timer * 0.07));
     const borderCol   = done ? 0x44ff88 : 0x44ccff;
