@@ -29,7 +29,7 @@ async function _createRecord(name, score, wave, level) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ player_name: name.trim().slice(0, 16), score: Math.floor(score), wave: Math.floor(wave), level: Math.floor(level || 1), hidden: false }),
     });
-    if (!resp.ok) throw new Error('创建失败');
+    if (!resp.ok) throw new Error('create failed');
     return await resp.json();
 }
 
@@ -39,13 +39,13 @@ async function _patchRecord(recordId, data) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
     });
-    if (!resp.ok) { const e = await resp.json().catch(() => ({})); throw new Error(e.message || '更新失败'); }
+    if (!resp.ok) { const e = await resp.json().catch(() => ({})); throw new Error(e.message || 'update failed'); }
     return await resp.json();
 }
 
 async function fetchLeaderboard(limit = 5) {
     const resp = await fetch(`${LEADERBOARD_BASE}/api/collections/${SCORES_COLLECTION}/records?sort=-score&perPage=${limit}&filter=hidden%3Dfalse`);
-    if (!resp.ok) throw new Error('加载失败');
+    if (!resp.ok) throw new Error('load failed');
     return await resp.json();
 }
 

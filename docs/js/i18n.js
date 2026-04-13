@@ -33,6 +33,10 @@ function applyLang() {
     document.querySelectorAll('[data-i18n]').forEach(function(el) {
         el.textContent = T(el.dataset.i18n);
     });
+    // Elements with data-i18n-html attribute (allows <br> etc)
+    document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
+        el.innerHTML = T(el.dataset.i18nHtml);
+    });
 
     // Shop tabs: text is in a <span data-i18n> inside the button, handled above
 
@@ -97,8 +101,50 @@ const TRANSLATIONS = {
     zh: {
         // Main menu
         'menu.subtitle':        '桥 梁 突 击',
-        'menu.start':           'START GAME',
-        'menu.shop':            'SHOP',
+        'menu.start':           '开始游戏',
+        'menu.shop':            '商店',
+
+        // Level select
+        'levelselect.title':    '选择关卡',
+        'levelselect.start':    '开 始',
+        'levelselect.back':     '← 主菜单',
+        'levelselect.bestinfo': '最高波次: {0} | 最高分: {1}',
+        'levelselect.l1.name':  '桥梁突击',
+        'levelselect.l2.name':  '末日工厂',
+        'levelselect.l2.locked':'🔒 通关第一关（66波）解锁',
+
+        // Enemy names
+        'enemy.patrick':     '派大星',
+        'enemy.bigdragon':   '大奶龙',
+        'enemy.smalldragon': '小奶龙',
+        'enemy.capybara':    '水豚兵',
+        'enemy.elephant':    '大象王',
+        'enemy.crycow':      '哭泣奶牛',
+
+        // Level complete
+        'levelcomplete.title':       '🏆 关卡完成！',
+        'levelcomplete.clear':       '通关！',
+        'levelcomplete.waves':       '波次: {0} / {1}',
+        'levelcomplete.score':       '得分: {0}',
+        'levelcomplete.unlocked':    '🔓 关卡II - 末日工厂 已解锁！',
+        'levelcomplete.next':        '下一关',
+        'levelcomplete.selectlevel': '选择关卡',
+        'levelcomplete.mainmenu':    '主菜单',
+
+        // Mobile block
+        'mobile.title':         '请在电脑上游玩',
+        'mobile.msg':           '桥梁突击暂不支持移动端<br>请使用电脑浏览器打开游戏',
+
+        // Weapon unlock toast
+        'weapon.unlocked':      '{0} 已解锁！',
+        'weapon.newweapon':     '新武器',
+
+        // Achievements
+        'ach.title':            '成就',
+        'ach.back':             '返回',
+        'ach.unlocked':         '已解锁',
+        'ach.claim':            '领取',
+        'ach.claimed':          '已领取',
 
         // Shop tabs
         'tab.weapon':           '基础武器',
@@ -253,6 +299,48 @@ const TRANSLATIONS = {
         'menu.subtitle':        'WAVE  DEFENSE',
         'menu.start':           'START GAME',
         'menu.shop':            'SHOP',
+
+        // Level select
+        'levelselect.title':    'SELECT LEVEL',
+        'levelselect.start':    'START',
+        'levelselect.back':     '← MAIN MENU',
+        'levelselect.bestinfo': 'BEST WAVE: {0} | BEST SCORE: {1}',
+        'levelselect.l1.name':  'BRIDGE ASSAULT',
+        'levelselect.l2.name':  'DOOMSDAY FACTORY',
+        'levelselect.l2.locked':'\uD83D\uDD12 Clear Level I (Wave 66) to unlock',
+
+        // Enemy names
+        'enemy.patrick':     'Patrick',
+        'enemy.bigdragon':   'Big Dragon',
+        'enemy.smalldragon': 'Small Dragon',
+        'enemy.capybara':    'Capybara',
+        'enemy.elephant':    'Elephant King',
+        'enemy.crycow':      'Crying Cow',
+
+        // Level complete
+        'levelcomplete.title':       '\uD83C\uDFC6 LEVEL COMPLETE!',
+        'levelcomplete.clear':       'CLEAR!',
+        'levelcomplete.waves':       'WAVES: {0} / {1}',
+        'levelcomplete.score':       'SCORE: {0}',
+        'levelcomplete.unlocked':    'LEVEL II - DOOMSDAY FACTORY UNLOCKED!',
+        'levelcomplete.next':        'NEXT LEVEL',
+        'levelcomplete.selectlevel': 'SELECT LEVEL',
+        'levelcomplete.mainmenu':    'MAIN MENU',
+
+        // Mobile block
+        'mobile.title':         'Please play on desktop',
+        'mobile.msg':           'Bridge Assault does not support mobile yet<br>Please open in a desktop browser',
+
+        // Weapon unlock toast
+        'weapon.unlocked':      '{0} UNLOCKED!',
+        'weapon.newweapon':     'NEW WEAPON',
+
+        // Achievements
+        'ach.title':            'ACHIEVEMENTS',
+        'ach.back':             'BACK',
+        'ach.unlocked':         'unlocked',
+        'ach.claim':            'CLAIM',
+        'ach.claimed':          'Claimed',
 
         // Shop tabs
         'tab.weapon':           'WEAPONS',
@@ -411,5 +499,8 @@ const TRANSLATIONS = {
     if (btn) btn.textContent = LANG === 'zh' ? 'EN' : '中';
     document.querySelectorAll('[data-i18n]').forEach(function(el) {
         el.textContent = T(el.dataset.i18n);
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
+        el.innerHTML = T(el.dataset.i18nHtml);
     });
 })();

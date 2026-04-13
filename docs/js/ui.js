@@ -120,10 +120,12 @@ function showLevelSelect() {
     const isL2Unlocked = unlocked.includes(2);
 
     const hs = getHighScore();
-    const l1BestWave = document.getElementById('l1BestWave');
-    const l1BestScore = document.getElementById('l1BestScore');
-    if (l1BestWave) l1BestWave.textContent = hs.wave > 0 ? hs.wave : '\u2014';
-    if (l1BestScore) l1BestScore.textContent = hs.score > 0 ? hs.score : '\u2014';
+    const l1Info = document.getElementById('l1InfoText');
+    if (l1Info) {
+        const waveStr  = hs.wave  > 0 ? hs.wave  : '\u2014';
+        const scoreStr = hs.score > 0 ? hs.score : '\u2014';
+        l1Info.textContent = T('levelselect.bestinfo', waveStr, scoreStr);
+    }
 
     const card2 = document.getElementById('levelCard2');
     const l2Info = document.getElementById('l2InfoText');
@@ -132,11 +134,15 @@ function showLevelSelect() {
         if (isL2Unlocked) {
             card2.classList.remove('locked');
             const l2Hs = playerData.l2HighScore || { score: 0, wave: 0 };
-            if (l2Info) l2Info.textContent = `BEST WAVE: ${l2Hs.wave > 0 ? l2Hs.wave : '\u2014'} | BEST SCORE: ${l2Hs.score > 0 ? l2Hs.score : '\u2014'}`;
+            if (l2Info) {
+                const waveStr  = l2Hs.wave  > 0 ? l2Hs.wave  : '\u2014';
+                const scoreStr = l2Hs.score > 0 ? l2Hs.score : '\u2014';
+                l2Info.textContent = T('levelselect.bestinfo', waveStr, scoreStr);
+            }
             if (l2Btn) l2Btn.disabled = false;
         } else {
             card2.classList.add('locked');
-            if (l2Info) l2Info.textContent = '\uD83D\uDD12 Clear Level I (Wave 66) to unlock';
+            if (l2Info) l2Info.textContent = T('levelselect.l2.locked');
             if (l2Btn) l2Btn.disabled = true;
         }
     }
@@ -173,19 +179,19 @@ function triggerLevelComplete() {
     const isL2Clear = g.currentLevel === 2;
     const maxWaves = isL2Clear ? MAX_WAVES_LEVEL2 : MAX_WAVES_LEVEL1;
     const levelTag = isL2Clear ? 'LEVEL II' : 'LEVEL I';
-    const unlockLine = isL2Clear ? '' : `<div style="color:#cc44ff;font-size:min(20px,4vw);margin-bottom:24px;text-shadow:0 0 15px rgba(200,68,255,0.6);">\uD83D\uDD13 LEVEL II - DOOMSDAY FACTORY UNLOCKED!</div>`;
-    const nextBtn = isL2Clear ? '' : `<button class="btn" style="background:linear-gradient(180deg,#f0b828,#c87800);border-color:#f0c840;" onclick="startGameWithLevel(2)">\u25B6 NEXT LEVEL</button>`;
+    const unlockLine = isL2Clear ? '' : `<div style="color:#cc44ff;font-size:min(20px,4vw);margin-bottom:24px;text-shadow:0 0 15px rgba(200,68,255,0.6);">\uD83D\uDD13 ${T('levelcomplete.unlocked')}</div>`;
+    const nextBtn = isL2Clear ? '' : `<button class="btn" style="background:linear-gradient(180deg,#f0b828,#c87800);border-color:#f0c840;" onclick="startGameWithLevel(2)">\u25B6 ${T('levelcomplete.next')}</button>`;
     overlay.classList.remove('hidden');
     overlay.innerHTML = `
-        <h1 style="color:#44ff88;text-shadow:0 0 30px rgba(68,255,136,0.7);">\uD83C\uDFC6 LEVEL COMPLETE!</h1>
-        <div style="color:#f0c040;font-size:min(32px,6vw);margin:16px 0;letter-spacing:3px;">${levelTag} CLEAR!</div>
-        <div style="color:#aaa;font-size:min(20px,4vw);margin-bottom:12px;">WAVES: ${g.wave - 1} / ${maxWaves}</div>
-        <div style="color:#88ccff;font-size:min(22px,4.5vw);margin-bottom:6px;">SCORE: ${g.score}</div>
+        <h1 style="color:#44ff88;text-shadow:0 0 30px rgba(68,255,136,0.7);">\uD83C\uDFC6 ${T('levelcomplete.title')}</h1>
+        <div style="color:#f0c040;font-size:min(32px,6vw);margin:16px 0;letter-spacing:3px;">${levelTag} ${T('levelcomplete.clear')}</div>
+        <div style="color:#aaa;font-size:min(20px,4vw);margin-bottom:12px;">${T('levelcomplete.waves', g.wave - 1, maxWaves)}</div>
+        <div style="color:#88ccff;font-size:min(22px,4.5vw);margin-bottom:6px;">${T('levelcomplete.score', g.score)}</div>
         ${unlockLine}
         <div id="menuButtons">
             ${nextBtn}
-            <button class="btn" style="background:linear-gradient(180deg,#44cc44,#228822);border-color:#55ee55;" onclick="showLevelSelect()">SELECT LEVEL</button>
-            <button class="btn" onclick="restoreMainMenu()">MAIN MENU</button>
+            <button class="btn" style="background:linear-gradient(180deg,#44cc44,#228822);border-color:#55ee55;" onclick="showLevelSelect()">${T('levelcomplete.selectlevel')}</button>
+            <button class="btn" onclick="restoreMainMenu()">${T('levelcomplete.mainmenu')}</button>
         </div>
     `;
     saveHighScore(g.score, g.wave - 1);
@@ -543,7 +549,7 @@ function showWeaponUnlockToast(tier) {
     const iconEl = document.getElementById('weaponUnlockIcon');
     const textEl = document.getElementById('weaponUnlockText');
     if (iconEl) iconEl.innerHTML = tier.icon || '';
-    if (textEl) textEl.textContent = `${tier.name || 'NEW WEAPON'} UNLOCKED!`;
+    if (textEl) textEl.textContent = T('weapon.unlocked', tier.name || T('weapon.newweapon'));
     toast.classList.remove('hidden');
     clearTimeout(toast._hideTimer);
     toast._hideTimer = setTimeout(() => toast.classList.add('hidden'), 3000);

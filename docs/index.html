@@ -74,50 +74,50 @@ body > canvas {
 <!-- Level select overlay -->
 <div id="levelSelectOverlay" class="hidden">
     <div id="levelSelectPanel">
-        <h2 id="levelSelectTitle">选择关卡</h2>
+        <h2 id="levelSelectTitle" data-i18n="levelselect.title">选择关卡</h2>
         <div id="levelSelectCards">
             <div class="level-card level-card-1" id="levelCard1">
                 <div class="level-card-num">LEVEL I</div>
-                <div class="level-card-name">桥梁突击</div>
+                <div class="level-card-name" data-i18n="levelselect.l1.name">桥梁突击</div>
                 <div class="level-card-sprites">
                     <div class="ls-sprite-wrap">
                         <canvas id="lsCanvas1a" width="80" height="80"></canvas>
-                        <div class="ls-sprite-label">派大星</div>
+                        <div class="ls-sprite-label" data-i18n="enemy.patrick">派大星</div>
                     </div>
                     <div class="ls-sprite-wrap ls-sprite-main">
                         <canvas id="lsCanvas1b" width="96" height="96"></canvas>
-                        <div class="ls-sprite-label">大奶龙</div>
+                        <div class="ls-sprite-label" data-i18n="enemy.bigdragon">大奶龙</div>
                     </div>
                     <div class="ls-sprite-wrap">
                         <canvas id="lsCanvas1c" width="80" height="80"></canvas>
-                        <div class="ls-sprite-label">小奶龙</div>
+                        <div class="ls-sprite-label" data-i18n="enemy.smalldragon">小奶龙</div>
                     </div>
                 </div>
-                <div class="level-card-info">最高波次: <span id="l1BestWave">—</span> | 最高分: <span id="l1BestScore">—</span></div>
-                <button class="btn level-start-btn" onclick="startGameWithLevel(1)">开 始</button>
+                <div class="level-card-info" id="l1InfoText"></div>
+                <button class="btn level-start-btn" onclick="startGameWithLevel(1)" data-i18n="levelselect.start">开 始</button>
             </div>
             <div class="level-card level-card-2" id="levelCard2">
                 <div class="level-card-num">LEVEL II</div>
-                <div class="level-card-name">末日工厂</div>
+                <div class="level-card-name" data-i18n="levelselect.l2.name">末日工厂</div>
                 <div class="level-card-sprites">
                     <div class="ls-sprite-wrap">
                         <canvas id="lsCanvas2a" width="80" height="80"></canvas>
-                        <div class="ls-sprite-label">水豚兵</div>
+                        <div class="ls-sprite-label" data-i18n="enemy.capybara">水豚兵</div>
                     </div>
                     <div class="ls-sprite-wrap ls-sprite-main">
                         <canvas id="lsCanvas2b" width="96" height="96"></canvas>
-                        <div class="ls-sprite-label">大象王</div>
+                        <div class="ls-sprite-label" data-i18n="enemy.elephant">大象王</div>
                     </div>
                     <div class="ls-sprite-wrap">
                         <canvas id="lsCanvas2c" width="80" height="80"></canvas>
-                        <div class="ls-sprite-label">哭泣奶牛</div>
+                        <div class="ls-sprite-label" data-i18n="enemy.crycow">哭泣奶牛</div>
                     </div>
                 </div>
-                <div class="level-card-info" id="l2InfoText">🔒 通关第一关（66波）解锁</div>
-                <button class="btn level-start-btn" id="l2StartBtn" onclick="startGameWithLevel(2)">开 始</button>
+                <div class="level-card-info" id="l2InfoText" data-i18n="levelselect.l2.locked">🔒 通关第一关（66波）解锁</div>
+                <button class="btn level-start-btn" id="l2StartBtn" onclick="startGameWithLevel(2)" data-i18n="levelselect.start">开 始</button>
             </div>
         </div>
-        <button class="btn btn-back-menu" onclick="showMainMenu()">← 主菜单</button>
+        <button class="btn btn-back-menu" onclick="showMainMenu()" data-i18n="levelselect.back">← 主菜单</button>
     </div>
 </div>
 
@@ -207,8 +207,8 @@ body > canvas {
                 <rect x="22" y="54" width="36" height="3" rx="1.5" fill="#f0b828" opacity="0.4"/>
             </svg>
         </div>
-        <h2 id="mobileBlockTitle">请在电脑上游玩</h2>
-        <p id="mobileBlockMsg">
+        <h2 id="mobileBlockTitle" data-i18n="mobile.title">请在电脑上游玩</h2>
+        <p id="mobileBlockMsg" data-i18n-html="mobile.msg">
             桥梁突击暂不支持移动端<br>
             请使用电脑浏览器打开游戏
         </p>
