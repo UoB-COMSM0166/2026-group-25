@@ -690,6 +690,49 @@ html, body {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    transition: background 0.15s, box-shadow 0.15s, border-color 0.15s, padding 0.15s;
+}
+
+.weapon-panel-toggle {
+    margin-left: auto;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.22);
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.95);
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.weapon-panel-toggle:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.weapon-panel-toggle:active {
+    transform: scale(0.94);
+}
+
+#weaponSlots.collapsed {
+    width: auto;
+    padding: 5px 6px;
+    background: rgba(8,8,20,0.5);
+    border-color: rgba(255,255,255,0.12);
+}
+
+#weaponSlots.collapsed > :not(.weapon-panel-toggle) {
+    display: none !important;
+}
+
+#weaponSlots.collapsed .weapon-panel-toggle {
+    margin-left: 0;
 }
 
 .current-weapon-badge {
@@ -1089,6 +1132,10 @@ html, body {
     }
     .current-weapon-meta {
         font-size: min(9px, 2.5vw);
+    }
+    .weapon-panel-toggle {
+        width: 24px;
+        height: 24px;
     }
     .wslot {
         width: min(62px, 20vw);

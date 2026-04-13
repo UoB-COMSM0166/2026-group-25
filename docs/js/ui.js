@@ -273,10 +273,58 @@ function activateSkillWeapon() {
 // ============================================================
 // WEAPON SLOTS
 // ============================================================
+const WEAPON_PANEL_COLLAPSE_KEY = 'bridgeAssault_weaponPanelCollapsed';
+
+function _loadWeaponPanelCollapsed() {
+    try {
+        return localStorage.getItem(WEAPON_PANEL_COLLAPSE_KEY) === '1';
+    } catch {
+        return false;
+    }
+}
+
+function _saveWeaponPanelCollapsed(collapsed) {
+    try {
+        localStorage.setItem(WEAPON_PANEL_COLLAPSE_KEY, collapsed ? '1' : '0');
+    } catch {}
+}
+
+function setWeaponPanelCollapsed(collapsed) {
+    const slotsDiv = document.getElementById('weaponSlots');
+    if (!slotsDiv) return;
+    slotsDiv.classList.toggle('collapsed', !!collapsed);
+    const toggleBtn = document.getElementById('weaponPanelToggle');
+    if (toggleBtn) {
+        toggleBtn.textContent = collapsed ? '▸' : '▾';
+        toggleBtn.title = collapsed ? T('hud.panel.show') : T('hud.panel.hide');
+        toggleBtn.setAttribute('aria-label', toggleBtn.title);
+    }
+    _saveWeaponPanelCollapsed(!!collapsed);
+}
+
+function toggleWeaponPanel() {
+    const slotsDiv = document.getElementById('weaponSlots');
+    if (!slotsDiv) return;
+    setWeaponPanelCollapsed(!slotsDiv.classList.contains('collapsed'));
+}
+
 function initWeaponSlots() {
     const slotsDiv = document.getElementById('weaponSlots');
     if (!slotsDiv) return;
     slotsDiv.innerHTML = '';
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.id = 'weaponPanelToggle';
+    toggleBtn.className = 'weapon-panel-toggle';
+    toggleBtn.type = 'button';
+    toggleBtn.textContent = '▾';
+    toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleWeaponPanel();
+    });
+    slotsDiv.appendChild(toggleBtn);
+
     const currentBadge = document.createElement('div');
     currentBadge.id = 'currentWeaponBadge';
     currentBadge.className = 'current-weapon-badge';
@@ -326,6 +374,7 @@ function initWeaponSlots() {
         slotsDiv.appendChild(slot);
     }
     slotsDiv.style.display = 'flex';
+    setWeaponPanelCollapsed(_loadWeaponPanelCollapsed());
 }
 
 function _getCurrentWeaponDisplay() {
@@ -371,6 +420,14 @@ function _getCurrentWeaponDisplay() {
 function updateCurrentWeaponBadge() {
     const badge = document.getElementById('currentWeaponBadge');
     if (!badge) return;
+
+    const toggleBtn = document.getElementById('weaponPanelToggle');
+    const slotsDiv = document.getElementById('weaponSlots');
+    if (toggleBtn && slotsDiv) {
+        const collapsed = slotsDiv.classList.contains('collapsed');
+        toggleBtn.title = collapsed ? T('hud.panel.show') : T('hud.panel.hide');
+        toggleBtn.setAttribute('aria-label', toggleBtn.title);
+    }
 
     const labelEl = badge.querySelector('.current-weapon-label');
     if (labelEl) labelEl.textContent = T('hud.current.weapon');
