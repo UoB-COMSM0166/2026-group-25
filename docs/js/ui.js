@@ -211,8 +211,8 @@ function startGame(level) {
     overlay.classList.add('hidden');
     const skillBtn = document.getElementById('skillBtn');
     if (skillBtn) skillBtn.style.display = 'none';
-    const slotsDiv = document.getElementById('weaponSlots');
-    if (slotsDiv) slotsDiv.style.display = 'none';
+    initWeaponSlots();
+    updateWeaponSlots();
     _skyBgW = 0; _skyBgH = 0; _skyBgLevel = 0;
     resetAchTempFlags();
     // Start BGM matching current level
@@ -277,6 +277,18 @@ function initWeaponSlots() {
     const slotsDiv = document.getElementById('weaponSlots');
     if (!slotsDiv) return;
     slotsDiv.innerHTML = '';
+    const currentBadge = document.createElement('div');
+    currentBadge.id = 'currentWeaponBadge';
+    currentBadge.className = 'current-weapon-badge';
+    currentBadge.innerHTML = `
+        <div class="current-weapon-label">${T('hud.current.weapon')}</div>
+        <div class="current-weapon-main" style="--cw-color:#ffff88;">
+            <div class="current-weapon-icon"></div>
+            <div class="current-weapon-name">-</div>
+            <div class="current-weapon-meta"></div>
+        </div>
+    `;
+    slotsDiv.appendChild(currentBadge);
     for (const [key, w] of Object.entries(SHOP_WEAPONS)) {
         if (w.defenseOnly) continue;
         const slot = document.createElement('div');
@@ -309,11 +321,66 @@ function initWeaponSlots() {
     slotsDiv.style.display = 'flex';
 }
 
+function _getCurrentWeaponDisplay() {
+    if (!game) {
+        return {
+            icon: '',
+            name: '-',
+            color: '#ffff88',
+            meta: '',
+        };
+    }
+
+    const g = game;
+    const wKey = g.weapon || 'pistol';
+    const isTemp = wKey !== 'pistol' && g.weaponTimer > 0;
+
+    if (wKey === 'pistol') {
+        const tierIdx = playerData.equippedPistolTier || 0;
+        const tier = PISTOL_TIERS[tierIdx] || PISTOL_TIERS[0];
+        return {
+            icon: tier.icon || '',
+            name: T('pistol.' + tierIdx + '.name'),
+            color: tier.colorStr || '#ffff88',
+            meta: '',
+        };
+    }
+
+    const def = SHOP_WEAPONS[wKey] || {};
+    const fallbackName = def.name || wKey.toUpperCase();
+    return {
+        icon: def.icon || '',
+        name: T('weapon.' + wKey + '.name') || fallbackName,
+        color: def.color || '#ffffff',
+        meta: isTemp ? `${T('hud.current.weapon.temp')} · ${Math.ceil(g.weaponTimer / 1000)}s` : '',
+    };
+}
+
+function updateCurrentWeaponBadge() {
+    const badge = document.getElementById('currentWeaponBadge');
+    if (!badge) return;
+
+    const labelEl = badge.querySelector('.current-weapon-label');
+    if (labelEl) labelEl.textContent = T('hud.current.weapon');
+
+    const data = _getCurrentWeaponDisplay();
+    const main = badge.querySelector('.current-weapon-main');
+    const iconEl = badge.querySelector('.current-weapon-icon');
+    const nameEl = badge.querySelector('.current-weapon-name');
+    const metaEl = badge.querySelector('.current-weapon-meta');
+
+    if (main) main.style.setProperty('--cw-color', data.color);
+    if (iconEl) iconEl.innerHTML = data.icon;
+    if (nameEl) nameEl.textContent = data.name;
+    if (metaEl) metaEl.textContent = data.meta || '';
+}
+
 function updateWeaponSlots() {
     if (!game) return;
     const g = game;
     const slotsDiv = document.getElementById('weaponSlots');
     if (!slotsDiv || slotsDiv.style.display === 'none') return;
+    updateCurrentWeaponBadge();
     const levels = playerData.weaponLevels || {};
     const charges = playerData.weaponCharges || {};
     slotsDiv.querySelectorAll('.wslot').forEach(slot => {

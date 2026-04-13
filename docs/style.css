@@ -689,6 +689,70 @@ html, body {
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
 
+.current-weapon-badge {
+    min-width: min(190px, 40vw);
+    max-width: min(240px, 48vw);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.16);
+    background: rgba(255,255,255,0.04);
+    padding: 5px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.current-weapon-label {
+    font-family: 'Courier New', monospace;
+    font-size: min(10px, 2vw);
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.58);
+    text-transform: uppercase;
+}
+
+.current-weapon-main {
+    --cw-color: #ffff88;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 8px;
+    min-height: 42px;
+    border: 1px solid color-mix(in srgb, var(--cw-color) 45%, rgba(255,255,255,0.2));
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--cw-color) 14%, rgba(10,10,24,0.85));
+    padding: 4px 6px;
+}
+
+.current-weapon-icon {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.current-weapon-icon svg {
+    width: 30px;
+    height: 30px;
+}
+
+.current-weapon-name {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    letter-spacing: 0.6px;
+    color: #fff;
+    font-size: min(13px, 2.5vw);
+    line-height: 1.05;
+}
+
+.current-weapon-meta {
+    font-family: 'Courier New', monospace;
+    font-size: min(10px, 2vw);
+    color: rgba(255,255,255,0.72);
+    min-height: 11px;
+    margin-top: 2px;
+}
+
 .wslot {
     position: relative;
     width: min(72px, 15vw);
@@ -1007,8 +1071,21 @@ html, body {
         left: 50%;
         bottom: 10px;
         transform: translateX(-50%);
+        max-width: calc(100vw - 16px);
+        overflow-x: auto;
+        overflow-y: hidden;
         gap: 5px;
         padding: 5px 7px;
+    }
+    .current-weapon-badge {
+        min-width: min(168px, 52vw);
+        max-width: min(188px, 56vw);
+    }
+    .current-weapon-name {
+        font-size: min(12px, 3.1vw);
+    }
+    .current-weapon-meta {
+        font-size: min(9px, 2.5vw);
     }
     .wslot {
         width: min(62px, 20vw);
