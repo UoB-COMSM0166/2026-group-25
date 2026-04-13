@@ -690,6 +690,23 @@ function drawBullets() {
         if (relZ < 0 || relZ > farCullZ) return;
         const p = project(b.x, relZ);
 
+        // Dying bullet → bright expanding impact flash (no streak) so the
+        // kill is unmistakable and the projectile never appears to pass
+        // through the target.
+        if (b.dead) {
+            const t = Math.max(0, Math.min(1, 1 - (b.deathTimer || 0) / 3));
+            const color = b.color || 0xffff88;
+            const baseR = Math.max(4, 14 * p.scale);
+            const r = baseR * (0.8 + t * 2.4);
+            const fadeA = Math.floor((1 - t) * 255);
+            push(); noStroke();
+            hexFill(color, Math.floor(fadeA * 0.55)); circle(p.x, p.y, r * 2.2);
+            hexFill(0xffffff, fadeA);                  circle(p.x, p.y, r * 1.1);
+            hexFill(color, fadeA);                     circle(p.x, p.y, r * 0.7);
+            pop();
+            return;
+        }
+
         switch (b.weapon) {
             case 'pistol': default: {
                 const tierIdx = b.tier || 0;
