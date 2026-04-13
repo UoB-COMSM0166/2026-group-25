@@ -63,19 +63,7 @@ function applyLang() {
         }
     }
 
-    // If main menu overlay is visible (contains startBtn), rebuild it
-    const overlayEl = document.getElementById('overlay');
-    if (overlayEl && !overlayEl.classList.contains('hidden')) {
-        // Only rebuild if we're on the main menu (not game-over or revive)
-        const h1 = overlayEl.querySelector('h1');
-        if (h1 && h1.textContent === 'BRIDGE ASSAULT') {
-            const h2 = overlayEl.querySelector('h2');
-            if (h2) h2.textContent = T('menu.subtitle');
-            // Leaderboard button may be dynamically generated (no data-i18n)
-            const lbBtn = overlayEl.querySelector('.btn-leaderboard');
-            if (lbBtn) lbBtn.textContent = T('lb.leaderboard.btn');
-        }
-    }
+    // data-i18n loop above already handles the main menu elements.
 }
 
 // ── Talent effect text (bilingual) ──

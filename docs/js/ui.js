@@ -522,7 +522,7 @@ function showGameOver() {
 function restoreMainMenu() {
     overlay.innerHTML = `
         <h1>BRIDGE ASSAULT</h1>
-        <h2>${T('menu.subtitle')}</h2>
+        <h2 data-i18n="menu.subtitle">${T('menu.subtitle')}</h2>
         <div id="coinDisplay">
             <span class="coin-icon"><svg viewBox="0 0 18 18" width="18" height="18" style="vertical-align:-3px"><circle cx="9" cy="9" r="8.5" fill="#b8820a"/><circle cx="9" cy="9" r="7" fill="#f0b828"/><ellipse cx="7" cy="6.5" rx="3" ry="1.5" fill="#f8d860" opacity="0.6"/></svg></span>
             <span id="coinCount">${playerData.coins}</span>
@@ -530,11 +530,11 @@ function restoreMainMenu() {
             <span id="gemCount" style="color:#cc44ff;">${playerData.gems || 0}</span>
         </div>
         <div id="menuButtons">
-            <button class="btn btn-start" onclick="showLevelSelect()">${T('menu.start')}</button>
+            <button class="btn btn-start" onclick="showLevelSelect()" data-i18n="menu.start">${T('menu.start')}</button>
             <div id="menuNav">
-                <button class="btn btn-nav btn-shop" onclick="openShop()">${T('menu.shop')}</button>
-                <button class="btn btn-nav btn-achievements${_hasUnclaimedAch() ? ' has-unclaimed' : ''}" onclick="showAchievementPanel()">${T('menu.achievements')}${_hasUnclaimedAch() ? ' !' : ''}</button>
-                <button class="btn btn-nav btn-leaderboard" onclick="showLeaderboard()">${T('menu.leaderboard')}</button>
+                <button class="btn btn-nav btn-shop" onclick="openShop()" data-i18n="menu.shop">${T('menu.shop')}</button>
+                <button class="btn btn-nav btn-achievements${_hasUnclaimedAch() ? ' has-unclaimed' : ''}" onclick="showAchievementPanel()" data-i18n="menu.achievements">${T('menu.achievements')}</button>
+                <button class="btn btn-nav btn-leaderboard" onclick="showLeaderboard()" data-i18n="menu.leaderboard">${T('menu.leaderboard')}</button>
             </div>
         </div>
     `;
