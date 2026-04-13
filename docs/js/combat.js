@@ -19,7 +19,10 @@ function fireWeapon() {
             // More squad = more bullets (up to 8) + higher damage per bullet
             const bulletCount = Math.min(squad, 8);
             const pistolDmg = Math.max(1, Math.round((1 + Math.floor(squad / 10)) * getTalentDamageMult() * getLevelDamageMult()));
-            const tierIdx = playerData.equippedPistolTier || 0;
+            // Tutorial always fires the base pistol (tier 0, no pierce) so the
+            // onboarding lesson doesn't depend on whatever the player has
+            // equipped in the shop.
+            const tierIdx = g.isTutorial ? 0 : (playerData.equippedPistolTier || 0);
             const tier = PISTOL_TIERS[tierIdx];
             for (let i = 0; i < bulletCount; i++) {
                 let bx, bz;

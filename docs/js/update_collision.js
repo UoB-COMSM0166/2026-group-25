@@ -39,7 +39,14 @@ function updateBulletCollisions(g, dtF) {
             if (!e.alive) continue;
             if (b.pierce && b.hitEnemies && b.hitEnemies.has(e)) continue;
             const dx = Math.abs(b.x - e.x), dz = Math.abs(b.z - e.z);
-            const hitX = b.weapon === 'rocket' ? 28 : 22, hitZ = b.weapon === 'rocket' ? 20 : 16;
+            // Hit box widens for large enemies. Regular mobs keep the old
+            // 22×16 box; bosses and mega bosses use bigger boxes so bullets
+            // don't visually "clip through" the huge sprite without hitting.
+            let hitX = b.weapon === 'rocket' ? 28 : 22;
+            let hitZ = b.weapon === 'rocket' ? 20 : 16;
+            if (e.isMegaBoss)      { hitX = 70; hitZ = 55; }
+            else if (e.isBoss)     { hitX = 48; hitZ = 38; }
+            else if (e.isHeavy || e.type === 3) { hitX += 6; hitZ += 5; }
             if (dx < hitX && dz < hitZ) {
                 // L2 Engineer shield: block bullet, show BLOCKED! effect
                 if (e.shieldActive) {

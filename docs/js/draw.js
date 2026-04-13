@@ -695,8 +695,12 @@ function drawBullets() {
                 const tierIdx = b.tier || 0;
                 const color = b.color || 0xffff88;
                 const s = Math.max(1, (3 + tierIdx * 0.5) * p.scale);
-                const tailLen = 8 + tierIdx * 3;
-                const pTail = project(b.x - b.vx * 0.8, relZ - tailLen);
+                // Tail is drawn BEHIND the head (smaller z), so the streak
+                // never visually extends past the bullet's actual position
+                // into whatever it just hit. Shortened too so non-pierce
+                // bullets read as "impact, gone" rather than "impact, continue".
+                const tailLen = 6 + tierIdx * 2;
+                const pTail = project(b.x - b.vx * 0.5, Math.max(0, relZ - tailLen));
                 if (tierIdx >= 3) {
                     hexStroke(color, Math.floor((0.18 + tierIdx * 0.04) * 255));
                     strokeWeight(s * (2.5 + tierIdx * 0.4)); noFill();
