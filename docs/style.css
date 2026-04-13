@@ -694,16 +694,20 @@ html, body {
 }
 
 .weapon-panel-toggle {
-    margin-left: auto;
-    width: 22px;
+    position: absolute;
+    top: -10px;
+    right: 6px;
+    width: 28px;
     height: 22px;
-    border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.22);
-    background: rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.95);
-    font-size: 12px;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid rgba(120, 190, 255, 0.55);
+    background: linear-gradient(180deg, rgba(34, 80, 130, 0.95), rgba(20, 40, 80, 0.95));
+    color: #c8e8ff;
+    font-size: 13px;
     font-family: 'Courier New', monospace;
     font-weight: bold;
+    letter-spacing: 0;
     line-height: 1;
     display: inline-flex;
     align-items: center;
@@ -713,11 +717,17 @@ html, body {
 }
 
 .weapon-panel-toggle:hover {
-    background: rgba(255,255,255,0.15);
+    background: linear-gradient(180deg, rgba(46, 106, 166, 0.95), rgba(24, 62, 110, 0.95));
 }
 
 .weapon-panel-toggle:active {
     transform: scale(0.94);
+}
+
+.weapon-panel-toggle.is-collapsed {
+    border-color: rgba(130, 220, 180, 0.62);
+    background: linear-gradient(180deg, rgba(26, 118, 88, 0.95), rgba(18, 78, 62, 0.95));
+    color: #d7ffe8;
 }
 
 #weaponSlots.collapsed {
@@ -732,7 +742,8 @@ html, body {
 }
 
 #weaponSlots.collapsed .weapon-panel-toggle {
-    margin-left: 0;
+    top: 4px;
+    right: 6px;
 }
 
 .current-weapon-badge {
@@ -1134,8 +1145,11 @@ html, body {
         font-size: min(9px, 2.5vw);
     }
     .weapon-panel-toggle {
-        width: 24px;
-        height: 24px;
+        top: -8px;
+        right: 6px;
+        width: 26px;
+        height: 20px;
+        font-size: 12px;
     }
     .wslot {
         width: min(62px, 20vw);

@@ -295,7 +295,8 @@ function setWeaponPanelCollapsed(collapsed) {
     slotsDiv.classList.toggle('collapsed', !!collapsed);
     const toggleBtn = document.getElementById('weaponPanelToggle');
     if (toggleBtn) {
-        toggleBtn.textContent = collapsed ? '▸' : '▾';
+        toggleBtn.textContent = collapsed ? '▶' : '◀';
+        toggleBtn.classList.toggle('is-collapsed', !!collapsed);
         toggleBtn.title = collapsed ? T('hud.panel.show') : T('hud.panel.hide');
         toggleBtn.setAttribute('aria-label', toggleBtn.title);
     }
@@ -317,7 +318,7 @@ function initWeaponSlots() {
     toggleBtn.id = 'weaponPanelToggle';
     toggleBtn.className = 'weapon-panel-toggle';
     toggleBtn.type = 'button';
-    toggleBtn.textContent = '▾';
+    toggleBtn.textContent = '◀';
     toggleBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -425,6 +426,8 @@ function updateCurrentWeaponBadge() {
     const slotsDiv = document.getElementById('weaponSlots');
     if (toggleBtn && slotsDiv) {
         const collapsed = slotsDiv.classList.contains('collapsed');
+        toggleBtn.textContent = collapsed ? '▶' : '◀';
+        toggleBtn.classList.toggle('is-collapsed', collapsed);
         toggleBtn.title = collapsed ? T('hud.panel.show') : T('hud.panel.hide');
         toggleBtn.setAttribute('aria-label', toggleBtn.title);
     }
