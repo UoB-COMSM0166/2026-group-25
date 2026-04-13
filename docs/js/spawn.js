@@ -153,6 +153,7 @@ function spawnElephantBoss(z, xPos) {
 
 function spawnEnemyWave() {
     const g = game;
+    if (g.isTutorial) { spawnTutorialWaveContent(); return; }
     if (g.currentLevel === 2) { spawnEnemyWaveL2(); return; }
     const af = getAdaptiveFactor();
     const count = Math.min(3 + Math.ceil(g.wave * 1.5), 25);

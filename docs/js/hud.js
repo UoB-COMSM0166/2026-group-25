@@ -85,7 +85,8 @@ function updateHUD() {
     _hudText('SCORE: ' + g.score, screenW / 2, 17, 19, 0xffffff);
     const squadStr = g.stimulantActive ? `SQUAD: ${g.squadCount * 2} x2` : `SQUAD: ${g.squadCount}`;
     _hudText(squadStr, screenW / 2 - hs, 17, 18, g.stimulantActive ? 0x44ff88 : 0xffffff);
-    const maxWaves = g.currentLevel === 2 ? MAX_WAVES_LEVEL2 : MAX_WAVES_LEVEL1;
+    const maxWaves = g.isTutorial ? TUTORIAL_MAX_WAVE
+        : (g.currentLevel === 2 ? MAX_WAVES_LEVEL2 : MAX_WAVES_LEVEL1);
     _hudText(`WAVE: ${g.wave} / ${maxWaves}`, screenW / 2 + hs, 17, 18, 0xffffff);
 
     // Coins
@@ -103,6 +104,7 @@ function updateHUD() {
     }
 
     drawSkillHud();
+    drawTutorialHint();
 }
 
 function _drawWeaponHUD() {

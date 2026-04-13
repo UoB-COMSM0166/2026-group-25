@@ -84,6 +84,17 @@ const PATRICK_FRAME_W = 283;
 const PATRICK_FRAME_H = 267;
 const PATRICK_TOTAL_FRAMES = 23; // last row has 5
 
+// Tutorial imp (Level 0) — CC0 chort from 0x72 DungeonTilesetII, 4 idle frames
+// scaled 4x to 128x128 per frame. Used only in the tutorial.
+const TUTORIAL_IMP_FRAME_COUNT = 4;
+const TUTORIAL_IMP_FRAME_SIZE  = 128;
+const TUTORIAL_IMP_TYPE        = 11;
+
+// Tutorial mini boss — CC0 big_demon from the same pack, scaled 4x to
+// 192x192 per frame. Used only in tutorial step 7.
+const TUTORIAL_BOSS_FRAME_COUNT = 4;
+const TUTORIAL_BOSS_FRAME_SIZE  = 192;
+
 // Gate threshold: below this → multipliers, above → percentages
 const PERCENT_GATE_THRESHOLD = 20;
 

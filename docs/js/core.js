@@ -72,6 +72,8 @@ function createGame() {
         currentLevel: 1,
         levelCompleted: false,
         fireRateDebuff: 0,
+        isTutorial: false,
+        tutorialHint: null,
     };
 }
 

@@ -79,6 +79,12 @@ function _runLevelSelectAnim() {
         _lsAnimRaf = null;
         return;
     }
+    if (rawTutorialImpImg) {
+        const f = Math.floor(_lsAnimT * 0.1) % TUTORIAL_IMP_FRAME_COUNT;
+        _drawLsSprite('lsCanvas0', rawTutorialImpImg,
+            TUTORIAL_IMP_FRAME_SIZE, TUTORIAL_IMP_FRAME_SIZE,
+            f, TUTORIAL_IMP_FRAME_COUNT, 0.9, false);
+    }
     if (rawPatrickImg) {
         const f = Math.floor(_lsAnimT * 0.15) % PATRICK_TOTAL_FRAMES;
         _drawLsSprite('lsCanvas1a', rawPatrickImg, PATRICK_FRAME_W, PATRICK_FRAME_H, f, PATRICK_COLS, 0.7, false);
@@ -121,10 +127,22 @@ function showLevelSelect() {
 
     const hs = getHighScore();
     const l1Info = document.getElementById('l1InfoText');
+    const card1  = document.getElementById('levelCard1');
+    const l1Btn  = document.querySelector('#levelCard1 .level-start-btn');
+    const tutorialDone = !!playerData.hasSeenTutorial;
+    if (card1) {
+        if (tutorialDone) card1.classList.remove('locked');
+        else              card1.classList.add('locked');
+    }
+    if (l1Btn) l1Btn.disabled = !tutorialDone;
     if (l1Info) {
-        const waveStr  = hs.wave  > 0 ? hs.wave  : '\u2014';
-        const scoreStr = hs.score > 0 ? hs.score : '\u2014';
-        l1Info.textContent = T('levelselect.bestinfo', waveStr, scoreStr);
+        if (!tutorialDone) {
+            l1Info.textContent = T('levelselect.l1.locked');
+        } else {
+            const waveStr  = hs.wave  > 0 ? hs.wave  : '\u2014';
+            const scoreStr = hs.score > 0 ? hs.score : '\u2014';
+            l1Info.textContent = T('levelselect.bestinfo', waveStr, scoreStr);
+        }
     }
 
     const card2 = document.getElementById('levelCard2');
@@ -207,9 +225,16 @@ function triggerLevelComplete() {
 function startGame(level) {
     initAudio();
     game = createGame();
-    game.currentLevel = level || _selectedLevel || 1;
-    game.squadCount = 5 + getTalentSquadBonus() + getLevelSquadBonus();
-    game.peakSquad = game.squadCount;
+    const isTutorial = (level === 0);
+    // Tutorial reuses L1 visuals (Patrick, bridge). currentLevel=1 keeps
+    // sprites/BGM aligned with existing assets — no new art required.
+    game.currentLevel = isTutorial ? 1 : (level || _selectedLevel || 1);
+    if (isTutorial) {
+        setupTutorialRun(game);
+    } else {
+        game.squadCount = 5 + getTalentSquadBonus() + getLevelSquadBonus();
+        game.peakSquad = game.squadCount;
+    }
     const invCharges = (playerData.weaponCharges || {})['invincibility'] || 0;
     game.skillReady = invCharges > 0;
     game.skillCooldown = 0;
@@ -221,8 +246,14 @@ function startGame(level) {
     if (slotsDiv) slotsDiv.style.display = 'none';
     _skyBgW = 0; _skyBgH = 0; _skyBgLevel = 0;
     resetAchTempFlags();
-    // Start BGM matching current level
+    // Start BGM matching current level (tutorial uses L1 track)
     playBGM(game.currentLevel);
+}
+
+function startTutorial() {
+    const lsOverlay = document.getElementById('levelSelectOverlay');
+    if (lsOverlay) lsOverlay.classList.add('hidden');
+    startGame(0);
 }
 
 // ============================================================
@@ -411,6 +442,12 @@ function saveHighScore(score, wave) {
 // ============================================================
 function handlePlayerDeath() {
     const g = game;
+    // Tutorial: skip the revive prompt and just restart from step 1.
+    if (g.isTutorial) {
+        g.state = 'gameover';
+        showGameOver();
+        return;
+    }
     const reviveCost = (g.reviveCount + 1) * 10;
     const canRevive = (playerData.gems || 0) >= reviveCost;
     if (canRevive) {
@@ -477,6 +514,14 @@ function declineRevive() {
 // GAME OVER
 // ============================================================
 function showGameOver() {
+    // Tutorial: don't treat death as a "game over" — quietly restart the
+    // tutorial from wave 1 so the player can keep learning.
+    if (game && game.isTutorial) {
+        const slotsDiv = document.getElementById('weaponSlots');
+        if (slotsDiv) slotsDiv.style.display = 'none';
+        startGame(0);
+        return;
+    }
     stopBGM();
     playerData.level = game.level;
     playerData.exp = game.exp;

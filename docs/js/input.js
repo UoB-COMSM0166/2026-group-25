@@ -7,7 +7,11 @@ function setupInput() {
         keys[e.key] = true;
         if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
             if (game) {
-                if (game.state === 'playing') { game.state = 'paused'; showPauseMenu(); }
+                if (game.state === 'playing') {
+                    game.state = 'paused';
+                    if (game.isTutorial) game.tutorialPausedOnce = true;
+                    showPauseMenu();
+                }
                 else if (game.state === 'paused') { resumeGame(); }
             }
         }
@@ -36,7 +40,11 @@ function setupInput() {
     pauseBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (game) {
-            if (game.state === 'playing') { game.state = 'paused'; showPauseMenu(); }
+            if (game.state === 'playing') {
+                game.state = 'paused';
+                if (game.isTutorial) game.tutorialPausedOnce = true;
+                showPauseMenu();
+            }
             else if (game.state === 'paused') { resumeGame(); }
         }
     });

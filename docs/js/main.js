@@ -5,6 +5,7 @@
 // Images loaded in preload (p5.Image objects)
 let _p5PatrickImg, _p5XiaoNaiLongImg, _p5BossImg, _p5FireEnemyImg;
 let _p5CapybaraImg, _p5PigEngineerImg, _p5CowGunImg, _p5CowCryImg, _p5ElephantImg;
+let _p5TutorialImpImg, _p5TutorialBossImg;
 
 function preload() {
     _p5PatrickImg      = loadImage('assets/patrick.png');
@@ -16,6 +17,8 @@ function preload() {
     _p5CowGunImg       = loadImage('assets/cow_gun.png');
     _p5CowCryImg       = loadImage('assets/cow_cry.png');
     _p5ElephantImg     = loadImage('assets/elephant.png');
+    _p5TutorialImpImg  = loadImage('assets/tutorial_imp.png');
+    _p5TutorialBossImg = loadImage('assets/tutorial_boss.png');
 }
 
 function setup() {
@@ -35,6 +38,8 @@ function setup() {
     rawCowGunImg       = document.getElementById('spriteCowGun');
     rawCowCryImg       = document.getElementById('spriteCowCry');
     rawElephantImg     = document.getElementById('spriteElephant');
+    rawTutorialImpImg  = document.getElementById('spriteTutorialImp');
+    rawTutorialBossImg = document.getElementById('spriteTutorialBoss');
 
     _buildSpriteFrames();
     initAudio();
@@ -90,6 +95,12 @@ function _buildSpriteFrames() {
     }
     for (let i = 0; i < ELEPHANT_FRAME_COUNT; i++) {
         elephantFrames.push({ img: _p5ElephantImg, sx: i * ELEPHANT_FRAME_SIZE, sy: 0, sw: ELEPHANT_FRAME_SIZE, sh: ELEPHANT_FRAME_SIZE });
+    }
+    for (let i = 0; i < TUTORIAL_IMP_FRAME_COUNT; i++) {
+        tutorialImpFrames.push({ img: _p5TutorialImpImg, sx: i * TUTORIAL_IMP_FRAME_SIZE, sy: 0, sw: TUTORIAL_IMP_FRAME_SIZE, sh: TUTORIAL_IMP_FRAME_SIZE });
+    }
+    for (let i = 0; i < TUTORIAL_BOSS_FRAME_COUNT; i++) {
+        tutorialBossFrames.push({ img: _p5TutorialBossImg, sx: i * TUTORIAL_BOSS_FRAME_SIZE, sy: 0, sw: TUTORIAL_BOSS_FRAME_SIZE, sh: TUTORIAL_BOSS_FRAME_SIZE });
     }
     monsterSpritesLoaded = true;
     console.log('Sprites loaded: Patrick', normalMonsterFrames.length, 'XiaoNaiLong', xiaoNaiLongFrames.length, 'Boss', bossFrames.length);

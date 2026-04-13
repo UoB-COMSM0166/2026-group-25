@@ -1510,6 +1510,91 @@ html, body {
     margin-bottom: min(20px, 3.5vh);
 }
 
+/* ============================================================
+   LEVEL 0 TUTORIAL BANNER — prominent entry on level select
+   ============================================================ */
+#tutorialBanner {
+    display: flex;
+    align-items: center;
+    gap: min(18px, 3vw);
+    padding: min(14px, 2.4vw) min(20px, 3.2vw);
+    margin: 0 auto min(20px, 3vh);
+    /* Match the width of the two level cards below: 2 × 290 + 20 gap */
+    width: min(600px, 91.5vw);
+    box-sizing: border-box;
+    background: linear-gradient(95deg, rgba(20,80,70,0.88), rgba(10,30,50,0.88));
+    border: 2px solid rgba(80,220,180,0.5);
+    border-radius: 14px;
+    box-shadow: 0 0 22px rgba(80,220,180,0.12), inset 0 1px 0 rgba(255,255,255,0.05);
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+#tutorialBanner:hover {
+    border-color: rgba(110,255,210,0.85);
+    box-shadow: 0 0 32px rgba(80,220,180,0.28), inset 0 1px 0 rgba(255,255,255,0.08);
+    transform: translateY(-1px);
+}
+#tutorialBanner:active { transform: translateY(0) scale(0.99); }
+#tutorialBannerLeft {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: min(76px, 14vw);
+    height: min(76px, 14vw);
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(110,255,210,0.3);
+    border-radius: 10px;
+    overflow: hidden;
+}
+#tutorialBannerLeft canvas {
+    image-rendering: pixelated;
+    display: block;
+}
+#tutorialBannerMid {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+}
+#tutorialBannerTag {
+    font-size: min(11px, 2.3vw);
+    letter-spacing: 3px;
+    color: rgba(120,240,200,0.85);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+#tutorialBannerName {
+    font-size: min(19px, 4vw);
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: #c6ffee;
+    text-shadow: 0 0 12px rgba(80,220,180,0.5);
+    margin-bottom: 3px;
+}
+#tutorialBannerDesc {
+    font-size: min(12px, 2.5vw);
+    color: rgba(200,230,230,0.65);
+    letter-spacing: 0.5px;
+}
+#tutorialBannerRight { flex: 0 0 auto; }
+#tutorialBannerBtn {
+    padding: min(10px, 2vw) min(22px, 4.5vw);
+    font-size: min(14px, 3vw);
+    font-weight: bold;
+    letter-spacing: 2px;
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(180deg, #2aa888, #145a44);
+    border: 2px solid #55ddaa;
+    border-radius: 8px;
+    color: #eafff4;
+    text-shadow: 0 0 8px rgba(80,220,180,0.6);
+    cursor: pointer;
+    white-space: nowrap;
+}
+#tutorialBanner:hover #tutorialBannerBtn {
+    background: linear-gradient(180deg, #35c89c, #1a7a5c);
+}
+
 #levelSelectCards {
     display: flex;
     gap: min(20px, 3.5vw);

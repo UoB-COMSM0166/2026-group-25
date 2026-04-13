@@ -39,6 +39,18 @@ function handleBossDeath(g, enemy) {
     spawnBossCoins(enemy.x, enemy.z);
     if (enemy.isMegaBoss) spawnBossCoins(enemy.x, enemy.z); // mega boss double coins
     spawnBossGems(enemy.x, enemy.z);
+    // Tutorial: guarantee a gem drop so the "bosses drop gems" lesson lands
+    // even though spawnBossGems only drops on a random roll.
+    if (g.isTutorial) {
+        g.gems.push({
+            x: enemy.x, z: enemy.z,
+            vx: (g.player.x - enemy.x) * 0.03,
+            vz: ((g.cameraZ + 10) - enemy.z) * 0.04,
+            vy: -6, y: 0,
+            value: 1, life: 800,
+            bobPhase: Math.random() * Math.PI * 2,
+        });
+    }
     awardBossExp(enemy.isMegaBoss, enemy.x, enemy.z);
     const otherBossAlive = g.enemies.some(o => o !== enemy && o.alive && o.isBoss);
     if (!otherBossAlive) {
@@ -111,6 +123,20 @@ function processEnemyKill(g, enemy, opts) {
         // L2 Pig Hero: splits into 2 minis on death
         if (enemy.type === L2_TYPE_PIG_HERO && !enemy.isMini) {
             spawnMiniEnemies(enemy, 2);
+        }
+        // Tutorial: normal enemies drop a demo coin so the player can see
+        // the pickup flow without needing a boss.
+        if (g.isTutorial) {
+            const targetX = g.player.x + (Math.random() - 0.5) * 30;
+            g.coins.push({
+                x: enemy.x, z: enemy.z,
+                vx: (targetX - enemy.x) * 0.03,
+                vz: ((g.cameraZ + 10) - enemy.z) * 0.04,
+                vy: -4 - Math.random() * 2, y: 0,
+                value: 1, life: 600,
+                bobPhase: Math.random() * Math.PI * 2,
+                sparkle: Math.random(),
+            });
         }
     }
 }

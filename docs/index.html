@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Bridge Assault - 桥梁突击 (p5)</title>
-<link rel="stylesheet" href="style.css?v=1">
+<link rel="stylesheet" href="style.css?v=9">
 <style>
 /* p5.js canvas sits behind all overlays.
    Use "body > canvas" to target only the p5 canvas (direct child of body),
@@ -42,6 +42,8 @@ body > canvas {
     <img id="spriteCowGun"      src="assets/cow_gun.png">
     <img id="spriteCowCry"      src="assets/cow_cry.png">
     <img id="spriteElephant"    src="assets/elephant.png">
+    <img id="spriteTutorialImp" src="assets/tutorial_imp.png">
+    <img id="spriteTutorialBoss" src="assets/tutorial_boss.png">
 </div>
 
 <button id="pauseBtn">❚❚</button>
@@ -75,6 +77,22 @@ body > canvas {
 <div id="levelSelectOverlay" class="hidden">
     <div id="levelSelectPanel">
         <h2 id="levelSelectTitle" data-i18n="levelselect.title">选择关卡</h2>
+
+        <!-- Level 0 tutorial banner: full-width, prominent for new players -->
+        <div id="tutorialBanner" onclick="startTutorial()">
+            <div id="tutorialBannerLeft">
+                <canvas id="lsCanvas0" width="72" height="72"></canvas>
+            </div>
+            <div id="tutorialBannerMid">
+                <div id="tutorialBannerTag" data-i18n="levelselect.l0.tag">LEVEL 0 · 教程</div>
+                <div id="tutorialBannerName" data-i18n="levelselect.l0.name">新手教程</div>
+                <div id="tutorialBannerDesc" data-i18n="levelselect.l0.desc">10 步互动教学 · 掌握核心机制</div>
+            </div>
+            <div id="tutorialBannerRight">
+                <div id="tutorialBannerBtn" data-i18n="levelselect.l0.start">▶ 开 始</div>
+            </div>
+        </div>
+
         <div id="levelSelectCards">
             <div class="level-card level-card-1" id="levelCard1">
                 <div class="level-card-num">LEVEL I</div>
@@ -223,29 +241,30 @@ body > canvas {
 </div>
 
 <!-- Game modules (order matters: dependencies first) -->
-<script src="js/crypto.js?v=6"></script>
-<script src="js/config.js?v=6"></script>
-<script src="js/i18n.js?v=6"></script>
-<script src="js/globals.js?v=6"></script>
-<script src="js/audio.js?v=6"></script>
-<script src="js/core.js?v=6"></script>
-<script src="js/helpers.js?v=6"></script>
-<script src="js/spawn.js?v=6"></script>
-<script src="js/combat.js?v=6"></script>
-<script src="js/draw.js?v=6"></script>
-<script src="js/hud.js?v=6"></script>
-<script src="js/update_timers.js?v=6"></script>
-<script src="js/update_collision.js?v=6"></script>
-<script src="js/update_enemies.js?v=6"></script>
-<script src="js/update_world.js?v=6"></script>
-<script src="js/update_effects.js?v=6"></script>
-<script src="js/update.js?v=6"></script>
-<script src="js/render.js?v=6"></script>
-<script src="js/achievements.js?v=6"></script>
-<script src="js/shop.js?v=6"></script>
-<script src="js/leaderboard.js?v=6"></script>
-<script src="js/input.js?v=6"></script>
-<script src="js/ui.js?v=6"></script>
-<script src="js/main.js?v=6"></script>
+<script src="js/crypto.js?v=9"></script>
+<script src="js/config.js?v=9"></script>
+<script src="js/i18n.js?v=9"></script>
+<script src="js/globals.js?v=9"></script>
+<script src="js/audio.js?v=9"></script>
+<script src="js/core.js?v=9"></script>
+<script src="js/helpers.js?v=9"></script>
+<script src="js/spawn.js?v=9"></script>
+<script src="js/combat.js?v=9"></script>
+<script src="js/draw.js?v=9"></script>
+<script src="js/hud.js?v=9"></script>
+<script src="js/update_timers.js?v=9"></script>
+<script src="js/update_collision.js?v=9"></script>
+<script src="js/update_enemies.js?v=9"></script>
+<script src="js/update_world.js?v=9"></script>
+<script src="js/update_effects.js?v=9"></script>
+<script src="js/update.js?v=9"></script>
+<script src="js/render.js?v=9"></script>
+<script src="js/achievements.js?v=9"></script>
+<script src="js/shop.js?v=9"></script>
+<script src="js/leaderboard.js?v=9"></script>
+<script src="js/input.js?v=9"></script>
+<script src="js/ui.js?v=9"></script>
+<script src="js/tutorial.js?v=9"></script>
+<script src="js/main.js?v=9"></script>
 </body>
 </html>

@@ -20,6 +20,8 @@ let pigEngineerFrames = [];
 let cowGunFrames = [];
 let cowCryFrames = [];
 let elephantFrames = [];
+let tutorialImpFrames = [];
+let tutorialBossFrames = [];
 let monsterSpritesLoaded = false;
 
 // Raw p5.Image objects (loaded via loadImage in preload)
@@ -31,6 +33,8 @@ let rawPigEngineerImg = null;
 let rawCowGunImg = null;
 let rawCowCryImg = null;
 let rawElephantImg = null;
+let rawTutorialImpImg = null;
+let rawTutorialBossImg = null;
 
 // Audio
 let audioCtx;
@@ -119,4 +123,5 @@ if (playerData.l2HighScore === undefined) playerData.l2HighScore = { score: 0, w
 if (!playerData.stats) playerData.stats = {};
 if (!playerData.achievements) playerData.achievements = {};
 if (!playerData.achievementsClaimed) playerData.achievementsClaimed = {};
+if (playerData.hasSeenTutorial === undefined) playerData.hasSeenTutorial = false;
 savePlayerData(playerData);

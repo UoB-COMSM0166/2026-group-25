@@ -11,6 +11,7 @@ function update(dt) {
     updateEnemies(g, dt, dtF, bossAlive);
     updateWorld(g, dt, dtF, bossAlive);
     updateEffects(g, dt, dtF);
+    updateTutorial();
 
     flushPlayerDataSave(false);
 }

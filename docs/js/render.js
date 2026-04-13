@@ -29,7 +29,9 @@ function ensureSkyBuffer() {
 
 function render() {
     const g = game;
-    if (!g) return;
+    // When there is no active game (menu / between runs), clear the canvas so
+    // the last in-game frame doesn't bleed through under the DOM overlay.
+    if (!g) { background(0); return; }
 
     // Update screen dimensions and projection cache
     screenW = width;
@@ -386,7 +388,10 @@ function _renderEnemy(e, p, relZ) {
     let tintHex  = 0xffffff;
 
     if (monsterSpritesLoaded) {
-        if (e.isElephantBoss && elephantFrames.length > 0) {
+        if (e.tutorialMiniBoss && tutorialBossFrames.length > 0) {
+            frame    = tutorialBossFrames[Math.floor(e.animFrame * 0.3) % tutorialBossFrames.length];
+            frameH   = TUTORIAL_BOSS_FRAME_SIZE; sizeMult = 2.6;
+        } else if (e.isElephantBoss && elephantFrames.length > 0) {
             frame    = elephantFrames[Math.floor(e.animFrame * 0.35) % elephantFrames.length];
             frameH   = ELEPHANT_FRAME_SIZE; sizeMult = 8.0;
         } else if (e.isCowCryBoss && cowCryFrames.length > 0) {
@@ -414,6 +419,9 @@ function _renderEnemy(e, p, relZ) {
         } else if (e.type === L2_TYPE_ELEPHANT && elephantFrames.length > 0) {
             frame    = elephantFrames[Math.floor(e.animFrame * 0.35) % elephantFrames.length];
             frameH   = ELEPHANT_FRAME_SIZE; sizeMult = 3.0;
+        } else if (e.type === TUTORIAL_IMP_TYPE && tutorialImpFrames.length > 0) {
+            frame    = tutorialImpFrames[Math.floor(e.animFrame * 0.28) % tutorialImpFrames.length];
+            frameH   = TUTORIAL_IMP_FRAME_SIZE; sizeMult = 1.6;
         } else if (normalMonsterFrames.length > 0) {
             frame    = normalMonsterFrames[Math.floor(e.animFrame * 0.4) % normalMonsterFrames.length];
             frameH   = PATRICK_FRAME_H; sizeMult = 1.8;
