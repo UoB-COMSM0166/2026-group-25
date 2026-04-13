@@ -4,6 +4,13 @@
 function updateBulletCollisions(g, dtF) {
     // Bullets
     g.bullets.forEach(b => {
+        // Dead bullets kept alive for a few frames render an impact flash
+        // so the player clearly sees the kill. Don't move or re-check.
+        if (b.dead) { b.deathTimer = (b.deathTimer || 0) - dtF; return; }
+        // Remember last frame's position so the collision pass can do a
+        // swept-AABB check (prevents fast bullets from jumping over small
+        // hit boxes in a single frame at high dtF).
+        b.prevX = b.x; b.prevZ = b.z;
         b.x += b.vx * g.slowMoFactor * dtF; b.z += b.vz * g.slowMoFactor * dtF;
         // Rocket smoke trail
         if (b.weapon === 'rocket' && Math.random() < 0.4) {
@@ -21,7 +28,7 @@ function updateBulletCollisions(g, dtF) {
     // hold distance.
     const maxBulletRelZ = Math.max(CONFIG.SPAWN_DISTANCE, CONFIG.BOSS_HOLD_Z) + 100;
     g.bullets = g.bullets.filter(b => {
-        if (b.dead) return false;
+        if (b.dead) return b.deathTimer > 0;
         if (b.z - g.cameraZ > maxBulletRelZ || b.z < g.cameraZ - 10) return false;
         if (b.maxRange && b.z - b.startZ > b.maxRange) return false;
         return true;
@@ -34,23 +41,39 @@ function updateBulletCollisions(g, dtF) {
     let hitSoundedThisFrame = false;         // play hit sound at most once per frame
     const enemyDmgMap = new Map();           // enemy → accumulated damage this frame (for merged damage numbers)
     g.bullets.forEach(b => {
-        if (b.dead) return;
+        if (b.dead) return; // lingering impact flash, no more collisions
         for (let e of g.enemies) {
             if (!e.alive) continue;
             if (b.pierce && b.hitEnemies && b.hitEnemies.has(e)) continue;
-            const dx = Math.abs(b.x - e.x), dz = Math.abs(b.z - e.z);
-            // Hit box widens for large enemies. Regular mobs keep the old
-            // 22×16 box; bosses and mega bosses use bigger boxes so bullets
-            // don't visually "clip through" the huge sprite without hitting.
-            let hitX = b.weapon === 'rocket' ? 28 : 22;
-            let hitZ = b.weapon === 'rocket' ? 20 : 16;
-            if (e.isMegaBoss)      { hitX = 70; hitZ = 55; }
-            else if (e.isBoss)     { hitX = 48; hitZ = 38; }
-            else if (e.isHeavy || e.type === 3) { hitX += 6; hitZ += 5; }
-            if (dx < hitX && dz < hitZ) {
+            // Hit box calibrated to the visible sprite footprint so every
+            // bullet that visually overlaps the sprite counts as a hit, and
+            // bullets that visually clear the sprite go straight through.
+            // Derivation: sprite visual world-width ≈ 120 * sizeMult * 2 / xScale
+            // ≈ sizeMult * 132 for the default screen aspect; half that is
+            // the hitX we need. 22 × visMult approximates that half-width.
+            let visMult = 1.0;
+            if (e.isMegaBoss)            visMult = 8.0;   // sizeMult ≈ 7.5
+            else if (e.isBoss)           visMult = 6.0;   // sizeMult ≈ 5.0
+            else if (e.type === 3)       visMult = 2.6;   // fire dragon
+            else if (e.isHeavy)          visMult = 1.7;
+            let hitX = (b.weapon === 'rocket' ? 28 : 22) * visMult;
+            let hitZ = (b.weapon === 'rocket' ? 20 : 16) * visMult;
+            // Swept AABB: does the bullet's travel segment (prevZ → z)
+            // intersect the enemy's hit box? Fixes fast bullets skipping
+            // over small hit boxes when dtF is large.
+            const prevZ = b.prevZ !== undefined ? b.prevZ : b.z;
+            const prevX = b.prevX !== undefined ? b.prevX : b.x;
+            const segMinZ = Math.min(prevZ, b.z);
+            const segMaxZ = Math.max(prevZ, b.z);
+            const segMinX = Math.min(prevX, b.x);
+            const segMaxX = Math.max(prevX, b.x);
+            const zHit = segMaxZ >= e.z - hitZ && segMinZ <= e.z + hitZ;
+            const xHit = segMaxX >= e.x - hitX && segMinX <= e.x + hitX;
+            if (zHit && xHit) {
                 // L2 Engineer shield: block bullet, show BLOCKED! effect
                 if (e.shieldActive) {
-                    b.dead = true;
+                    b.x = e.x; b.z = e.z;
+                    b.dead = true; b.deathTimer = 3;
                     const bp = project(e.x, e.z - g.cameraZ);
                     addScorePopup('BLOCKED!', bp.x, bp.y - 15, 0x00ffff);
                     addParticles(e.x, e.z, 4, 0x00ffff, 2, 8);
@@ -83,7 +106,10 @@ function updateBulletCollisions(g, dtF) {
 
                 if (b.pierce && b.hitEnemies) { b.hitEnemies.add(e); }
                 else if (b.aoeRadius) {
-                    b.dead = true;
+                    // Snap to enemy position so the explosion visual is
+                    // centred on the contact point, not past it.
+                    b.x = e.x; b.z = e.z;
+                    b.dead = true; b.deathTimer = 3;
                     addExplosion(b.x, b.z);
                     g.shakeTimer = 8; g.screenFlash = 0.3;
                     playSound('explosion');
@@ -101,7 +127,18 @@ function updateBulletCollisions(g, dtF) {
                             }
                         }
                     });
-                } else { b.dead = true; }
+                } else {
+                    // Non-pierce non-AOE: snap to the enemy, flag dead,
+                    // and linger 3 frames so drawBullets can render a
+                    // bright impact flash at the contact point — the
+                    // player unmistakably sees "bullet → hit → gone".
+                    b.x = e.x; b.z = e.z;
+                    b.dead = true; b.deathTimer = 3;
+                    if (g.particles.length < 340) {
+                        addParticles(e.x, e.z, 6, 0xffee88, 3, 9);
+                        addParticles(e.x, e.z, 3, 0xffffff, 2, 6);
+                    }
+                }
 
                 if (e.hp <= 0) {
                     processEnemyKill(g, e);
@@ -112,22 +149,26 @@ function updateBulletCollisions(g, dtF) {
     });
     // Emit one merged damage number per enemy (replaces per-hit addDamageNumber calls)
     enemyDmgMap.forEach((totalDmg, e) => addDamageNumber(e.x, e.z, totalDmg));
-    g.bullets = g.bullets.filter(b => !b.dead);
+    g.bullets = g.bullets.filter(b => !b.dead || b.deathTimer > 0);
 
-    // Bullet-barrel collision
+    // Bullet-barrel collision (also swept so fast bullets can't skip barrels)
     g.bullets.forEach(b => {
         if (b.dead) return;
+        const prevZ = b.prevZ !== undefined ? b.prevZ : b.z;
+        const prevX = b.prevX !== undefined ? b.prevX : b.x;
+        const segMinZ = Math.min(prevZ, b.z), segMaxZ = Math.max(prevZ, b.z);
+        const segMinX = Math.min(prevX, b.x), segMaxX = Math.max(prevX, b.x);
         for (let br of g.barrels) {
             if (!br.alive) continue;
-            if (Math.abs(b.x - br.x) < 18 && Math.abs(b.z - br.z) < 15) {
+            if (segMaxZ >= br.z - 15 && segMinZ <= br.z + 15 &&
+                segMaxX >= br.x - 18 && segMinX <= br.x + 18) {
                 br.hp--;
                 addParticles(br.x, br.z, 3, 0xff8800, 2, 10);
-                if (!b.pierce) b.dead = true;
+                if (!b.pierce) { b.x = br.x; b.z = br.z; b.dead = true; b.deathTimer = 3; }
                 if (br.hp <= 0) explodeBarrel(br);
                 if (!b.pierce) break;
             }
         }
-        }
-    );
-    g.bullets = g.bullets.filter(b => !b.dead);
+    });
+    g.bullets = g.bullets.filter(b => !b.dead || b.deathTimer > 0);
 }
