@@ -677,7 +677,10 @@ html, body {
     left: 16px;
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
     gap: 6px;
+    width: min(300px, 24vw);
     z-index: 5;
     pointer-events: auto;
     padding: 7px;
@@ -690,8 +693,8 @@ html, body {
 }
 
 .current-weapon-badge {
-    min-width: min(190px, 40vw);
-    max-width: min(240px, 48vw);
+    min-width: 100%;
+    max-width: 100%;
     border-radius: 10px;
     border: 1px solid rgba(255,255,255,0.16);
     background: rgba(255,255,255,0.04);

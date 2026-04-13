@@ -289,15 +289,22 @@ function initWeaponSlots() {
         </div>
     `;
     slotsDiv.appendChild(currentBadge);
-    for (const [key, w] of Object.entries(SHOP_WEAPONS)) {
-        if (w.defenseOnly) continue;
+    const orderedTempWeapons = ['shotgun', 'laser', 'rocket'];
+    const tempWeaponDisplayNames = {
+        shotgun: 'Shortgun',
+        laser: 'Laser',
+        rocket: 'Rocket',
+    };
+    for (const key of orderedTempWeapons) {
+        const w = SHOP_WEAPONS[key];
+        if (!w) continue;
         const slot = document.createElement('div');
         slot.className = 'wslot';
         slot.dataset.weapon = key;
         slot.style.setProperty('--wcolor', w.color);
         slot.innerHTML = `
             <div class="wslot-icon">${w.icon}</div>
-            <div class="wslot-level" style="font-size:10px;color:rgba(255,255,255,0.4)">LOCKED</div>
+            <div class="wslot-level" style="font-size:10px;color:rgba(255,255,255,0.9)">${tempWeaponDisplayNames[key] || key}</div>
             <div class="wslot-equipped" style="font-size:9px;color:#ffd700;min-height:12px"></div>
         `;
         slotsDiv.appendChild(slot);
@@ -347,12 +354,17 @@ function _getCurrentWeaponDisplay() {
     }
 
     const def = SHOP_WEAPONS[wKey] || {};
-    const fallbackName = def.name || wKey.toUpperCase();
+    const tempWeaponDisplayNames = {
+        shotgun: 'Shortgun',
+        laser: 'Laser',
+        rocket: 'Rocket',
+    };
+    const fallbackName = tempWeaponDisplayNames[wKey] || def.name || wKey.toUpperCase();
     return {
         icon: def.icon || '',
-        name: T('weapon.' + wKey + '.name') || fallbackName,
+        name: tempWeaponDisplayNames[wKey] || fallbackName,
         color: def.color || '#ffffff',
-        meta: isTemp ? `${T('hud.current.weapon.temp')} · ${Math.ceil(g.weaponTimer / 1000)}s` : '',
+        meta: '',
     };
 }
 
@@ -422,9 +434,14 @@ function updateWeaponSlots() {
             const level = levels[key] || 0;
             const isGateActive = g.weapon === key && g.weaponTimer > 0;
             const levelEl = slot.querySelector('.wslot-level');
+            const tempWeaponDisplayNames = {
+                shotgun: 'Shortgun',
+                laser: 'Laser',
+                rocket: 'Rocket',
+            };
             if (levelEl) {
-                levelEl.textContent = level > 0 ? ('\u2605'.repeat(level) + '\u2606'.repeat(3 - level)) : 'LOCKED';
-                levelEl.style.color = level > 0 ? w.color : 'rgba(255,255,255,0.3)';
+                levelEl.textContent = tempWeaponDisplayNames[key] || key;
+                levelEl.style.color = level > 0 ? w.color : 'rgba(255,255,255,0.8)';
             }
             const equippedEl = slot.querySelector('.wslot-equipped');
             if (equippedEl) equippedEl.textContent = isGateActive ? 'TEMP' : '';
