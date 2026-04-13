@@ -455,10 +455,10 @@ function _renderEnemy(e, p, relZ) {
 
         // Boss label above HP bar (English only)
         if (e.isBoss) {
-            const labelStr   = e.isElephantBoss ? 'ELEPHANT KING'
-                : e.isCowCryBoss ? 'CRY COW'
-                : e.isMegaBoss   ? 'MEGA BOSS'
-                : 'BOSS DRAGON';
+            const labelStr   = e.isElephantBoss ? T('boss.elephant')
+                : e.isCowCryBoss ? T('boss.crycow')
+                : e.isMegaBoss   ? T('boss.mega')
+                : T('boss.dragon');
             const labelColor = e.isElephantBoss ? 0xff6600
                 : e.isCowCryBoss ? 0xff9944
                 : e.isMegaBoss   ? 0xff4444

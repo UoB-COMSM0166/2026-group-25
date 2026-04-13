@@ -86,7 +86,7 @@ function processEnemyKill(g, enemy, opts) {
         addParticles(enemy.x, enemy.z, 20, 0xffffff, 5, 25);
         g.shakeTimer = 35; g.screenFlash = 0.9;
         g.slowMo = 400;
-        const label = enemy.isElephantBoss ? '🐘 ELEPHANT KING' : '🔥 MEGA BOSS';
+        const label = enemy.isElephantBoss ? T('boss.elephant') : T('boss.mega');
         addScorePopup(`${label} +${killScore}!`, ep.x, ep.y - 40, 0xff4400);
         addStat('totalBossKills', 1);
         addStat('totalMegaBossKills', 1);
@@ -98,7 +98,7 @@ function processEnemyKill(g, enemy, opts) {
         addParticles(enemy.x, enemy.z, 40, 0xcc66ff, 6, 35);
         addParticles(enemy.x, enemy.z, 20, 0xffffff, 4, 25);
         g.shakeTimer = 25; g.screenFlash = 0.6;
-        const label = enemy.isCowCryBoss ? '🎵 CRY COW' : 'BOSS DRAGON';
+        const label = enemy.isCowCryBoss ? T('boss.crycow') : T('boss.dragon');
         const labelColor = enemy.isCowCryBoss ? 0xff9944 : 0xcc66ff;
         addScorePopup(`${label} +${killScore}!`, ep.x, ep.y - 30, labelColor);
         addStat('totalBossKills', 1);

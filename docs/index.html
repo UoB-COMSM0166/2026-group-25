@@ -62,11 +62,11 @@ body > canvas {
         <span id="gemCount" style="color:#cc44ff;">0</span>
     </div>
     <div id="menuButtons">
-        <button class="btn btn-start" id="startBtn">START GAME</button>
+        <button class="btn btn-start" id="startBtn" data-i18n="menu.start">START GAME</button>
         <div id="menuNav">
-            <button class="btn btn-nav btn-shop" id="shopBtn">SHOP</button>
-            <button class="btn btn-nav btn-achievements" onclick="showAchievementPanel()">ACHIEVEMENTS</button>
-            <button class="btn btn-nav btn-leaderboard" onclick="showLeaderboard()">LEADERBOARD</button>
+            <button class="btn btn-nav btn-shop" id="shopBtn" data-i18n="menu.shop">SHOP</button>
+            <button class="btn btn-nav btn-achievements" onclick="showAchievementPanel()" data-i18n="menu.achievements">ACHIEVEMENTS</button>
+            <button class="btn btn-nav btn-leaderboard" onclick="showLeaderboard()" data-i18n="menu.leaderboard">LEADERBOARD</button>
         </div>
     </div>
 </div>
@@ -124,7 +124,7 @@ body > canvas {
 <div id="shopOverlay" class="hidden">
     <div id="shopPanel">
         <div id="shopHeader">
-            <h2>SHOP</h2>
+            <h2 data-i18n="shop.title">SHOP</h2>
             <div id="shopCurrencies">
                 <div id="shopCoins"><svg viewBox="0 0 14 14" width="14" height="14" style="vertical-align:-2px"><circle cx="7" cy="7" r="6.5" fill="#b8820a"/><circle cx="7" cy="7" r="5.5" fill="#f0b828"/><ellipse cx="5.5" cy="5" rx="2" ry="1" fill="#f8d860" opacity="0.65"/></svg> <span id="shopCoinCount">0</span></div>
                 <div id="shopGems"><svg viewBox="0 0 14 14" width="14" height="14" style="vertical-align:-2px"><polygon points="7,1 13,6 7,13 1,6" fill="#8822bb"/><polygon points="7,1 13,6 7,7 1,6" fill="#cc44ff"/><polygon points="5,3 9,3 7,1" fill="#ee88ff"/></svg> <span id="shopGemCount">0</span></div>
@@ -153,7 +153,7 @@ body > canvas {
                 <div class="talent-hint" style="margin-top:min(14px,2vh)"><svg viewBox="0 0 14 14" width="13" height="13" style="vertical-align:-2px"><polygon points="7,1 13,6 7,13 1,6" fill="#8822bb"/><polygon points="7,1 13,6 7,7 1,6" fill="#cc44ff"/><polygon points="5,3 9,3 7,1" fill="#ee88ff"/></svg> <span data-i18n="shop.talent.hint">宝石由 Boss 随机掉落，用于永久提升角色属性</span></div>
             </div>
         </div>
-        <button class="btn btn-back" id="shopBackBtn">BACK</button>
+        <button class="btn btn-back" id="shopBackBtn" data-i18n="shop.back">BACK</button>
     </div>
 </div>
 

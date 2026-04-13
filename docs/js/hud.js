@@ -318,25 +318,25 @@ function drawBossHud() {
     }
 
     // Boss name
-    let bossName = 'BOSS DRAGON', bossNameColor = 0xcc66ff;
+    let bossName = T('boss.dragon'), bossNameColor = 0xcc66ff;
     const countTag = bossCount > 1 ? ` x${bossCount}` : '';
     if (hasMega) {
         const megaLevel = Math.floor(g.wave / 10);
         const megaBoss = bosses.find(b => b.isMegaBoss);
         if (megaBoss && megaBoss.isElephantBoss) {
-            bossName = `\u{1F418} ELEPHANT KING Lv.${megaLevel}${countTag}`;
+            bossName = `${T('boss.elephant')} Lv.${megaLevel}${countTag}`;
             bossNameColor = 0xff6600;
         } else {
-            bossName = `\u{1F525} MEGA BOSS Lv.${megaLevel}${countTag}`;
+            bossName = `${T('boss.mega')} Lv.${megaLevel}${countTag}`;
             bossNameColor = 0xff4400;
         }
     } else {
         const firstBoss = bosses[0];
         if (firstBoss && firstBoss.isCowCryBoss) {
-            bossName = `\u{1F3B5} CRY COW${countTag}`;
+            bossName = `${T('boss.crycow')}${countTag}`;
             bossNameColor = 0xff9944;
         } else {
-            bossName = `BOSS DRAGON${countTag}${bossLevel >= 3 ? ` Lv.${bossLevel}` : ''}`;
+            bossName = `${T('boss.dragon')}${countTag}${bossLevel >= 3 ? ` Lv.${bossLevel}` : ''}`;
             bossNameColor = 0xcc66ff;
         }
     }
@@ -382,18 +382,18 @@ function drawWaveBanner() {
     // Determine boss tier for glow color
     let subText, subColor, glowColor;
     if (wb.wave === 66 && !isL2) {
-        subText = 'FINAL BATTLE! DUAL MEGA BOSS!';
+        subText = T('wave.finalbattle');
         subColor = 0xff0000; glowColor = 'rgba(255,0,0,';
     } else if (wb.wave % 10 === 0) {
-        subText = isL2 ? `ELEPHANT KING!${afLabel}` : `MEGA BOSS!${afLabel}`;
+        subText = (isL2 ? T('wave.elephantking') : T('wave.megaboss')) + afLabel;
         subColor = isL2 ? 0xff6600 : 0xff4400;
         glowColor = isL2 ? 'rgba(255,102,0,' : 'rgba(255,68,0,';
     } else if (wb.wave % 5 === 0) {
-        subText = isL2 ? `CRY COW INCOMING!${afLabel}` : `BOSS INCOMING!${afLabel}`;
+        subText = (isL2 ? T('wave.crycowincoming') : T('wave.bossincoming')) + afLabel;
         subColor = isL2 ? 0x44ddff : 0xcc66ff;
         glowColor = isL2 ? 'rgba(68,221,255,' : 'rgba(204,102,255,';
     } else {
-        subText = `INCOMING!${afLabel}`;
+        subText = T('wave.incoming') + afLabel;
         subColor = 0xaabbcc; glowColor = 'rgba(68,136,204,';
     }
 

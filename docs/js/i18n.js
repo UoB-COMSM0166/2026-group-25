@@ -103,6 +103,8 @@ const TRANSLATIONS = {
         'menu.subtitle':        '桥 梁 突 击',
         'menu.start':           '开始游戏',
         'menu.shop':            '商店',
+        'menu.achievements':    '成就',
+        'menu.leaderboard':     '天梯榜',
 
         // Level select
         'levelselect.title':    '选择关卡',
@@ -120,6 +122,18 @@ const TRANSLATIONS = {
         'enemy.capybara':    '水豚兵',
         'enemy.elephant':    '大象王',
         'enemy.crycow':      '哭泣奶牛',
+
+        // Boss labels (HUD & wave banner)
+        'boss.dragon':          '龙王',
+        'boss.mega':            '巨龙王',
+        'boss.elephant':        '象王',
+        'boss.crycow':          '哭泣奶牛',
+        'wave.incoming':        '敌军来袭！',
+        'wave.bossincoming':    'BOSS 来袭！',
+        'wave.megaboss':        '巨龙王降临！',
+        'wave.elephantking':    '象王降临！',
+        'wave.crycowincoming':  '哭泣奶牛来袭！',
+        'wave.finalbattle':     '最终决战！双巨龙王！',
 
         // Level complete
         'levelcomplete.title':       '🏆 关卡完成！',
@@ -153,7 +167,8 @@ const TRANSLATIONS = {
         'tab.talent':           '天赋',
 
         // Shop general
-        'shop.back':            'BACK',
+        'shop.title':           '商店',
+        'shop.back':            '返回',
         'shop.equipped':        '✓ 已装备',
         'shop.equip':           '装备',
         'shop.unlock':          '解锁',
@@ -242,7 +257,7 @@ const TRANSLATIONS = {
         'midshop.opt2':      '全额恢复',
 
         // Game over
-        'gameover.title':      'GAME OVER',
+        'gameover.title':      '游戏结束',
         'gameover.score':      '最终得分',
         'gameover.stats':      '到达第 {0} 波 | 击杀 {1}',
         'gameover.combo':      '最高连击: {0}x',
@@ -250,9 +265,9 @@ const TRANSLATIONS = {
         'gameover.gems':       '💎 获得宝石: +{0} (总计: {1})',
         'gameover.gems.hint':  '击败 Boss 可获得宝石 💎',
         'gameover.record':     '历史最高: {0} (第{1}波)',
-        'gameover.newrecord':  '★ NEW RECORD! ★',
-        'gameover.mainmenu':   'MAIN MENU',
-        'gameover.playagain':  'PLAY AGAIN',
+        'gameover.newrecord':  '★ 新纪录! ★',
+        'gameover.mainmenu':   '主菜单',
+        'gameover.playagain':  '再玩一次',
 
         // Revive
         'revive.title':    '全军覆没!',
@@ -299,6 +314,8 @@ const TRANSLATIONS = {
         'menu.subtitle':        'WAVE  DEFENSE',
         'menu.start':           'START GAME',
         'menu.shop':            'SHOP',
+        'menu.achievements':    'ACHIEVEMENTS',
+        'menu.leaderboard':     'LEADERBOARD',
 
         // Level select
         'levelselect.title':    'SELECT LEVEL',
@@ -316,6 +333,18 @@ const TRANSLATIONS = {
         'enemy.capybara':    'Capybara',
         'enemy.elephant':    'Elephant King',
         'enemy.crycow':      'Crying Cow',
+
+        // Boss labels (HUD & wave banner)
+        'boss.dragon':          'BOSS DRAGON',
+        'boss.mega':            'MEGA BOSS',
+        'boss.elephant':        'ELEPHANT KING',
+        'boss.crycow':          'CRY COW',
+        'wave.incoming':        'INCOMING!',
+        'wave.bossincoming':    'BOSS INCOMING!',
+        'wave.megaboss':        'MEGA BOSS!',
+        'wave.elephantking':    'ELEPHANT KING!',
+        'wave.crycowincoming':  'CRY COW INCOMING!',
+        'wave.finalbattle':     'FINAL BATTLE! DUAL MEGA BOSS!',
 
         // Level complete
         'levelcomplete.title':       '\uD83C\uDFC6 LEVEL COMPLETE!',
@@ -349,6 +378,7 @@ const TRANSLATIONS = {
         'tab.talent':           'TALENTS',
 
         // Shop general
+        'shop.title':           'SHOP',
         'shop.back':            'BACK',
         'shop.equipped':        '✓ Equipped',
         'shop.equip':           'Equip',
