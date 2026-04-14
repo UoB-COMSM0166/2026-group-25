@@ -23,14 +23,6 @@ IMAGE. Add an image of your game here, keep this updated with a snapshot of your
 
 🎮 **[Play the game here!](https://uob-comsm0166.github.io/2026-group-25/)**
 
-## Privacy
-
-We reviewed data collection in this game and documented what is collected, why, and how it is handled.
-
-- See [`PRIVACY.md`](./PRIVACY.md) for full details.
-- Core gameplay works without submitting remote personal data.
-- Leaderboard visibility is privacy-first (private by default unless player explicitly enables public visibility).
-
 VIDEO. Include a demo video of your game here (you don't have to wait until the end, you can insert a work in progress video)  
 
 Version 1  
