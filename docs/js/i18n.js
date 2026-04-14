@@ -225,7 +225,7 @@ const TRANSLATIONS = {
 
         // Leaderboard
         'lb.title':            '🏆 天 梯 榜',
-        'lb.join.desc':        '设置一个名字，之后每次打完游戏<br>你的最高分会自动同步到排行榜',
+    'lb.join.desc':        '设置一个名字（可用昵称）<br>你的分数默认私密保存，手动开启后才会上榜',
         'lb.join.placeholder': '输入你的名字（最多16字）',
         'lb.join.btn':         '加入排行榜',
         'lb.join.loading':     '加入中…',
@@ -243,7 +243,7 @@ const TRANSLATIONS = {
         'lb.processing':       '处理中…',
         'lb.toggle.hide':      '隐藏分数',
         'lb.toggle.show':      '显示分数',
-        'lb.hidden.notice':    '你的分数当前已隐藏，不会出现在榜单中',
+    'lb.hidden.notice':    '你的分数当前是私密状态，不会出现在公开榜单中',
         'lb.close':            '关闭',
         'lb.leaderboard.btn':  '🏆 天梯榜',
     },
@@ -379,7 +379,7 @@ const TRANSLATIONS = {
 
         // Leaderboard
         'lb.title':            '🏆 LEADERBOARD',
-        'lb.join.desc':        'Set a name to join — your best score<br>will sync automatically after each game',
+    'lb.join.desc':        'Set a display name (nickname is fine)<br>Your score is private by default and only appears after you choose to show it',
         'lb.join.placeholder': 'Enter your name (max 16 chars)',
         'lb.join.btn':         'Join Leaderboard',
         'lb.join.loading':     'Joining…',
@@ -397,7 +397,7 @@ const TRANSLATIONS = {
         'lb.processing':       'Processing…',
         'lb.toggle.hide':      'Hide my score',
         'lb.toggle.show':      'Show my score',
-        'lb.hidden.notice':    'Your score is hidden and won\'t appear in the rankings',
+    'lb.hidden.notice':    'Your score is currently private and will not appear on the public leaderboard',
         'lb.close':            'Close',
         'lb.leaderboard.btn':  '🏆 Leaderboard',
     },
