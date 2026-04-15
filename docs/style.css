@@ -2,13 +2,45 @@
 
 html, body {
     width: 100%; height: 100%;
-    background: #0a0a1a;
+    background:
+        radial-gradient(circle at top, #24385c 0%, #10182d 34%, #070b16 68%, #03050a 100%);
     overflow: hidden;
     font-family: 'Courier New', monospace;
     touch-action: none;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
+}
+
+body {
+    position: relative;
+    color: #edf4ff;
+}
+
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+body::before {
+    z-index: 0;
+    background:
+        radial-gradient(circle at 50% 14%, rgba(114, 164, 255, 0.22), transparent 30%),
+        radial-gradient(circle at 18% 82%, rgba(255, 118, 54, 0.16), transparent 24%),
+        radial-gradient(circle at 85% 78%, rgba(255, 194, 78, 0.16), transparent 26%),
+        linear-gradient(180deg, rgba(255,255,255,0.04), transparent 24%, rgba(0,0,0,0.22) 100%);
+}
+
+body::after {
+    z-index: 0;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 80px),
+        linear-gradient(90deg, rgba(255,255,255,0.015) 0, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 120px);
+    opacity: 0.4;
+    mix-blend-mode: screen;
 }
 
 #gameContainer {
@@ -29,49 +61,108 @@ html, body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: rgba(0,0,0,0.85);
+    background:
+        radial-gradient(circle at 50% 22%, rgba(120, 165, 255, 0.16), transparent 28%),
+        linear-gradient(180deg, rgba(4, 8, 18, 0.48) 0%, rgba(3, 6, 14, 0.74) 45%, rgba(2, 4, 10, 0.92) 100%);
     z-index: 10;
     transition: opacity 0.3s;
+    overflow: hidden;
 }
 #overlay.hidden { opacity: 0; pointer-events: none; }
+#overlay::before,
+#overlay::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+}
+#overlay::before {
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 76%, rgba(255, 166, 69, 0.15), transparent 32%),
+        linear-gradient(180deg, transparent 0%, rgba(10, 18, 40, 0.18) 55%, rgba(14, 10, 8, 0.45) 100%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 110px);
+    opacity: 0.9;
+}
+#overlay::after {
+    width: min(920px, 92vw);
+    height: min(540px, 72vh);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -47%);
+    border-radius: 32px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background:
+        linear-gradient(180deg, rgba(17, 27, 52, 0.9), rgba(7, 11, 24, 0.78)),
+        radial-gradient(circle at top, rgba(255,255,255,0.08), transparent 58%);
+    box-shadow:
+        0 28px 90px rgba(0,0,0,0.52),
+        inset 0 1px 0 rgba(255,255,255,0.14),
+        inset 0 -1px 0 rgba(255,180,88,0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+#overlay > * {
+    position: relative;
+    z-index: 1;
+}
 #overlay h1 {
     font-size: min(72px, 12vw);
-    color: #f0c040;
-    text-shadow: 4px 4px 0 #804000, 0 0 30px rgba(240,192,64,0.6);
-    margin-bottom: 12px;
-    letter-spacing: min(6px, 1vw);
+    color: #ffd36b;
+    text-shadow:
+        0 3px 0 rgba(92, 52, 12, 0.95),
+        0 0 32px rgba(255, 196, 95, 0.34),
+        0 0 80px rgba(124, 169, 255, 0.12);
+    margin-bottom: 10px;
+    letter-spacing: min(9px, 1.2vw);
     text-align: center;
     padding: 0 10px;
+    line-height: 0.95;
 }
 #overlay h2 {
     font-size: min(20px, 4vw);
-    color: #aaa;
-    margin-bottom: min(40px, 6vh);
+    color: rgba(219, 230, 255, 0.74);
+    margin-bottom: min(34px, 5vh);
     font-weight: normal;
+    letter-spacing: min(8px, 1vw);
+    text-transform: uppercase;
 }
 #overlay .btn {
     padding: min(16px, 3.5vw) min(28px, 6vw);
     font-size: min(22px, 4.5vw);
     font-family: 'Courier New', monospace;
     font-weight: bold;
-    background: linear-gradient(180deg, #f0c040, #c08020);
-    color: #1a0a00;
-    border: 3px solid #f0d060;
+    background: linear-gradient(180deg, #ffdc84, #e59e38);
+    color: #231003;
+    border: 2px solid rgba(255, 223, 140, 0.9);
     cursor: pointer;
     letter-spacing: 2px;
-    transition: transform 0.1s;
+    transition: transform 0.12s, box-shadow 0.15s, border-color 0.15s, filter 0.15s;
     -webkit-tap-highlight-color: transparent;
-    border-radius: 6px;
+    border-radius: 12px;
+    box-shadow:
+        0 10px 26px rgba(0,0,0,0.34),
+        inset 0 1px 0 rgba(255,255,255,0.4);
 }
-#overlay .btn:hover { transform: scale(1.05); }
+#overlay .btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow:
+        0 16px 34px rgba(0,0,0,0.42),
+        0 0 18px rgba(255, 198, 96, 0.24),
+        inset 0 1px 0 rgba(255,255,255,0.45);
+}
 #overlay .btn:active { transform: scale(0.95); }
 /* Primary start button — large and prominent */
 #overlay .btn-start {
     padding: min(22px, 4.5vw) min(70px, 15vw);
     font-size: min(30px, 6vw);
     letter-spacing: 4px;
-    border-radius: 8px;
-    box-shadow: 0 0 20px rgba(240,192,64,0.3);
+    border-radius: 14px;
+    background:
+        linear-gradient(180deg, #ffe59b, #ffbf4e 48%, #e08f22 100%);
+    box-shadow:
+        0 18px 36px rgba(0,0,0,0.38),
+        0 0 24px rgba(255, 188, 63, 0.24),
+        inset 0 1px 0 rgba(255,255,255,0.45);
 }
 #scoreDisplay { color: #f0c040; font-size: min(28px, 5vw); margin: 16px 0 8px; }
 #finalScore { color: #fff; font-size: min(56px, 10vw); margin: 8px 0 20px; font-weight: bold; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
@@ -172,28 +263,45 @@ html, body {
     align-items: center;
     gap: min(16px, 3vh);
     margin-top: min(24px, 4vh);
+    padding: min(26px, 4vh) min(28px, 5vw);
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015));
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 18px 50px rgba(0,0,0,0.24);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
 /* Secondary nav row below start button */
 #menuNav {
     display: flex;
     gap: min(12px, 2.5vw);
+    flex-wrap: wrap;
+    justify-content: center;
 }
 #overlay .btn-nav {
     padding: min(10px, 2.2vw) min(22px, 4.5vw);
     font-size: min(14px, 3vw);
     letter-spacing: 1px;
-    border-width: 2px;
+    border-width: 1px;
+    min-width: min(160px, 28vw);
 }
 .btn-shop {
-    background: linear-gradient(180deg, #6040f0, #4020c0) !important;
-    border-color: #7050ff !important;
+    background: linear-gradient(180deg, #7f68ff, #4636cb) !important;
+    border-color: rgba(159, 139, 255, 0.95) !important;
     color: #fff !important;
 }
 .btn-shop:hover { transform: scale(1.05); }
 .btn-achievements {
-    background: linear-gradient(180deg, #e0a820, #a87810) !important;
-    border-color: #f0c040 !important;
+    background: linear-gradient(180deg, #f0bc43, #b78417) !important;
+    border-color: rgba(255, 217, 109, 0.9) !important;
     color: #1a0a00 !important;
+}
+.btn-leaderboard {
+    background: linear-gradient(180deg, #2a618e, #17314f) !important;
+    border-color: rgba(121, 188, 255, 0.9) !important;
+    color: #d8f0ff !important;
 }
 .btn-achievements.has-unclaimed {
     box-shadow: 0 0 12px #ffd700;
@@ -1415,9 +1523,9 @@ html, body {
 
 /* Leaderboard button in main menu */
 .btn-leaderboard {
-    background: linear-gradient(180deg, #204060, #102030) !important;
-    border-color: #4080c0 !important;
-    color: #88ccff !important;
+    background: linear-gradient(180deg, #2a618e, #17314f) !important;
+    border-color: rgba(121, 188, 255, 0.9) !important;
+    color: #d8f0ff !important;
 }
 
 /* Weapon unlock toast notification */
@@ -1485,29 +1593,51 @@ html, body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: rgba(0,0,0,0.88);
+    background:
+        radial-gradient(circle at top, rgba(109, 156, 255, 0.2), transparent 30%),
+        linear-gradient(180deg, rgba(4, 8, 18, 0.72), rgba(3, 6, 12, 0.94));
     z-index: 10;
     transition: opacity 0.3s;
+    overflow: hidden;
 }
 #levelSelectOverlay.hidden { opacity: 0; pointer-events: none; }
 
 #levelSelectPanel {
+    position: relative;
     width: min(720px, 94vw);
     padding: min(30px, 5vw) min(28px, 4.5vw);
-    background: linear-gradient(180deg, #141428, #0a0a1a);
-    border: 2px solid #f0c040;
-    border-radius: 20px;
-    box-shadow: 0 0 60px rgba(240,192,64,0.18), inset 0 1px 0 rgba(255,255,255,0.05);
+    background:
+        linear-gradient(180deg, rgba(20, 28, 54, 0.96), rgba(9, 12, 24, 0.94)),
+        radial-gradient(circle at top, rgba(255,255,255,0.06), transparent 58%);
+    border: 1px solid rgba(255, 212, 116, 0.6);
+    border-radius: 26px;
+    box-shadow:
+        0 30px 90px rgba(0,0,0,0.48),
+        0 0 48px rgba(255, 188, 77, 0.14),
+        inset 0 1px 0 rgba(255,255,255,0.08);
     text-align: center;
+    overflow: hidden;
+}
+
+#levelSelectPanel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(135deg, rgba(255,255,255,0.06), transparent 24%),
+        radial-gradient(circle at top right, rgba(255, 186, 82, 0.12), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(91, 132, 255, 0.12), transparent 26%);
 }
 
 #levelSelectTitle {
     font-size: min(30px, 6.5vw);
     font-weight: bold;
-    color: #f0c040;
+    color: #ffd36b;
     letter-spacing: 4px;
-    text-shadow: 0 0 20px rgba(240,192,64,0.5);
+    text-shadow: 0 0 24px rgba(255, 194, 79, 0.4);
     margin-bottom: min(20px, 3.5vh);
+    position: relative;
 }
 
 /* ============================================================
@@ -1522,17 +1652,25 @@ html, body {
     /* Match the width of the two level cards below: 2 × 290 + 20 gap */
     width: min(600px, 91.5vw);
     box-sizing: border-box;
-    background: linear-gradient(95deg, rgba(20,80,70,0.88), rgba(10,30,50,0.88));
-    border: 2px solid rgba(80,220,180,0.5);
-    border-radius: 14px;
-    box-shadow: 0 0 22px rgba(80,220,180,0.12), inset 0 1px 0 rgba(255,255,255,0.05);
+    background:
+        linear-gradient(100deg, rgba(17, 94, 88, 0.92), rgba(14, 45, 82, 0.92)),
+        radial-gradient(circle at top, rgba(255,255,255,0.08), transparent 60%);
+    border: 1px solid rgba(104,235,195,0.58);
+    border-radius: 18px;
+    box-shadow:
+        0 16px 34px rgba(0,0,0,0.28),
+        0 0 28px rgba(80,220,180,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.08);
     cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
 }
 #tutorialBanner:hover {
     border-color: rgba(110,255,210,0.85);
-    box-shadow: 0 0 32px rgba(80,220,180,0.28), inset 0 1px 0 rgba(255,255,255,0.08);
-    transform: translateY(-1px);
+    box-shadow:
+        0 22px 44px rgba(0,0,0,0.34),
+        0 0 36px rgba(80,220,180,0.24),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+    transform: translateY(-3px);
 }
 #tutorialBanner:active { transform: translateY(0) scale(0.99); }
 #tutorialBannerLeft {
@@ -1606,32 +1744,45 @@ html, body {
 .level-card {
     width: min(290px, 44vw);
     padding: min(16px, 2.8vw) min(16px, 2.5vw) min(18px, 3vw);
-    border-radius: 16px;
+    border-radius: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: min(7px, 1.3vh);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.14s;
     cursor: default;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+.level-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(135deg, rgba(255,255,255,0.08), transparent 22%),
+        radial-gradient(circle at top right, rgba(255,255,255,0.04), transparent 28%);
 }
 .level-card-1 {
-    background: linear-gradient(170deg, rgba(15,25,55,0.95), rgba(8,10,25,0.95));
-    border-color: rgba(80,140,255,0.4);
-    box-shadow: 0 0 20px rgba(80,140,255,0.08);
+    background: linear-gradient(170deg, rgba(18,32,68,0.96), rgba(7,12,28,0.96));
+    border-color: rgba(114,167,255,0.42);
+    box-shadow: 0 16px 34px rgba(0,0,0,0.28), 0 0 24px rgba(80,140,255,0.08);
 }
 .level-card-1:hover {
     border-color: rgba(80,180,255,0.7);
-    box-shadow: 0 0 28px rgba(80,180,255,0.2);
+    box-shadow: 0 22px 42px rgba(0,0,0,0.34), 0 0 32px rgba(80,180,255,0.18);
+    transform: translateY(-4px);
 }
 .level-card-2 {
-    background: linear-gradient(170deg, rgba(48,8,8,0.95), rgba(18,4,4,0.95));
-    border-color: rgba(220,60,60,0.4);
-    box-shadow: 0 0 20px rgba(220,60,60,0.08);
+    background: linear-gradient(170deg, rgba(66,18,18,0.96), rgba(20,6,6,0.96));
+    border-color: rgba(246,112,92,0.42);
+    box-shadow: 0 16px 34px rgba(0,0,0,0.28), 0 0 24px rgba(220,60,60,0.08);
 }
 .level-card-2:hover {
     border-color: rgba(255,80,80,0.7);
-    box-shadow: 0 0 28px rgba(255,80,80,0.2);
+    box-shadow: 0 22px 42px rgba(0,0,0,0.34), 0 0 32px rgba(255,80,80,0.18);
+    transform: translateY(-4px);
 }
 .level-card.locked {
     opacity: 0.7;
@@ -1706,25 +1857,27 @@ html, body {
     padding: min(9px, 1.8vw) min(28px, 5.5vw) !important;
     font-size: min(15px, 3.2vw) !important;
     letter-spacing: 2px;
+    border-radius: 12px !important;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.26);
 }
 .level-card-1 .level-start-btn {
-    background: linear-gradient(180deg, #1a4488, #122d5a) !important;
-    border-color: #3366cc !important;
+    background: linear-gradient(180deg, #2d62bf, #17365f) !important;
+    border-color: rgba(112, 170, 255, 0.88) !important;
 }
 .level-card-1 .level-start-btn:hover {
-    background: linear-gradient(180deg, #2255aa, #1a4488) !important;
+    background: linear-gradient(180deg, #3572d8, #204887) !important;
 }
 .level-card-2 .level-start-btn {
-    background: linear-gradient(180deg, #7a1818, #4e0f0f) !important;
-    border-color: #bb2222 !important;
+    background: linear-gradient(180deg, #b6332a, #621612) !important;
+    border-color: rgba(255, 129, 104, 0.88) !important;
 }
 .level-card-2 .level-start-btn:hover {
-    background: linear-gradient(180deg, #992222, #7a1818) !important;
+    background: linear-gradient(180deg, #d84436, #85211b) !important;
 }
 .btn-back-menu {
-    background: linear-gradient(180deg, #444, #282828) !important;
-    border-color: #666 !important;
-    color: #ccc !important;
+    background: linear-gradient(180deg, #4f5c77, #263146) !important;
+    border-color: rgba(177, 198, 233, 0.4) !important;
+    color: #dbe7fb !important;
     padding: min(10px, 2vw) min(28px, 6vw) !important;
     font-size: min(15px, 3.2vw) !important;
 }
