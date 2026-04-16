@@ -1938,24 +1938,25 @@ body::after {
                    drop-shadow(0 0 56px rgba(220, 60, 20, 0.28)); }
 }
 
-/* --- Elephant (far background, behind title) ---
+/* --- Elephant King (bottom-center, prominent mascot) ---
    Sprite: 3712×128, 29 frames, each 128×128
-   Display: 200×200, extreme low opacity + blur for distant silhouette feel */
+   Display: 160×160, centered between the two bottom monsters */
 .monster-elephant-bg {
-    width: 200px;
-    height: 200px;
+    width: 160px;
+    height: 160px;
     left: 50%;
-    top: 52%;
-    transform: translate(-50%, -50%);
-    opacity: 0.14;
-    filter: blur(1.5px) drop-shadow(0 0 24px rgba(0, 0, 0, 0.6));
-    background: url('assets/elephant.png') 0 0 / 5800px 200px no-repeat;
+    bottom: 2%;
+    transform: translateX(-50%);
+    opacity: 0.55;
+    filter: drop-shadow(0 0 22px rgba(255, 140, 40, 0.25))
+            drop-shadow(0 0 8px rgba(0, 0, 0, 0.5));
+    background: url('assets/elephant.png') 0 0 / 4640px 160px no-repeat;
     animation:
-        sprite-elephant 2.5s steps(29) infinite,
-        float-y 5s ease-in-out infinite alternate;
+        sprite-elephant 2.2s steps(29) infinite,
+        float-y 4.5s ease-in-out infinite alternate;
 }
 @keyframes sprite-elephant {
-    to { background-position: -5800px 0; }
+    to { background-position: -4640px 0; }
 }
 
 /* --- Cow Cry (mid-right, accent creature) ---
@@ -2023,12 +2024,12 @@ body::after {
                                transform: translateX(calc(-50% + 160px)); }
     .monster-fire-top-left   { width: 84px; height: 84px; background-size: 672px  84px; opacity: 0.28;
                                transform: translateX(calc(-50% - 170px)) scaleX(-1); }
-    .monster-elephant-bg     { width: 140px; height: 140px; background-size: 4060px 140px; opacity: 0.10; }
+    .monster-elephant-bg     { width: 110px; height: 110px; background-size: 3190px 110px; opacity: 0.50; }
+    @keyframes sprite-elephant { to { background-position: -3190px 0; } }
     .monster-cow-mid-right   { width: 54px; height: 54px; background-size: 1080px 54px; opacity: 0.35; right: 10%; }
     @keyframes sprite-dragon   { to { background-position: -1344px 0; } }
     @keyframes sprite-capybara { to { background-position: -960px  0; } }
     @keyframes sprite-boss     { to { background-position: -320px  0; } }
     @keyframes sprite-fire     { to { background-position: -672px  0; } }
-    @keyframes sprite-elephant { to { background-position: -4060px 0; } }
     @keyframes sprite-cow      { to { background-position: -1080px 0; } }
 }
