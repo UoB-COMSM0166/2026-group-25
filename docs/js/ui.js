@@ -36,12 +36,13 @@ function menuFromPause() {
     stopBGM();
     if (game) {
         if (game.isTutorial) restoreTutorialWeaponCharges();
+        const currentLvl = game.currentLevel || 1;
         playerData.level = game.level;
         playerData.exp = game.exp;
         flushPlayerDataSave(true);
         savePlayerData(playerData);
         if (!game.isTutorial) {
-            saveHighScore(game.score, game.wave);
+            saveLevelAwareHighScore(currentLvl, game.score, game.wave);
             syncHighScore();
         }
     }
@@ -520,6 +521,19 @@ function isBetterRunRecord(score, wave, prev) {
     return score > prevScore || (score === prevScore && wave > prevWave);
 }
 
+function saveLevelAwareHighScore(level, score, wave) {
+    if ((level || 1) === 2) {
+        const prev = playerData.l2HighScore || { score: 0, wave: 0 };
+        if (isBetterRunRecord(score, wave, prev)) {
+            playerData.l2HighScore = { score, wave };
+            savePlayerData(playerData);
+            return true;
+        }
+        return false;
+    }
+    return saveHighScore(score, wave);
+}
+
 // ============================================================
 // REVIVE SYSTEM
 // ============================================================
@@ -612,17 +626,7 @@ function showGameOver() {
     savePlayerData(playerData);
     updateEndOfGameStats();
     const currentLvl = game.currentLevel || 1;
-    let isNewRecord;
-    if (currentLvl === 2) {
-        const prev = playerData.l2HighScore || { score: 0, wave: 0 };
-        if (isBetterRunRecord(game.score, game.wave, prev)) {
-            playerData.l2HighScore = { score: game.score, wave: game.wave };
-            savePlayerData(playerData);
-            isNewRecord = true;
-        } else { isNewRecord = false; }
-    } else {
-        isNewRecord = saveHighScore(game.score, game.wave);
-    }
+    const isNewRecord = saveLevelAwareHighScore(currentLvl, game.score, game.wave);
     syncHighScore();
     const hs = currentLvl === 2
         ? (playerData.l2HighScore || { score: 0, wave: 0 })
