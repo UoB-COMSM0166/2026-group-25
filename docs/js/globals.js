@@ -49,6 +49,13 @@ const keys = {};
 const overlay = document.getElementById('overlay');
 const startBtn = document.getElementById('startBtn');
 
+// Snapshot of the pristine main-menu markup. Captured at page load (before
+// any user interaction or dynamic writes) so that returning to the menu
+// after game over / level select / pause restores the exact same layout
+// authored in index.html (monster decorations, SVG icon tiles, divider,
+// currency pill). See restoreMainMenu() in ui.js.
+const MAIN_MENU_TEMPLATE = overlay ? overlay.innerHTML : '';
+
 // ============================================================
 // PERSISTENT DATA (localStorage)
 // ============================================================

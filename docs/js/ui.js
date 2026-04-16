@@ -565,24 +565,27 @@ function showGameOver() {
 }
 
 function restoreMainMenu() {
-    overlay.innerHTML = `
-        <h1>BRIDGE ASSAULT</h1>
-        <h2 data-i18n="menu.subtitle">${T('menu.subtitle')}</h2>
-        <div id="coinDisplay">
-            <span class="coin-icon"><svg viewBox="0 0 18 18" width="18" height="18" style="vertical-align:-3px"><circle cx="9" cy="9" r="8.5" fill="#b8820a"/><circle cx="9" cy="9" r="7" fill="#f0b828"/><ellipse cx="7" cy="6.5" rx="3" ry="1.5" fill="#f8d860" opacity="0.6"/></svg></span>
-            <span id="coinCount">${playerData.coins}</span>
-            <span style="margin-left:14px"><svg viewBox="0 0 16 16" width="16" height="16" style="vertical-align:-3px"><polygon points="8,1 14,6 8,15 2,6" fill="#8822bb"/><polygon points="8,1 14,6 8,8 2,6" fill="#cc44ff"/><polygon points="5.5,3.5 10.5,3.5 8,1" fill="#ee88ff"/></svg></span>
-            <span id="gemCount" style="color:#cc44ff;">${playerData.gems || 0}</span>
-        </div>
-        <div id="menuButtons">
-            <button class="btn btn-start" onclick="showLevelSelect()" data-i18n="menu.start">${T('menu.start')}</button>
-            <div id="menuNav">
-                <button class="btn btn-nav btn-shop" onclick="openShop()" data-i18n="menu.shop">${T('menu.shop')}</button>
-                <button class="btn btn-nav btn-achievements${_hasUnclaimedAch() ? ' has-unclaimed' : ''}" onclick="showAchievementPanel()" data-i18n="menu.achievements">${T('menu.achievements')}</button>
-                <button class="btn btn-nav btn-leaderboard" onclick="showLeaderboard()" data-i18n="menu.leaderboard">${T('menu.leaderboard')}</button>
-            </div>
-        </div>
-    `;
+    // Restore the pristine menu markup captured at page load in globals.js.
+    // This keeps the layout in sync with index.html automatically — no need
+    // to maintain a second copy of the menu HTML here that silently drifts
+    // out of date whenever the menu is redesigned.
+    if (MAIN_MENU_TEMPLATE) {
+        overlay.innerHTML = MAIN_MENU_TEMPLATE;
+    }
+
+    // Re-apply dynamic state that isn't part of the template:
+    //   - current coin/gem counts (template shipped with placeholder 0/0)
+    //   - unclaimed-achievement pulse class
+    //   - i18n text for current language (template has zh text by default)
+    const coinEl = document.getElementById('coinCount');
+    if (coinEl) coinEl.textContent = playerData.coins;
+    const gemEl = document.getElementById('gemCount');
+    if (gemEl) gemEl.textContent = playerData.gems || 0;
+
+    const achBtn = overlay.querySelector('.btn-achievements');
+    if (achBtn) achBtn.classList.toggle('has-unclaimed', _hasUnclaimedAch());
+
+    if (typeof applyLang === 'function') applyLang();
 }
 
 // ============================================================
