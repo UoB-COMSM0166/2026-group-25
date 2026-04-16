@@ -22,12 +22,27 @@ function _saveLbPlayer(name, recordId, hidden) {
     localStorage.setItem(LB_STORAGE_KEY, JSON.stringify({ name, recordId, hidden: !!hidden }));
 }
 
+function _sanitizeLbName(name) {
+    return String(name || '')
+        .replace(/[\u0000-\u001F\u007F]/g, '')
+        .trim()
+        .slice(0, 16);
+}
+
 // ── API ───────────────────────────────────────────────────────
-async function _createRecord(name, score, wave, level) {
+async function _createRecord(name, score, wave, level, hidden) {
+    const cleanName = _sanitizeLbName(name);
+    if (!cleanName) throw new Error('Invalid name');
     const resp = await fetch(`${LEADERBOARD_BASE}/api/collections/${SCORES_COLLECTION}/records`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ player_name: name.trim().slice(0, 16), score: Math.floor(score), wave: Math.floor(wave), level: Math.floor(level || 1), hidden: false }),
+        body: JSON.stringify({
+            player_name: cleanName,
+            score: Math.floor(score),
+            wave: Math.floor(wave),
+            level: Math.floor(level || 1),
+            hidden: hidden !== undefined ? !!hidden : true,
+        }),
     });
     if (!resp.ok) throw new Error('create failed');
     return await resp.json();
@@ -70,8 +85,8 @@ async function syncHighScore() {
     } catch {
         // Record may have been deleted — recreate
         try {
-            const rec = await _createRecord(player.name, hs.score, hs.wave, lv);
-            _saveLbPlayer(player.name, rec.id, false);
+            const rec = await _createRecord(player.name, hs.score, hs.wave, lv, !!player.hidden);
+            _saveLbPlayer(player.name, rec.id, !!player.hidden);
         } catch {}
     }
 }
@@ -155,7 +170,7 @@ async function _handleJoin() {
     const statusEl = document.getElementById('lbJoinStatus');
     const btn = document.getElementById('lbJoinBtn');
     if (!input) return;
-    const name = input.value.trim();
+    const name = _sanitizeLbName(input.value);
     if (!name) { statusEl.textContent = T('lb.join.empty'); return; }
     btn.disabled = true;
     btn.textContent = T('lb.join.loading');
@@ -163,8 +178,9 @@ async function _handleJoin() {
     try {
         const hs = getHighScore();
         const lv = playerData ? Math.floor(playerData.level || 1) : 1;
-        const rec = await _createRecord(name, hs.score, hs.wave, lv);
-        _saveLbPlayer(name, rec.id, false);
+        // Privacy by default: hidden=true until player explicitly enables visibility.
+        const rec = await _createRecord(name, hs.score, hs.wave, lv, true);
+        _saveLbPlayer(name, rec.id, true);
         _renderList(name);
     } catch {
         statusEl.textContent = T('lb.join.fail');
