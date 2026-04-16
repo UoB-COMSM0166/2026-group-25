@@ -100,7 +100,9 @@ function updateWorld(g, dt, dtF, bossAlive) {
     });
 
     // Spawning — blocked while boss is alive (must defeat boss before next wave)
-    if (!bossAlive && g.cameraZ + CONFIG.SPAWN_DISTANCE > g.nextWaveZ) {
+    // Tutorial never uses the camera-crossing trigger (nextWaveZ is parked
+    // at infinity); progression happens in updateTutorial via goal checks.
+    if (!g.isTutorial && !bossAlive && g.cameraZ + CONFIG.SPAWN_DISTANCE > g.nextWaveZ) {
         spawnEnemyWave();
         if (Math.random() > 0.55) spawnBarrels();
         g.wave++;

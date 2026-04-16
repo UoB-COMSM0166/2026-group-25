@@ -79,6 +79,12 @@ function _runLevelSelectAnim() {
         _lsAnimRaf = null;
         return;
     }
+    if (rawTutorialImpImg) {
+        const f = Math.floor(_lsAnimT * 0.1) % TUTORIAL_IMP_FRAME_COUNT;
+        _drawLsSprite('lsCanvas0', rawTutorialImpImg,
+            TUTORIAL_IMP_FRAME_SIZE, TUTORIAL_IMP_FRAME_SIZE,
+            f, TUTORIAL_IMP_FRAME_COUNT, 0.9, false);
+    }
     if (rawPatrickImg) {
         const f = Math.floor(_lsAnimT * 0.15) % PATRICK_TOTAL_FRAMES;
         _drawLsSprite('lsCanvas1a', rawPatrickImg, PATRICK_FRAME_W, PATRICK_FRAME_H, f, PATRICK_COLS, 0.7, false);
@@ -120,10 +126,24 @@ function showLevelSelect() {
     const isL2Unlocked = unlocked.includes(2);
 
     const hs = getHighScore();
-    const l1BestWave = document.getElementById('l1BestWave');
-    const l1BestScore = document.getElementById('l1BestScore');
-    if (l1BestWave) l1BestWave.textContent = hs.wave > 0 ? hs.wave : '\u2014';
-    if (l1BestScore) l1BestScore.textContent = hs.score > 0 ? hs.score : '\u2014';
+    const l1Info = document.getElementById('l1InfoText');
+    const card1  = document.getElementById('levelCard1');
+    const l1Btn  = document.querySelector('#levelCard1 .level-start-btn');
+    const tutorialDone = !!playerData.hasSeenTutorial;
+    if (card1) {
+        if (tutorialDone) card1.classList.remove('locked');
+        else              card1.classList.add('locked');
+    }
+    if (l1Btn) l1Btn.disabled = !tutorialDone;
+    if (l1Info) {
+        if (!tutorialDone) {
+            l1Info.textContent = T('levelselect.l1.locked');
+        } else {
+            const waveStr  = hs.wave  > 0 ? hs.wave  : '\u2014';
+            const scoreStr = hs.score > 0 ? hs.score : '\u2014';
+            l1Info.textContent = T('levelselect.bestinfo', waveStr, scoreStr);
+        }
+    }
 
     const card2 = document.getElementById('levelCard2');
     const l2Info = document.getElementById('l2InfoText');
@@ -132,11 +152,15 @@ function showLevelSelect() {
         if (isL2Unlocked) {
             card2.classList.remove('locked');
             const l2Hs = playerData.l2HighScore || { score: 0, wave: 0 };
-            if (l2Info) l2Info.textContent = `BEST WAVE: ${l2Hs.wave > 0 ? l2Hs.wave : '\u2014'} | BEST SCORE: ${l2Hs.score > 0 ? l2Hs.score : '\u2014'}`;
+            if (l2Info) {
+                const waveStr  = l2Hs.wave  > 0 ? l2Hs.wave  : '\u2014';
+                const scoreStr = l2Hs.score > 0 ? l2Hs.score : '\u2014';
+                l2Info.textContent = T('levelselect.bestinfo', waveStr, scoreStr);
+            }
             if (l2Btn) l2Btn.disabled = false;
         } else {
             card2.classList.add('locked');
-            if (l2Info) l2Info.textContent = '\uD83D\uDD12 Clear Level I (Wave 66) to unlock';
+            if (l2Info) l2Info.textContent = T('levelselect.l2.locked');
             if (l2Btn) l2Btn.disabled = true;
         }
     }
@@ -173,19 +197,19 @@ function triggerLevelComplete() {
     const isL2Clear = g.currentLevel === 2;
     const maxWaves = isL2Clear ? MAX_WAVES_LEVEL2 : MAX_WAVES_LEVEL1;
     const levelTag = isL2Clear ? 'LEVEL II' : 'LEVEL I';
-    const unlockLine = isL2Clear ? '' : `<div style="color:#cc44ff;font-size:min(20px,4vw);margin-bottom:24px;text-shadow:0 0 15px rgba(200,68,255,0.6);">\uD83D\uDD13 LEVEL II - DOOMSDAY FACTORY UNLOCKED!</div>`;
-    const nextBtn = isL2Clear ? '' : `<button class="btn" style="background:linear-gradient(180deg,#f0b828,#c87800);border-color:#f0c840;" onclick="startGameWithLevel(2)">\u25B6 NEXT LEVEL</button>`;
+    const unlockLine = isL2Clear ? '' : `<div style="color:#cc44ff;font-size:min(20px,4vw);margin-bottom:24px;text-shadow:0 0 15px rgba(200,68,255,0.6);">\uD83D\uDD13 ${T('levelcomplete.unlocked')}</div>`;
+    const nextBtn = isL2Clear ? '' : `<button class="btn" style="background:linear-gradient(180deg,#f0b828,#c87800);border-color:#f0c840;" onclick="startGameWithLevel(2)">\u25B6 ${T('levelcomplete.next')}</button>`;
     overlay.classList.remove('hidden');
     overlay.innerHTML = `
-        <h1 style="color:#44ff88;text-shadow:0 0 30px rgba(68,255,136,0.7);">\uD83C\uDFC6 LEVEL COMPLETE!</h1>
-        <div style="color:#f0c040;font-size:min(32px,6vw);margin:16px 0;letter-spacing:3px;">${levelTag} CLEAR!</div>
-        <div style="color:#aaa;font-size:min(20px,4vw);margin-bottom:12px;">WAVES: ${g.wave - 1} / ${maxWaves}</div>
-        <div style="color:#88ccff;font-size:min(22px,4.5vw);margin-bottom:6px;">SCORE: ${g.score}</div>
+        <h1 style="color:#44ff88;text-shadow:0 0 30px rgba(68,255,136,0.7);">\uD83C\uDFC6 ${T('levelcomplete.title')}</h1>
+        <div style="color:#f0c040;font-size:min(32px,6vw);margin:16px 0;letter-spacing:3px;">${levelTag} ${T('levelcomplete.clear')}</div>
+        <div style="color:#aaa;font-size:min(20px,4vw);margin-bottom:12px;">${T('levelcomplete.waves', g.wave - 1, maxWaves)}</div>
+        <div style="color:#88ccff;font-size:min(22px,4.5vw);margin-bottom:6px;">${T('levelcomplete.score', g.score)}</div>
         ${unlockLine}
         <div id="menuButtons">
             ${nextBtn}
-            <button class="btn" style="background:linear-gradient(180deg,#44cc44,#228822);border-color:#55ee55;" onclick="showLevelSelect()">SELECT LEVEL</button>
-            <button class="btn" onclick="restoreMainMenu()">MAIN MENU</button>
+            <button class="btn" style="background:linear-gradient(180deg,#44cc44,#228822);border-color:#55ee55;" onclick="showLevelSelect()">${T('levelcomplete.selectlevel')}</button>
+            <button class="btn" onclick="restoreMainMenu()">${T('levelcomplete.mainmenu')}</button>
         </div>
     `;
     saveHighScore(g.score, g.wave - 1);
@@ -201,9 +225,16 @@ function triggerLevelComplete() {
 function startGame(level) {
     initAudio();
     game = createGame();
-    game.currentLevel = level || _selectedLevel || 1;
-    game.squadCount = 5 + getTalentSquadBonus() + getLevelSquadBonus();
-    game.peakSquad = game.squadCount;
+    const isTutorial = (level === 0);
+    // Tutorial reuses L1 visuals (Patrick, bridge). currentLevel=1 keeps
+    // sprites/BGM aligned with existing assets — no new art required.
+    game.currentLevel = isTutorial ? 1 : (level || _selectedLevel || 1);
+    if (isTutorial) {
+        setupTutorialRun(game);
+    } else {
+        game.squadCount = 5 + getTalentSquadBonus() + getLevelSquadBonus();
+        game.peakSquad = game.squadCount;
+    }
     const invCharges = (playerData.weaponCharges || {})['invincibility'] || 0;
     game.skillReady = invCharges > 0;
     game.skillCooldown = 0;
@@ -215,8 +246,14 @@ function startGame(level) {
     if (slotsDiv) slotsDiv.style.display = 'none';
     _skyBgW = 0; _skyBgH = 0; _skyBgLevel = 0;
     resetAchTempFlags();
-    // Start BGM matching current level
+    // Start BGM matching current level (tutorial uses L1 track)
     playBGM(game.currentLevel);
+}
+
+function startTutorial() {
+    const lsOverlay = document.getElementById('levelSelectOverlay');
+    if (lsOverlay) lsOverlay.classList.add('hidden');
+    startGame(0);
 }
 
 // ============================================================
@@ -405,6 +442,12 @@ function saveHighScore(score, wave) {
 // ============================================================
 function handlePlayerDeath() {
     const g = game;
+    // Tutorial: skip the revive prompt and just restart from step 1.
+    if (g.isTutorial) {
+        g.state = 'gameover';
+        showGameOver();
+        return;
+    }
     const reviveCost = (g.reviveCount + 1) * 10;
     const canRevive = (playerData.gems || 0) >= reviveCost;
     if (canRevive) {
@@ -471,6 +514,14 @@ function declineRevive() {
 // GAME OVER
 // ============================================================
 function showGameOver() {
+    // Tutorial: don't treat death as a "game over" — quietly restart the
+    // tutorial from wave 1 so the player can keep learning.
+    if (game && game.isTutorial) {
+        const slotsDiv = document.getElementById('weaponSlots');
+        if (slotsDiv) slotsDiv.style.display = 'none';
+        startGame(0);
+        return;
+    }
     stopBGM();
     playerData.level = game.level;
     playerData.exp = game.exp;
@@ -516,7 +567,7 @@ function showGameOver() {
 function restoreMainMenu() {
     overlay.innerHTML = `
         <h1>BRIDGE ASSAULT</h1>
-        <h2>${T('menu.subtitle')}</h2>
+        <h2 data-i18n="menu.subtitle">${T('menu.subtitle')}</h2>
         <div id="coinDisplay">
             <span class="coin-icon"><svg viewBox="0 0 18 18" width="18" height="18" style="vertical-align:-3px"><circle cx="9" cy="9" r="8.5" fill="#b8820a"/><circle cx="9" cy="9" r="7" fill="#f0b828"/><ellipse cx="7" cy="6.5" rx="3" ry="1.5" fill="#f8d860" opacity="0.6"/></svg></span>
             <span id="coinCount">${playerData.coins}</span>
@@ -524,11 +575,11 @@ function restoreMainMenu() {
             <span id="gemCount" style="color:#cc44ff;">${playerData.gems || 0}</span>
         </div>
         <div id="menuButtons">
-            <button class="btn btn-start" onclick="showLevelSelect()">${T('menu.start')}</button>
+            <button class="btn btn-start" onclick="showLevelSelect()" data-i18n="menu.start">${T('menu.start')}</button>
             <div id="menuNav">
-                <button class="btn btn-nav btn-shop" onclick="openShop()">${T('menu.shop')}</button>
-                <button class="btn btn-nav btn-achievements${_hasUnclaimedAch() ? ' has-unclaimed' : ''}" onclick="showAchievementPanel()">ACHIEVEMENTS${_hasUnclaimedAch() ? ' !' : ''}</button>
-                <button class="btn btn-nav btn-leaderboard" onclick="showLeaderboard()">${T('lb.leaderboard.btn')}</button>
+                <button class="btn btn-nav btn-shop" onclick="openShop()" data-i18n="menu.shop">${T('menu.shop')}</button>
+                <button class="btn btn-nav btn-achievements${_hasUnclaimedAch() ? ' has-unclaimed' : ''}" onclick="showAchievementPanel()" data-i18n="menu.achievements">${T('menu.achievements')}</button>
+                <button class="btn btn-nav btn-leaderboard" onclick="showLeaderboard()" data-i18n="menu.leaderboard">${T('menu.leaderboard')}</button>
             </div>
         </div>
     `;
@@ -543,7 +594,7 @@ function showWeaponUnlockToast(tier) {
     const iconEl = document.getElementById('weaponUnlockIcon');
     const textEl = document.getElementById('weaponUnlockText');
     if (iconEl) iconEl.innerHTML = tier.icon || '';
-    if (textEl) textEl.textContent = `${tier.name || 'NEW WEAPON'} UNLOCKED!`;
+    if (textEl) textEl.textContent = T('weapon.unlocked', tier.name || T('weapon.newweapon'));
     toast.classList.remove('hidden');
     clearTimeout(toast._hideTimer);
     toast._hideTimer = setTimeout(() => toast.classList.add('hidden'), 3000);

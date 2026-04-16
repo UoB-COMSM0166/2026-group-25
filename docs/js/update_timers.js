@@ -16,7 +16,12 @@ function updateTimers(g, dt, dtF) {
 
     // Camera: slow down during boss fight but keep moving (so player can still reach gates/weapons)
     const bossAlive = g.enemies.some(e => e.alive && e.isBoss);
-    const cameraSpeedMult = bossAlive ? 0.4 : 1.0; // 40% speed during boss fight
+    let cameraSpeedMult = bossAlive ? 0.4 : 1.0; // 40% speed during boss fight
+    // Tutorial overrides camera speed per-step (freeze / slow crawl) so
+    // each step's content stays in front of the player until the goal is met.
+    if (g.isTutorial) {
+        cameraSpeedMult = g.tutorialGoalMet ? 1.0 : (g.tutorialCamMult !== undefined ? g.tutorialCamMult : 0);
+    }
     g.cameraZ += CONFIG.CAMERA_SPEED * g.slowMoFactor * cameraSpeedMult * dtF;
 
     if (g.inputX !== null) {

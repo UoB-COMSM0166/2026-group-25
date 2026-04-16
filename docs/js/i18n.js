@@ -33,6 +33,10 @@ function applyLang() {
     document.querySelectorAll('[data-i18n]').forEach(function(el) {
         el.textContent = T(el.dataset.i18n);
     });
+    // Elements with data-i18n-html attribute (allows <br> etc)
+    document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
+        el.innerHTML = T(el.dataset.i18nHtml);
+    });
 
     // Shop tabs: text is in a <span data-i18n> inside the button, handled above
 
@@ -59,19 +63,7 @@ function applyLang() {
         }
     }
 
-    // If main menu overlay is visible (contains startBtn), rebuild it
-    const overlayEl = document.getElementById('overlay');
-    if (overlayEl && !overlayEl.classList.contains('hidden')) {
-        // Only rebuild if we're on the main menu (not game-over or revive)
-        const h1 = overlayEl.querySelector('h1');
-        if (h1 && h1.textContent === 'BRIDGE ASSAULT') {
-            const h2 = overlayEl.querySelector('h2');
-            if (h2) h2.textContent = T('menu.subtitle');
-            // Leaderboard button may be dynamically generated (no data-i18n)
-            const lbBtn = overlayEl.querySelector('.btn-leaderboard');
-            if (lbBtn) lbBtn.textContent = T('lb.leaderboard.btn');
-        }
-    }
+    // data-i18n loop above already handles the main menu elements.
 }
 
 // ── Talent effect text (bilingual) ──
@@ -97,8 +89,105 @@ const TRANSLATIONS = {
     zh: {
         // Main menu
         'menu.subtitle':        '桥 梁 突 击',
-        'menu.start':           'START GAME',
-        'menu.shop':            'SHOP',
+        'menu.start':           '开始游戏',
+        'menu.tutorial':        '新手教程',
+        'menu.shop':            '商店',
+        'menu.achievements':    '成就',
+        'menu.leaderboard':     '天梯榜',
+
+        // Tutorial (Level 0)
+        'tutorial.wavelabel':   '第 {0}/{1} 步',
+        'tutorial.w1.title':    '移动鼠标来控制小队',
+        'tutorial.w1.body':     '你的小队会自动开火，你只需要左右移动击杀小恶魔。',
+        'tutorial.w2.title':    '小心敌人的冲撞',
+        'tutorial.w2.body':     '被敌人触碰会损失兵力，及时用走位清理眼前的威胁。',
+        'tutorial.w3.title':    '击杀敌人掉落金币 🪙',
+        'tutorial.w3.body':     '金币会自动吸附到你身上，用于主菜单商店里的永久强化。',
+        'tutorial.w4.title':    '穿越「加兵」门获得增援',
+        'tutorial.w4.body':     '面板上的 + 代表增加兵力，走过去即可选择。兵力越多火力越猛。',
+        'tutorial.w5.title':    '金色武器门 = 强力临时武器',
+        'tutorial.w5.body':     '走过「SHOTGUN」面板试试散弹枪！武器门有时间限制，过期后回到手枪。',
+        'tutorial.w6.title':    '红色油桶 💥 范围伤害',
+        'tutorial.w6.body':     '击中油桶会在周围造成大范围爆炸，适合清理一堆敌人。',
+        'tutorial.w7.title':    '击败 BOSS 获取宝石 💎',
+        'tutorial.w7.body':     '这是一只迷你 Boss。击败它会掉落宝石，宝石可在商店里升级天赋、也可原地复活。',
+        'tutorial.w8.title':    '按 [1] 激活无敌护盾',
+        'tutorial.w8.body':     '已送你 1 次护盾充能，按键盘 1 键开启，4 秒内免疫所有伤害。',
+        'tutorial.w9.title':    '按 [2] 激活亢奋',
+        'tutorial.w9.body':     '已送你 1 次亢奋充能，按键盘 2 键开启，10 秒内兵力×2 且伤害减半。',
+        'tutorial.w10.title':   '按 [ESC] 或 [P] 暂停游戏',
+        'tutorial.w10.body':    '最后一步！按一次暂停键（ESC 或 P），了解暂停功能即可完成教程。',
+        'tutorial.progress.kills':    '目标：击杀小恶魔 {0}/{1}',
+        'tutorial.progress.coins':    '目标：拾取金币 {0}/{1}',
+        'tutorial.progress.survive':  '目标：存活 {0}/{1} 秒',
+        'tutorial.progress.miniboss': '目标：击败迷你 BOSS',
+        'tutorial.progress.gempickup':'目标：拾取掉落的宝石 💎',
+        'tutorial.progress.pause':    '目标：按 [ESC] 或 [P] 暂停一次',
+        'tutorial.progress.action':   '完成上方操作即可继续',
+        'tutorial.goal.done':         '✓ 完成！',
+        'tutorial.complete.title':    '教程完成',
+        'tutorial.complete.subtitle': '你已掌握核心机制',
+        'tutorial.complete.body':     '祝你在正式战场上好运，士兵！',
+        'tutorial.complete.continue': '▶ 进入正式关卡',
+
+        // Level select
+        'levelselect.title':    '选择关卡',
+        'levelselect.start':    '开 始',
+        'levelselect.back':     '← 主菜单',
+        'levelselect.bestinfo': '最高波次: {0} | 最高分: {1}',
+        'levelselect.l0.tag':   'LEVEL 0 · 教程',
+        'levelselect.l0.name':  '新手教程',
+        'levelselect.l0.desc':  '10 步互动教学 · 掌握核心机制',
+        'levelselect.l0.start': '▶ 开 始',
+        'levelselect.l1.name':  '桥梁突击',
+        'levelselect.l1.locked':'🔒 先完成新手教程（Level 0）',
+        'levelselect.l2.name':  '末日工厂',
+        'levelselect.l2.locked':'🔒 通关第一关（66波）解锁',
+
+        // Enemy names
+        'enemy.patrick':     '派大星',
+        'enemy.bigdragon':   '大奶龙',
+        'enemy.smalldragon': '小奶龙',
+        'enemy.capybara':    '水豚兵',
+        'enemy.elephant':    '大象王',
+        'enemy.crycow':      '哭泣奶牛',
+
+        // Boss labels (HUD & wave banner)
+        'boss.dragon':          '龙王',
+        'boss.mega':            '巨龙王',
+        'boss.elephant':        '象王',
+        'boss.crycow':          '哭泣奶牛',
+        'wave.incoming':        '敌军来袭！',
+        'wave.bossincoming':    'BOSS 来袭！',
+        'wave.megaboss':        '巨龙王降临！',
+        'wave.elephantking':    '象王降临！',
+        'wave.crycowincoming':  '哭泣奶牛来袭！',
+        'wave.finalbattle':     '最终决战！双巨龙王！',
+
+        // Level complete
+        'levelcomplete.title':       '🏆 关卡完成！',
+        'levelcomplete.clear':       '通关！',
+        'levelcomplete.waves':       '波次: {0} / {1}',
+        'levelcomplete.score':       '得分: {0}',
+        'levelcomplete.unlocked':    '🔓 关卡II - 末日工厂 已解锁！',
+        'levelcomplete.next':        '下一关',
+        'levelcomplete.selectlevel': '选择关卡',
+        'levelcomplete.mainmenu':    '主菜单',
+
+        // Mobile block
+        'mobile.title':         '请在电脑上游玩',
+        'mobile.msg':           '桥梁突击暂不支持移动端<br>请使用电脑浏览器打开游戏',
+
+        // Weapon unlock toast
+        'weapon.unlocked':      '{0} 已解锁！',
+        'weapon.newweapon':     '新武器',
+
+        // Achievements
+        'ach.title':            '成就',
+        'ach.back':             '返回',
+        'ach.unlocked':         '已解锁',
+        'ach.claim':            '领取',
+        'ach.claimed':          '已领取',
 
         // Shop tabs
         'tab.weapon':           '基础武器',
@@ -107,7 +196,8 @@ const TRANSLATIONS = {
         'tab.talent':           '天赋',
 
         // Shop general
-        'shop.back':            'BACK',
+        'shop.title':           '商店',
+        'shop.back':            '返回',
         'shop.equipped':        '✓ 已装备',
         'shop.equip':           '装备',
         'shop.unlock':          '解锁',
@@ -196,7 +286,7 @@ const TRANSLATIONS = {
         'midshop.opt2':      '全额恢复',
 
         // Game over
-        'gameover.title':      'GAME OVER',
+        'gameover.title':      '游戏结束',
         'gameover.score':      '最终得分',
         'gameover.stats':      '到达第 {0} 波 | 击杀 {1}',
         'gameover.combo':      '最高连击: {0}x',
@@ -204,9 +294,9 @@ const TRANSLATIONS = {
         'gameover.gems':       '💎 获得宝石: +{0} (总计: {1})',
         'gameover.gems.hint':  '击败 Boss 可获得宝石 💎',
         'gameover.record':     '历史最高: {0} (第{1}波)',
-        'gameover.newrecord':  '★ NEW RECORD! ★',
-        'gameover.mainmenu':   'MAIN MENU',
-        'gameover.playagain':  'PLAY AGAIN',
+        'gameover.newrecord':  '★ 新纪录! ★',
+        'gameover.mainmenu':   '主菜单',
+        'gameover.playagain':  '再玩一次',
 
         // Revive
         'revive.title':    '全军覆没!',
@@ -252,7 +342,104 @@ const TRANSLATIONS = {
         // Main menu
         'menu.subtitle':        'WAVE  DEFENSE',
         'menu.start':           'START GAME',
+        'menu.tutorial':        'TUTORIAL',
         'menu.shop':            'SHOP',
+        'menu.achievements':    'ACHIEVEMENTS',
+        'menu.leaderboard':     'LEADERBOARD',
+
+        // Tutorial (Level 0)
+        'tutorial.wavelabel':   'STEP {0}/{1}',
+        'tutorial.w1.title':    'Move the mouse to steer your squad',
+        'tutorial.w1.body':     'Your troops auto-fire. All you do is move left and right to dodge.',
+        'tutorial.w2.title':    'Avoid enemy contact',
+        'tutorial.w2.body':     'Touching enemies costs troops. Keep them at a distance.',
+        'tutorial.w3.title':    'Kills drop coins 🪙',
+        'tutorial.w3.body':     'Coins magnetise to you and are spent in the main menu shop for permanent upgrades.',
+        'tutorial.w4.title':    'Walk through the + gate for reinforcements',
+        'tutorial.w4.body':     'The + panel adds troops to your squad. More troops means more firepower.',
+        'tutorial.w5.title':    'Gold gates grant a temporary super-weapon',
+        'tutorial.w5.body':     'Walk through the SHOTGUN panel to try it! Weapon gates are timed — you return to the pistol afterward.',
+        'tutorial.w6.title':    'Red barrels 💥 explode in a big AOE',
+        'tutorial.w6.body':     'Shoot a barrel and it detonates, clearing clusters of enemies around it.',
+        'tutorial.w7.title':    'Defeat the BOSS for a gem 💎',
+        'tutorial.w7.body':     'A mini boss! Bosses drop gems, used for talent upgrades and in-place revive.',
+        'tutorial.w8.title':    'Press [1] to activate Shield',
+        'tutorial.w8.body':     'You have been gifted 1 Shield charge. Press the 1 key — you are invincible for 4 seconds.',
+        'tutorial.w9.title':    'Press [2] to activate Frenzy',
+        'tutorial.w9.body':     'You have been gifted 1 Frenzy charge. Press the 2 key — troops ×2 and damage halved for 10 seconds.',
+        'tutorial.w10.title':   'Press [ESC] or [P] to pause',
+        'tutorial.w10.body':    'Last step! Press the pause key (ESC or P) once to finish the tutorial.',
+        'tutorial.progress.kills':    'Goal: kill imps {0}/{1}',
+        'tutorial.progress.coins':    'Goal: pick up coins {0}/{1}',
+        'tutorial.progress.survive':  'Goal: survive {0}/{1} sec',
+        'tutorial.progress.miniboss': 'Goal: defeat the mini boss',
+        'tutorial.progress.gempickup':'Goal: pick up the dropped gem 💎',
+        'tutorial.progress.pause':    'Goal: press [ESC] or [P] to pause once',
+        'tutorial.progress.action':   'Complete the action above to continue',
+        'tutorial.goal.done':         '✓ COMPLETED!',
+        'tutorial.complete.title':    'TUTORIAL COMPLETE',
+        'tutorial.complete.subtitle': 'You have learned the core mechanics',
+        'tutorial.complete.body':     'Good luck out there, soldier!',
+        'tutorial.complete.continue': '▶ GO TO LEVEL SELECT',
+
+        // Level select
+        'levelselect.title':    'SELECT LEVEL',
+        'levelselect.start':    'START',
+        'levelselect.back':     '← MAIN MENU',
+        'levelselect.bestinfo': 'BEST WAVE: {0} | BEST SCORE: {1}',
+        'levelselect.l0.tag':   'LEVEL 0 · TUTORIAL',
+        'levelselect.l0.name':  'BASIC TRAINING',
+        'levelselect.l0.desc':  '10 interactive steps · learn the core mechanics',
+        'levelselect.l0.start': '▶ START',
+        'levelselect.l1.name':  'BRIDGE ASSAULT',
+        'levelselect.l1.locked':'\uD83D\uDD12 Complete the tutorial (Level 0) first',
+        'levelselect.l2.name':  'DOOMSDAY FACTORY',
+        'levelselect.l2.locked':'\uD83D\uDD12 Clear Level I (Wave 66) to unlock',
+
+        // Enemy names
+        'enemy.patrick':     'Patrick',
+        'enemy.bigdragon':   'Big Dragon',
+        'enemy.smalldragon': 'Small Dragon',
+        'enemy.capybara':    'Capybara',
+        'enemy.elephant':    'Elephant King',
+        'enemy.crycow':      'Crying Cow',
+
+        // Boss labels (HUD & wave banner)
+        'boss.dragon':          'BOSS DRAGON',
+        'boss.mega':            'MEGA BOSS',
+        'boss.elephant':        'ELEPHANT KING',
+        'boss.crycow':          'CRY COW',
+        'wave.incoming':        'INCOMING!',
+        'wave.bossincoming':    'BOSS INCOMING!',
+        'wave.megaboss':        'MEGA BOSS!',
+        'wave.elephantking':    'ELEPHANT KING!',
+        'wave.crycowincoming':  'CRY COW INCOMING!',
+        'wave.finalbattle':     'FINAL BATTLE! DUAL MEGA BOSS!',
+
+        // Level complete
+        'levelcomplete.title':       '\uD83C\uDFC6 LEVEL COMPLETE!',
+        'levelcomplete.clear':       'CLEAR!',
+        'levelcomplete.waves':       'WAVES: {0} / {1}',
+        'levelcomplete.score':       'SCORE: {0}',
+        'levelcomplete.unlocked':    'LEVEL II - DOOMSDAY FACTORY UNLOCKED!',
+        'levelcomplete.next':        'NEXT LEVEL',
+        'levelcomplete.selectlevel': 'SELECT LEVEL',
+        'levelcomplete.mainmenu':    'MAIN MENU',
+
+        // Mobile block
+        'mobile.title':         'Please play on desktop',
+        'mobile.msg':           'Bridge Assault does not support mobile yet<br>Please open in a desktop browser',
+
+        // Weapon unlock toast
+        'weapon.unlocked':      '{0} UNLOCKED!',
+        'weapon.newweapon':     'NEW WEAPON',
+
+        // Achievements
+        'ach.title':            'ACHIEVEMENTS',
+        'ach.back':             'BACK',
+        'ach.unlocked':         'unlocked',
+        'ach.claim':            'CLAIM',
+        'ach.claimed':          'Claimed',
 
         // Shop tabs
         'tab.weapon':           'WEAPONS',
@@ -261,6 +448,7 @@ const TRANSLATIONS = {
         'tab.talent':           'TALENTS',
 
         // Shop general
+        'shop.title':           'SHOP',
         'shop.back':            'BACK',
         'shop.equipped':        '✓ Equipped',
         'shop.equip':           'Equip',
@@ -411,5 +599,8 @@ const TRANSLATIONS = {
     if (btn) btn.textContent = LANG === 'zh' ? 'EN' : '中';
     document.querySelectorAll('[data-i18n]').forEach(function(el) {
         el.textContent = T(el.dataset.i18n);
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
+        el.innerHTML = T(el.dataset.i18nHtml);
     });
 })();

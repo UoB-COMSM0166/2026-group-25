@@ -19,7 +19,10 @@ function fireWeapon() {
             // More squad = more bullets (up to 8) + higher damage per bullet
             const bulletCount = Math.min(squad, 8);
             const pistolDmg = Math.max(1, Math.round((1 + Math.floor(squad / 10)) * getTalentDamageMult() * getLevelDamageMult()));
-            const tierIdx = playerData.equippedPistolTier || 0;
+            // Tutorial always fires the base pistol (tier 0, no pierce) so the
+            // onboarding lesson doesn't depend on whatever the player has
+            // equipped in the shop.
+            const tierIdx = g.isTutorial ? 0 : (playerData.equippedPistolTier || 0);
             const tier = PISTOL_TIERS[tierIdx];
             for (let i = 0; i < bulletCount; i++) {
                 let bx, bz;
@@ -52,7 +55,7 @@ function fireWeapon() {
             for (let i = 0; i < pellets; i++) {
                 const angle = -spread + 2 * spread * i / (pellets - 1) + (Math.random() - 0.5) * 0.06;
                 const speed = CONFIG.BULLET_SPEED * (0.8 + Math.random() * 0.15);
-                g.bullets.push({ x: g.player.x, z: g.cameraZ + 10, vx: Math.sin(angle) * speed, vz: Math.cos(angle) * speed, weapon: 'shotgun', level: wLv, damage: sgDmg, maxRange: 700, startZ: g.cameraZ + 10, falloff: true });
+                g.bullets.push({ x: g.player.x, z: g.cameraZ + 10, vx: Math.sin(angle) * speed, vz: Math.cos(angle) * speed, weapon: 'shotgun', level: wLv, damage: sgDmg, maxRange: 1500, startZ: g.cameraZ + 10, falloff: true });
             }
             playSound('shoot_shotgun'); break;
         }

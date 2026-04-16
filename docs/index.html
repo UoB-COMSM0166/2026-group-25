@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Bridge Assault - 桥梁突击 (p5)</title>
-<link rel="stylesheet" href="style.css?v=1">
+<link rel="stylesheet" href="style.css?v=12">
 <style>
 /* p5.js canvas sits behind all overlays.
    Use "body > canvas" to target only the p5 canvas (direct child of body),
@@ -42,6 +42,8 @@ body > canvas {
     <img id="spriteCowGun"      src="assets/cow_gun.png">
     <img id="spriteCowCry"      src="assets/cow_cry.png">
     <img id="spriteElephant"    src="assets/elephant.png">
+    <img id="spriteTutorialImp" src="assets/tutorial_imp.png">
+    <img id="spriteTutorialBoss" src="assets/tutorial_boss.png">
 </div>
 
 <button id="pauseBtn">❚❚</button>
@@ -62,11 +64,11 @@ body > canvas {
         <span id="gemCount" style="color:#cc44ff;">0</span>
     </div>
     <div id="menuButtons">
-        <button class="btn btn-start" id="startBtn">START GAME</button>
+        <button class="btn btn-start" id="startBtn" data-i18n="menu.start">START GAME</button>
         <div id="menuNav">
-            <button class="btn btn-nav btn-shop" id="shopBtn">SHOP</button>
-            <button class="btn btn-nav btn-achievements" onclick="showAchievementPanel()">ACHIEVEMENTS</button>
-            <button class="btn btn-nav btn-leaderboard" onclick="showLeaderboard()">LEADERBOARD</button>
+            <button class="btn btn-nav btn-shop" id="shopBtn" data-i18n="menu.shop">SHOP</button>
+            <button class="btn btn-nav btn-achievements" onclick="showAchievementPanel()" data-i18n="menu.achievements">ACHIEVEMENTS</button>
+            <button class="btn btn-nav btn-leaderboard" onclick="showLeaderboard()" data-i18n="menu.leaderboard">LEADERBOARD</button>
         </div>
     </div>
 </div>
@@ -74,57 +76,73 @@ body > canvas {
 <!-- Level select overlay -->
 <div id="levelSelectOverlay" class="hidden">
     <div id="levelSelectPanel">
-        <h2 id="levelSelectTitle">选择关卡</h2>
+        <h2 id="levelSelectTitle" data-i18n="levelselect.title">选择关卡</h2>
+
+        <!-- Level 0 tutorial banner: full-width, prominent for new players -->
+        <div id="tutorialBanner" onclick="startTutorial()">
+            <div id="tutorialBannerLeft">
+                <canvas id="lsCanvas0" width="72" height="72"></canvas>
+            </div>
+            <div id="tutorialBannerMid">
+                <div id="tutorialBannerTag" data-i18n="levelselect.l0.tag">LEVEL 0 · 教程</div>
+                <div id="tutorialBannerName" data-i18n="levelselect.l0.name">新手教程</div>
+                <div id="tutorialBannerDesc" data-i18n="levelselect.l0.desc">10 步互动教学 · 掌握核心机制</div>
+            </div>
+            <div id="tutorialBannerRight">
+                <div id="tutorialBannerBtn" data-i18n="levelselect.l0.start">▶ 开 始</div>
+            </div>
+        </div>
+
         <div id="levelSelectCards">
             <div class="level-card level-card-1" id="levelCard1">
                 <div class="level-card-num">LEVEL I</div>
-                <div class="level-card-name">桥梁突击</div>
+                <div class="level-card-name" data-i18n="levelselect.l1.name">桥梁突击</div>
                 <div class="level-card-sprites">
                     <div class="ls-sprite-wrap">
                         <canvas id="lsCanvas1a" width="80" height="80"></canvas>
-                        <div class="ls-sprite-label">派大星</div>
+                        <div class="ls-sprite-label" data-i18n="enemy.patrick">派大星</div>
                     </div>
                     <div class="ls-sprite-wrap ls-sprite-main">
                         <canvas id="lsCanvas1b" width="96" height="96"></canvas>
-                        <div class="ls-sprite-label">大奶龙</div>
+                        <div class="ls-sprite-label" data-i18n="enemy.bigdragon">大奶龙</div>
                     </div>
                     <div class="ls-sprite-wrap">
                         <canvas id="lsCanvas1c" width="80" height="80"></canvas>
-                        <div class="ls-sprite-label">小奶龙</div>
+                        <div class="ls-sprite-label" data-i18n="enemy.smalldragon">小奶龙</div>
                     </div>
                 </div>
-                <div class="level-card-info">最高波次: <span id="l1BestWave">—</span> | 最高分: <span id="l1BestScore">—</span></div>
-                <button class="btn level-start-btn" onclick="startGameWithLevel(1)">开 始</button>
+                <div class="level-card-info" id="l1InfoText"></div>
+                <button class="btn level-start-btn" onclick="startGameWithLevel(1)" data-i18n="levelselect.start">开 始</button>
             </div>
             <div class="level-card level-card-2" id="levelCard2">
                 <div class="level-card-num">LEVEL II</div>
-                <div class="level-card-name">末日工厂</div>
+                <div class="level-card-name" data-i18n="levelselect.l2.name">末日工厂</div>
                 <div class="level-card-sprites">
                     <div class="ls-sprite-wrap">
                         <canvas id="lsCanvas2a" width="80" height="80"></canvas>
-                        <div class="ls-sprite-label">水豚兵</div>
+                        <div class="ls-sprite-label" data-i18n="enemy.capybara">水豚兵</div>
                     </div>
                     <div class="ls-sprite-wrap ls-sprite-main">
                         <canvas id="lsCanvas2b" width="96" height="96"></canvas>
-                        <div class="ls-sprite-label">大象王</div>
+                        <div class="ls-sprite-label" data-i18n="enemy.elephant">大象王</div>
                     </div>
                     <div class="ls-sprite-wrap">
                         <canvas id="lsCanvas2c" width="80" height="80"></canvas>
-                        <div class="ls-sprite-label">哭泣奶牛</div>
+                        <div class="ls-sprite-label" data-i18n="enemy.crycow">哭泣奶牛</div>
                     </div>
                 </div>
-                <div class="level-card-info" id="l2InfoText">🔒 通关第一关（66波）解锁</div>
-                <button class="btn level-start-btn" id="l2StartBtn" onclick="startGameWithLevel(2)">开 始</button>
+                <div class="level-card-info" id="l2InfoText" data-i18n="levelselect.l2.locked">🔒 通关第一关（66波）解锁</div>
+                <button class="btn level-start-btn" id="l2StartBtn" onclick="startGameWithLevel(2)" data-i18n="levelselect.start">开 始</button>
             </div>
         </div>
-        <button class="btn btn-back-menu" onclick="showMainMenu()">← 主菜单</button>
+        <button class="btn btn-back-menu" onclick="showMainMenu()" data-i18n="levelselect.back">← 主菜单</button>
     </div>
 </div>
 
 <div id="shopOverlay" class="hidden">
     <div id="shopPanel">
         <div id="shopHeader">
-            <h2>SHOP</h2>
+            <h2 data-i18n="shop.title">SHOP</h2>
             <div id="shopCurrencies">
                 <div id="shopCoins"><svg viewBox="0 0 14 14" width="14" height="14" style="vertical-align:-2px"><circle cx="7" cy="7" r="6.5" fill="#b8820a"/><circle cx="7" cy="7" r="5.5" fill="#f0b828"/><ellipse cx="5.5" cy="5" rx="2" ry="1" fill="#f8d860" opacity="0.65"/></svg> <span id="shopCoinCount">0</span></div>
                 <div id="shopGems"><svg viewBox="0 0 14 14" width="14" height="14" style="vertical-align:-2px"><polygon points="7,1 13,6 7,13 1,6" fill="#8822bb"/><polygon points="7,1 13,6 7,7 1,6" fill="#cc44ff"/><polygon points="5,3 9,3 7,1" fill="#ee88ff"/></svg> <span id="shopGemCount">0</span></div>
@@ -153,7 +171,7 @@ body > canvas {
                 <div class="talent-hint" style="margin-top:min(14px,2vh)"><svg viewBox="0 0 14 14" width="13" height="13" style="vertical-align:-2px"><polygon points="7,1 13,6 7,13 1,6" fill="#8822bb"/><polygon points="7,1 13,6 7,7 1,6" fill="#cc44ff"/><polygon points="5,3 9,3 7,1" fill="#ee88ff"/></svg> <span data-i18n="shop.talent.hint">宝石由 Boss 随机掉落，用于永久提升角色属性</span></div>
             </div>
         </div>
-        <button class="btn btn-back" id="shopBackBtn">BACK</button>
+        <button class="btn btn-back" id="shopBackBtn" data-i18n="shop.back">BACK</button>
     </div>
 </div>
 
@@ -207,8 +225,8 @@ body > canvas {
                 <rect x="22" y="54" width="36" height="3" rx="1.5" fill="#f0b828" opacity="0.4"/>
             </svg>
         </div>
-        <h2 id="mobileBlockTitle">请在电脑上游玩</h2>
-        <p id="mobileBlockMsg">
+        <h2 id="mobileBlockTitle" data-i18n="mobile.title">请在电脑上游玩</h2>
+        <p id="mobileBlockMsg" data-i18n-html="mobile.msg">
             桥梁突击暂不支持移动端<br>
             请使用电脑浏览器打开游戏
         </p>
@@ -223,29 +241,30 @@ body > canvas {
 </div>
 
 <!-- Game modules (order matters: dependencies first) -->
-<script src="js/crypto.js?v=5"></script>
-<script src="js/config.js?v=5"></script>
-<script src="js/i18n.js?v=5"></script>
-<script src="js/globals.js?v=5"></script>
-<script src="js/audio.js?v=5"></script>
-<script src="js/core.js?v=5"></script>
-<script src="js/helpers.js?v=5"></script>
-<script src="js/spawn.js?v=5"></script>
-<script src="js/combat.js?v=5"></script>
-<script src="js/draw.js?v=5"></script>
-<script src="js/hud.js?v=5"></script>
-<script src="js/update_timers.js?v=5"></script>
-<script src="js/update_collision.js?v=5"></script>
-<script src="js/update_enemies.js?v=5"></script>
-<script src="js/update_world.js?v=5"></script>
-<script src="js/update_effects.js?v=5"></script>
-<script src="js/update.js?v=5"></script>
-<script src="js/render.js?v=5"></script>
-<script src="js/achievements.js?v=5"></script>
-<script src="js/shop.js?v=5"></script>
-<script src="js/leaderboard.js?v=5"></script>
-<script src="js/input.js?v=5"></script>
-<script src="js/ui.js?v=5"></script>
-<script src="js/main.js?v=5"></script>
+<script src="js/crypto.js?v=27"></script>
+<script src="js/config.js?v=27"></script>
+<script src="js/i18n.js?v=27"></script>
+<script src="js/globals.js?v=27"></script>
+<script src="js/audio.js?v=27"></script>
+<script src="js/core.js?v=27"></script>
+<script src="js/helpers.js?v=27"></script>
+<script src="js/spawn.js?v=27"></script>
+<script src="js/combat.js?v=27"></script>
+<script src="js/draw.js?v=27"></script>
+<script src="js/hud.js?v=27"></script>
+<script src="js/update_timers.js?v=27"></script>
+<script src="js/update_collision.js?v=27"></script>
+<script src="js/update_enemies.js?v=27"></script>
+<script src="js/update_world.js?v=27"></script>
+<script src="js/update_effects.js?v=27"></script>
+<script src="js/update.js?v=27"></script>
+<script src="js/render.js?v=27"></script>
+<script src="js/achievements.js?v=27"></script>
+<script src="js/shop.js?v=27"></script>
+<script src="js/leaderboard.js?v=27"></script>
+<script src="js/input.js?v=27"></script>
+<script src="js/ui.js?v=27"></script>
+<script src="js/tutorial.js?v=27"></script>
+<script src="js/main.js?v=27"></script>
 </body>
 </html>

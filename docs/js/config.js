@@ -25,6 +25,10 @@ const CONFIG = {
 
     SHOOT_INTERVAL: 100,
     SPAWN_DISTANCE: 650,
+    // Fixed z offset bosses hold in front of the player — pulled a bit
+    // further back than SPAWN_DISTANCE so the boss silhouette reads as
+    // mid-range while still inside every weapon's effective range.
+    BOSS_HOLD_Z: 850,
     GATE_DISTANCE: 300,
     ENEMY_HP: 3,
     PIXEL_SIZE: 2,
@@ -83,6 +87,17 @@ const PATRICK_ROWS = 4;
 const PATRICK_FRAME_W = 283;
 const PATRICK_FRAME_H = 267;
 const PATRICK_TOTAL_FRAMES = 23; // last row has 5
+
+// Tutorial imp (Level 0) — CC0 chort from 0x72 DungeonTilesetII, 4 idle frames
+// scaled 4x to 128x128 per frame. Used only in the tutorial.
+const TUTORIAL_IMP_FRAME_COUNT = 4;
+const TUTORIAL_IMP_FRAME_SIZE  = 128;
+const TUTORIAL_IMP_TYPE        = 11;
+
+// Tutorial mini boss — CC0 big_demon from the same pack, scaled 4x to
+// 192x192 per frame. Used only in tutorial step 7.
+const TUTORIAL_BOSS_FRAME_COUNT = 4;
+const TUTORIAL_BOSS_FRAME_SIZE  = 192;
 
 // Gate threshold: below this → multipliers, above → percentages
 const PERCENT_GATE_THRESHOLD = 20;

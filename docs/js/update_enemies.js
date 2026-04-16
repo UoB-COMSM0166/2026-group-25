@@ -348,9 +348,11 @@ function updateEnemies(g, dt, dtF, bossAlive) {
         eb.z += eb.vz * g.slowMoFactor * dtF;
         eb.life -= dtF;
         if (eb.life <= 0) { eb.dead = true; return; }
-        // Off-screen cleanup
+        // Off-screen cleanup — far-z must cover BOSS_HOLD_Z, else boss
+        // bullets die the instant they spawn.
         const relZ = eb.z - g.cameraZ;
-        if (relZ < -50 || relZ > CONFIG.SPAWN_DISTANCE + 100 ||
+        const farCull = Math.max(CONFIG.SPAWN_DISTANCE, CONFIG.BOSS_HOLD_Z) + 100;
+        if (relZ < -50 || relZ > farCull ||
             Math.abs(eb.x) > CONFIG.ROAD_HALF_WIDTH + 50) {
             eb.dead = true; return;
         }

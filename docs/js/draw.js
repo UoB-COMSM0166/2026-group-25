@@ -531,7 +531,7 @@ function drawMuzzleFlash(sx, sy, scale, weapon) {
 function drawGate(gate) {
     const g = game;
     const relZ = gate.z - g.cameraZ;
-    if (relZ < -20 || relZ > CONFIG.SPAWN_DISTANCE + 200) return;
+    if (relZ < -20 || relZ > Math.max(CONFIG.SPAWN_DISTANCE, CONFIG.BOSS_HOLD_Z) + 200) return;
     const allLeft = project(-CONFIG.ROAD_HALF_WIDTH, relZ);
     const panelHeight = 150 * allLeft.scale;
     const shimmer = Math.sin(Date.now() / 400) * 0.1;
@@ -684,18 +684,40 @@ function drawGate(gate) {
 // ============================================================
 function drawBullets() {
     const g = game;
+    const farCullZ = Math.max(CONFIG.SPAWN_DISTANCE, CONFIG.BOSS_HOLD_Z) + 100;
     g.bullets.forEach(b => {
         const relZ = b.z - g.cameraZ;
-        if (relZ < 0 || relZ > CONFIG.SPAWN_DISTANCE + 100) return;
+        if (relZ < 0 || relZ > farCullZ) return;
         const p = project(b.x, relZ);
+
+        // Dying bullet → bright expanding impact flash (no streak) so the
+        // kill is unmistakable and the projectile never appears to pass
+        // through the target.
+        if (b.dead) {
+            const t = Math.max(0, Math.min(1, 1 - (b.deathTimer || 0) / 3));
+            const color = b.color || 0xffff88;
+            const baseR = Math.max(4, 14 * p.scale);
+            const r = baseR * (0.8 + t * 2.4);
+            const fadeA = Math.floor((1 - t) * 255);
+            push(); noStroke();
+            hexFill(color, Math.floor(fadeA * 0.55)); circle(p.x, p.y, r * 2.2);
+            hexFill(0xffffff, fadeA);                  circle(p.x, p.y, r * 1.1);
+            hexFill(color, fadeA);                     circle(p.x, p.y, r * 0.7);
+            pop();
+            return;
+        }
 
         switch (b.weapon) {
             case 'pistol': default: {
                 const tierIdx = b.tier || 0;
                 const color = b.color || 0xffff88;
                 const s = Math.max(1, (3 + tierIdx * 0.5) * p.scale);
-                const tailLen = 8 + tierIdx * 3;
-                const pTail = project(b.x - b.vx * 0.8, relZ - tailLen);
+                // Tail is drawn BEHIND the head (smaller z), so the streak
+                // never visually extends past the bullet's actual position
+                // into whatever it just hit. Shortened too so non-pierce
+                // bullets read as "impact, gone" rather than "impact, continue".
+                const tailLen = 6 + tierIdx * 2;
+                const pTail = project(b.x - b.vx * 0.5, Math.max(0, relZ - tailLen));
                 if (tierIdx >= 3) {
                     hexStroke(color, Math.floor((0.18 + tierIdx * 0.04) * 255));
                     strokeWeight(s * (2.5 + tierIdx * 0.4)); noFill();

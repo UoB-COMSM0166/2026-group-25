@@ -462,13 +462,13 @@ function showAchievementPanel() {
     <div id="achOverlay">
         <div id="achPanel">
             <div id="achHeader">
-                <h2>${_ACH_SVG.trophy} ACHIEVEMENTS</h2>
+                <h2>${_ACH_SVG.trophy} ${T('ach.title')}</h2>
                 <div class="ach-header-right">
                     <span class="ach-currencies">${_ACH_SVG.coin} <span style="color:#ffd700">${playerData.coins}</span> &nbsp;${_ACH_SVG.gem} <span style="color:#cc44ff">${playerData.gems || 0}</span></span>
-                    <button class="btn-back" onclick="closeAchievementPanel()">BACK</button>
+                    <button class="btn-back" onclick="closeAchievementPanel()">${T('ach.back')}</button>
                 </div>
             </div>
-            <div style="color:#888;font-size:12px;margin-bottom:10px;">${_countUnlockedAchs()} / ${_countTotalAchs()} unlocked</div>
+            <div style="color:#888;font-size:12px;margin-bottom:10px;">${_countUnlockedAchs()} / ${_countTotalAchs()} ${T('ach.unlocked')}</div>
             <div id="achTabs">`;
 
     for (const cat of ACH_CATEGORIES) {
@@ -513,8 +513,8 @@ function showAchievementPanel() {
                     </div>
                     <div class="ach-item-right">
                         <div class="ach-item-reward">${_achRewardHtml(reward)}</div>
-                        ${unlocked && !isClaimed ? `<button class="ach-claim-btn" onclick="claimAndRefresh('${id}',${tierNum})">CLAIM</button>` : ''}
-                        ${isClaimed ? '<span class="ach-claimed-label">Claimed</span>' : ''}
+                        ${unlocked && !isClaimed ? `<button class="ach-claim-btn" onclick="claimAndRefresh('${id}',${tierNum})">${T('ach.claim')}</button>` : ''}
+                        ${isClaimed ? `<span class="ach-claimed-label">${T('ach.claimed')}</span>` : ''}
                     </div>
                 </div>`;
             }
