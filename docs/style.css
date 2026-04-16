@@ -1887,7 +1887,11 @@ body::after {
    Pure CSS: background-image + steps() keyframe animation
    ============================================================ */
 .menu-monster {
-    position: absolute;
+    /* !important required: `#overlay > *` (higher specificity) forces
+       position:relative + z-index:1 on every direct child. Without
+       overriding both, decorations collapse into the flex column at
+       the top of the overlay. */
+    position: absolute !important;
     pointer-events: none;
     z-index: 0 !important;
     image-rendering: pixelated;
