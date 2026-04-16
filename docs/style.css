@@ -136,9 +136,13 @@ body::after {
         inset 0 1px 0 rgba(255,255,255,0.45);
 }
 #overlay .btn:active { transform: scale(0.95); }
-/* Primary start button — large and prominent */
+/* Primary start button — large and prominent, with crosshair icon */
 #overlay .btn-start {
-    padding: min(22px, 4.5vw) min(70px, 15vw);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: min(22px, 4.5vw) min(60px, 13vw);
     font-size: min(30px, 6vw);
     letter-spacing: 4px;
     border-radius: 14px;
@@ -148,6 +152,17 @@ body::after {
         0 18px 36px rgba(0,0,0,0.38),
         0 0 24px rgba(255, 188, 63, 0.24),
         inset 0 1px 0 rgba(255,255,255,0.45);
+}
+#overlay .btn-start-icon {
+    display: inline-flex;
+    align-items: center;
+    transition: transform 0.25s ease;
+}
+#overlay .btn-start:hover .btn-start-icon {
+    transform: rotate(45deg) scale(1.08);
+}
+#overlay .btn-start-label {
+    line-height: 1;
 }
 #scoreDisplay { color: #f0c040; font-size: min(28px, 5vw); margin: 16px 0 8px; }
 #finalScore { color: #fff; font-size: min(56px, 10vw); margin: 8px 0 20px; font-weight: bold; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
@@ -224,21 +239,31 @@ body::after {
 /* ============================================================
    COIN DISPLAY (on overlay)
    ============================================================ */
+/* Currency badges — small pill below nav tiles */
 #coinDisplay {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: min(24px, 3vh);
-    font-size: min(24px, 5vw);
+    margin-top: 14px;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
     color: #ffd700;
-    text-shadow: 0 0 10px rgba(255,215,0,0.5);
+    background: rgba(12, 14, 28, 0.55);
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    border-radius: 999px;
+    text-shadow: 0 0 6px rgba(255,215,0,0.35);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 .coin-icon, .gem-icon {
-    display: flex;
+    display: inline-flex;
     align-items: center;
 }
-.gem-icon {
-    margin-left: 8px;
+.coin-sep {
+    color: rgba(255,255,255,0.25);
+    margin: 0 2px;
 }
 
 /* Main menu button group — vertical stack */
@@ -249,38 +274,111 @@ body::after {
     gap: min(16px, 3vh);
     margin-top: min(24px, 4vh);
 }
-/* Secondary nav row below start button */
+/* Decorative divider between START button and nav tiles */
+.menu-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: min(340px, 60vw);
+    margin: 4px 0 2px;
+    opacity: 0.8;
+    pointer-events: none;
+}
+.menu-divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 210, 120, 0.45) 30%,
+        rgba(255, 210, 120, 0.45) 70%,
+        transparent 100%);
+}
+.menu-divider-dot {
+    width: 6px;
+    height: 6px;
+    transform: rotate(45deg);
+    background: rgba(255, 210, 120, 0.8);
+    box-shadow: 0 0 8px rgba(255, 200, 90, 0.45);
+}
+
+/* Secondary nav row: 3 icon tiles below start button */
 #menuNav {
     display: flex;
-    gap: min(12px, 2.5vw);
-    flex-wrap: wrap;
+    gap: min(14px, 2.5vw);
     justify-content: center;
+    align-items: stretch;
 }
-#overlay .btn-nav {
-    padding: min(10px, 2.2vw) min(22px, 4.5vw);
-    font-size: min(14px, 3vw);
-    letter-spacing: 1px;
-    border-width: 1px;
-    min-width: min(160px, 28vw);
+.btn-tile {
+    --tile-color: #888;
+    --tile-glow: rgba(120,120,120,0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: min(118px, 24vw);
+    padding: 14px 10px 12px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: min(11px, 2.4vw);
+    letter-spacing: 1.5px;
+    color: #ffffff;
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--tile-color) 22%, rgba(12, 14, 28, 0.75)) 0%,
+        color-mix(in srgb, var(--tile-color) 10%, rgba(6, 8, 18, 0.85)) 100%);
+    border: 1.5px solid color-mix(in srgb, var(--tile-color) 55%, rgba(255,255,255,0.15));
+    border-radius: 14px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.18s ease,
+                border-color 0.18s ease, background 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow:
+        0 8px 22px rgba(0,0,0,0.38),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
-.btn-shop {
-    background: linear-gradient(180deg, #7f68ff, #4636cb) !important;
-    border-color: rgba(159, 139, 255, 0.95) !important;
-    color: #fff !important;
+.btn-tile:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--tile-color) 90%, white);
+    box-shadow:
+        0 16px 32px rgba(0,0,0,0.46),
+        0 0 22px var(--tile-glow),
+        inset 0 1px 0 rgba(255,255,255,0.14);
 }
-.btn-shop:hover { transform: scale(1.05); }
-.btn-achievements {
-    background: linear-gradient(180deg, #f0bc43, #b78417) !important;
-    border-color: rgba(255, 217, 109, 0.9) !important;
-    color: #1a0a00 !important;
+.btn-tile:active {
+    transform: translateY(-1px) scale(0.97);
 }
-.btn-leaderboard {
-    background: linear-gradient(180deg, #2a618e, #17314f) !important;
-    border-color: rgba(121, 188, 255, 0.9) !important;
-    color: #d8f0ff !important;
+.btn-tile:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--tile-color) 95%, white);
+    outline-offset: 3px;
 }
+.tile-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+    transition: transform 0.2s ease;
+}
+.btn-tile:hover .tile-icon {
+    transform: scale(1.12) translateY(-1px);
+}
+.tile-label {
+    line-height: 1;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+
+/* Per-tile accent colors — drive the --tile-color custom prop */
+.btn-shop        { --tile-color: #8a72ff; --tile-glow: rgba(138, 114, 255, 0.38); }
+.btn-achievements{ --tile-color: #f0bc43; --tile-glow: rgba(240, 188, 67,  0.42); color: #fff3c5; }
+.btn-leaderboard { --tile-color: #4a93d4; --tile-glow: rgba(90, 167, 238,  0.42); color: #d8f0ff; }
+
 .btn-achievements.has-unclaimed {
-    box-shadow: 0 0 12px #ffd700;
+    animation: tile-pulse 2.1s ease-in-out infinite;
+}
+@keyframes tile-pulse {
+    0%, 100% { box-shadow: 0 8px 22px rgba(0,0,0,0.38), 0 0 10px rgba(255, 215, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.08); }
+    50%      { box-shadow: 0 8px 22px rgba(0,0,0,0.38), 0 0 22px rgba(255, 215, 0, 0.8), inset 0 1px 0 rgba(255,255,255,0.14); }
 }
 
 /* ============================================================
