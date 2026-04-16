@@ -49,16 +49,24 @@ const startBtn = document.getElementById('startBtn');
 // PERSISTENT DATA (localStorage)
 // ============================================================
 
-const DATA_VERSION = 'v2';
+const DATA_VERSION = 'v3';
 (function checkDataVersion() {
     const stored = localStorage.getItem('bridgeAssault_dataVersion');
     if (stored !== DATA_VERSION) {
-        Object.keys(localStorage)
-            .filter(k => k.startsWith('bridgeAssault_'))
-            .forEach(k => localStorage.removeItem(k));
+        // Preserve existing player progress across schema bumps. Field-level
+        // migrations below fill missing values without deleting the whole save.
         localStorage.setItem('bridgeAssault_dataVersion', DATA_VERSION);
     }
 })();
+
+function resetBridgeAssaultSave() {
+    Object.keys(localStorage)
+        .filter(k => k.startsWith('bridgeAssault_'))
+        .forEach(k => localStorage.removeItem(k));
+    localStorage.setItem('bridgeAssault_dataVersion', DATA_VERSION);
+}
+
+window.resetBridgeAssaultSave = resetBridgeAssaultSave;
 
 function loadPlayerData() {
     try {
@@ -120,3 +128,65 @@ if (!playerData.stats) playerData.stats = {};
 if (!playerData.achievements) playerData.achievements = {};
 if (!playerData.achievementsClaimed) playerData.achievementsClaimed = {};
 savePlayerData(playerData);
+
+const assetLoadErrors = [];
+
+function recordAssetLoadError(label, path) {
+    assetLoadErrors.push({ label, path });
+    console.warn(`Asset failed to load: ${label} (${path})`);
+}
+
+function showAssetErrorOverlay() {
+    if (!assetLoadErrors.length) return;
+    const el = document.getElementById('assetError');
+    const listEl = document.getElementById('assetErrorList');
+    if (!el || !listEl) return;
+    listEl.innerHTML = assetLoadErrors
+        .map(err => `<li>${err.label}: <code>${err.path}</code></li>`)
+        .join('');
+    el.classList.remove('hidden');
+}
+
+function getMaxWavesForLevel(level) {
+    return Number(level) === 2 ? MAX_WAVES_LEVEL2 : MAX_WAVES_LEVEL1;
+}
+
+function isFinalWave(g) {
+    return !!g && g.wave >= getMaxWavesForLevel(g.currentLevel);
+}
+
+function hasAliveBoss(g) {
+    return !!g && g.enemies.some(e => e.alive && e.isBoss);
+}
+
+function shouldCompleteLevel(g) {
+    return !!g && !g.levelCompleted && g.finalWaveSpawned && isFinalWave(g) && !hasAliveBoss(g);
+}
+
+function collectRemainingRunCurrency(g) {
+    if (!g) return;
+    g.coins.forEach(coin => {
+        if (coin.collected) return;
+        coin.collected = true;
+        g.coinsCollected += coin.value;
+        playerData.coins += coin.value;
+        addStat('totalCoinsEarned', coin.value);
+    });
+    g.gems.forEach(gem => {
+        if (gem.collected) return;
+        gem.collected = true;
+        g.gemsCollected += gem.value;
+        playerData.gems = (playerData.gems || 0) + gem.value;
+        addStat('totalGemsEarned', gem.value);
+    });
+    markPlayerDataDirty();
+    flushPlayerDataSave(true);
+}
+
+function completeLevelOnce(g) {
+    if (!shouldCompleteLevel(g)) return false;
+    g.levelCompleted = true;
+    collectRemainingRunCurrency(g);
+    triggerLevelComplete();
+    return true;
+}

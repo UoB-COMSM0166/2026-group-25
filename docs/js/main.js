@@ -6,16 +6,36 @@
 let _p5PatrickImg, _p5XiaoNaiLongImg, _p5BossImg, _p5FireEnemyImg;
 let _p5CapybaraImg, _p5PigEngineerImg, _p5CowGunImg, _p5CowCryImg, _p5ElephantImg;
 
+const CRITICAL_IMAGE_ASSETS = [
+    ['Patrick enemy sprite', 'assets/patrick.png'],
+    ['Small dragon sprite', 'assets/small_dragon.png'],
+    ['Boss dragon sprite', 'assets/boss_dragon.png'],
+    ['Fire enemy sprite', 'assets/fire_enemy.png'],
+    ['Capybara sprite', 'assets/capybara.png'],
+    ['Pig engineer sprite', 'assets/pig_engineer.png'],
+    ['Cow gun sprite', 'assets/cow_gun.png'],
+    ['Crying cow sprite', 'assets/cow_cry.png'],
+    ['Elephant sprite', 'assets/elephant.png'],
+];
+
+function loadCriticalImage(label, path) {
+    return loadImage(
+        path,
+        () => {},
+        () => recordAssetLoadError(label, path)
+    );
+}
+
 function preload() {
-    _p5PatrickImg      = loadImage('assets/patrick.png');
-    _p5XiaoNaiLongImg  = loadImage('assets/small_dragon.png');
-    _p5BossImg         = loadImage('assets/boss_dragon.png');
-    _p5FireEnemyImg    = loadImage('assets/fire_enemy.png');
-    _p5CapybaraImg     = loadImage('assets/capybara.png');
-    _p5PigEngineerImg  = loadImage('assets/pig_engineer.png');
-    _p5CowGunImg       = loadImage('assets/cow_gun.png');
-    _p5CowCryImg       = loadImage('assets/cow_cry.png');
-    _p5ElephantImg     = loadImage('assets/elephant.png');
+    _p5PatrickImg      = loadCriticalImage(...CRITICAL_IMAGE_ASSETS[0]);
+    _p5XiaoNaiLongImg  = loadCriticalImage(...CRITICAL_IMAGE_ASSETS[1]);
+    _p5BossImg         = loadCriticalImage(...CRITICAL_IMAGE_ASSETS[2]);
+    _p5FireEnemyImg    = loadCriticalImage(...CRITICAL_IMAGE_ASSETS[3]);
+    _p5CapybaraImg     = loadCriticalImage(...CRITICAL_IMAGE_ASSETS[4]);
+    _p5PigEngineerImg  = loadCriticalImage(...CRITICAL_IMAGE_ASSETS[5]);
+    _p5CowGunImg       = loadCriticalImage(...CRITICAL_IMAGE_ASSETS[6]);
+    _p5CowCryImg       = loadCriticalImage(...CRITICAL_IMAGE_ASSETS[7]);
+    _p5ElephantImg     = loadCriticalImage(...CRITICAL_IMAGE_ASSETS[8]);
 }
 
 function setup() {
@@ -37,6 +57,7 @@ function setup() {
     rawElephantImg     = document.getElementById('spriteElephant');
 
     _buildSpriteFrames();
+    showAssetErrorOverlay();
     initAudio();
     setupInput();
 
@@ -99,7 +120,7 @@ function draw() {
     screenW = width;
     screenH = height;
 
-    if (game && (game.state === 'playing' || game.state === 'paused' || game.state === 'revive')) {
+    if (game && game.state === 'playing') {
         update(deltaTime);
     }
     render();

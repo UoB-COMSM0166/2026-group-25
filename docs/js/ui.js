@@ -169,7 +169,9 @@ function startGameWithLevel(level) {
 function triggerLevelComplete() {
     stopBGM();
     const g = game;
+    if (!g || g._levelCompleteTriggered) return;
     g.levelCompleted = true;
+    g._levelCompleteTriggered = true;
     updateEndOfGameStats();
     if (!playerData.unlockedLevels) playerData.unlockedLevels = [1];
     if (!playerData.unlockedLevels.includes(2)) {
@@ -177,7 +179,7 @@ function triggerLevelComplete() {
         savePlayerData(playerData);
     }
     const isL2Clear = g.currentLevel === 2;
-    const maxWaves = isL2Clear ? MAX_WAVES_LEVEL2 : MAX_WAVES_LEVEL1;
+    const maxWaves = getMaxWavesForLevel(g.currentLevel);
     const levelTag = isL2Clear ? 'LEVEL II' : 'LEVEL I';
     const unlockLine = isL2Clear ? '' : `<div style="color:#cc44ff;font-size:min(20px,4vw);margin-bottom:24px;text-shadow:0 0 15px rgba(200,68,255,0.6);">\uD83D\uDD13 ${T('levelcomplete.unlocked')}</div>`;
     const nextBtn = isL2Clear ? '' : `<button class="btn" style="background:linear-gradient(180deg,#f0b828,#c87800);border-color:#f0c840;" onclick="startGameWithLevel(2)">\u25B6 ${T('levelcomplete.next')}</button>`;
@@ -185,7 +187,7 @@ function triggerLevelComplete() {
     overlay.innerHTML = `
         <h1 style="color:#44ff88;text-shadow:0 0 30px rgba(68,255,136,0.7);">\uD83C\uDFC6 ${T('levelcomplete.title')}</h1>
         <div style="color:#f0c040;font-size:min(32px,6vw);margin:16px 0;letter-spacing:3px;">${levelTag} ${T('levelcomplete.clear')}</div>
-        <div style="color:#aaa;font-size:min(20px,4vw);margin-bottom:12px;">${T('levelcomplete.waves', g.wave - 1, maxWaves)}</div>
+        <div style="color:#aaa;font-size:min(20px,4vw);margin-bottom:12px;">${T('levelcomplete.waves', Math.min(g.wave, maxWaves), maxWaves)}</div>
         <div style="color:#88ccff;font-size:min(22px,4.5vw);margin-bottom:6px;">${T('levelcomplete.score', g.score)}</div>
         ${unlockLine}
         <div id="menuButtons">
@@ -194,7 +196,16 @@ function triggerLevelComplete() {
             <button class="btn" onclick="restoreMainMenu()">${T('levelcomplete.mainmenu')}</button>
         </div>
     `;
-    saveHighScore(g.score, g.wave - 1);
+    const completedWave = Math.min(g.wave, maxWaves);
+    if (g.currentLevel === 2) {
+        const prev = playerData.l2HighScore || { score: 0, wave: 0 };
+        if (g.score > prev.score || completedWave > prev.wave) {
+            playerData.l2HighScore = { score: g.score, wave: completedWave };
+            savePlayerData(playerData);
+        }
+    } else {
+        saveHighScore(g.score, completedWave);
+    }
     syncHighScore();
     const slotsDiv = document.getElementById('weaponSlots');
     if (slotsDiv) slotsDiv.style.display = 'none';

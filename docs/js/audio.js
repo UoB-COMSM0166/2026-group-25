@@ -4,14 +4,19 @@
 
 // Audio buffer cache: type → AudioBuffer
 const _audioBuffers = {};
+const _audioUnavailable = new Set();
+const _bgmUnavailable = new Set();
 let _audioLoaded = false;
 let _audioVolume = 0.5;
+let _audioDisabled = false;
+let _audioPreloadPromise = null;
 
 // BGM state
 let _bgmSource = null;
 let _bgmGain = null;
 let _bgmBuffers = {};  // level → AudioBuffer
 let _bgmPlaying = false;
+let _pendingBgmLevel = null;
 const BGM_FILES = {
     1: 'assets/audio/bgm.mp3',
     2: 'assets/audio/bgm_l2.mp3',
@@ -33,16 +38,28 @@ const SOUND_DEFS = {
 };
 
 function initAudio() {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const AudioCtor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtor) {
+        _audioDisabled = true;
+        console.warn('Audio: Web Audio API is unavailable; continuing silently.');
+        return;
     }
-    // Resume suspended context (browser requires user gesture)
-    if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
+    try {
+        if (!audioCtx) {
+            audioCtx = new AudioCtor();
+        }
+        // Resume suspended context (browser requires user gesture)
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume().catch(() => {});
+        }
+    } catch (err) {
+        _audioDisabled = true;
+        console.warn('Audio: failed to initialize; continuing silently.', err);
+        return;
     }
     if (!_audioLoaded) {
         _audioLoaded = true;
-        _preloadAudioBuffers();
+        _audioPreloadPromise = _preloadAudioBuffers();
     }
 }
 
@@ -56,6 +73,7 @@ async function _preloadAudioBuffers() {
             if (!resp.ok) throw new Error(`${resp.status} ${def.file}`);
             const buf = await resp.arrayBuffer();
             _audioBuffers[type] = await audioCtx.decodeAudioData(buf);
+            _audioUnavailable.delete(type);
         })
     );
     const loaded = results.filter(r => r.status === 'fulfilled').length;
@@ -63,6 +81,11 @@ async function _preloadAudioBuffers() {
     console.log(`Audio: ${loaded}/${entries.length} sounds loaded`);
     if (failed.length > 0) {
         console.warn('Audio: failed to load:', failed.map(r => r.reason.message));
+        results.forEach((result, idx) => {
+            if (result.status !== 'rejected') return;
+            const type = entries[idx] && entries[idx][0];
+            if (type) _audioUnavailable.add(type);
+        });
     }
 
     // Preload BGM for all levels
@@ -71,10 +94,20 @@ async function _preloadAudioBuffers() {
             const bgmResp = await fetch(file + '?v=' + _AUDIO_VERSION);
             if (bgmResp.ok) {
                 _bgmBuffers[lvl] = await audioCtx.decodeAudioData(await bgmResp.arrayBuffer());
+            } else {
+                _bgmUnavailable.add(String(lvl));
             }
-        } catch (_) {}
+        } catch (_) {
+            _bgmUnavailable.add(String(lvl));
+        }
     }
     console.log(`Audio: BGM loaded for ${Object.keys(_bgmBuffers).length} level(s)`);
+    _audioPreloadPromise = null;
+    if (_pendingBgmLevel && !_bgmPlaying) {
+        const pending = _pendingBgmLevel;
+        _pendingBgmLevel = null;
+        playBGM(pending);
+    }
 }
 
 // ============================================================
@@ -82,9 +115,21 @@ async function _preloadAudioBuffers() {
 // ============================================================
 function playBGM(level) {
     stopBGM();
+    if (_audioDisabled) return;
     const buf = _bgmBuffers[level || 1];
-    if (!audioCtx || !buf) return;
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (!audioCtx || !buf) {
+        if (_audioPreloadPromise) {
+            _pendingBgmLevel = level || 1;
+            return;
+        }
+        const key = String(level || 1);
+        if (!_bgmUnavailable.has(key)) {
+            _bgmUnavailable.add(key);
+            console.warn(`Audio: BGM for level ${key} is unavailable; continuing without music.`);
+        }
+        return;
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
     _bgmGain = audioCtx.createGain();
     _bgmGain.gain.value = BGM_VOLUME;
     _bgmGain.connect(audioCtx.destination);
@@ -98,6 +143,7 @@ function playBGM(level) {
 }
 
 function stopBGM() {
+    _pendingBgmLevel = null;
     if (_bgmSource && _bgmPlaying) {
         try { _bgmSource.stop(); } catch (_) {}
         _bgmSource = null;
@@ -110,9 +156,9 @@ function setBGMVolume(vol) {
 }
 
 function playSound(type) {
-    if (!audioCtx) return;
+    if (_audioDisabled || !audioCtx) return;
     // Ensure context is running (user gesture may have happened since init)
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
 
     // Try real audio buffer first
     const buffer = _audioBuffers[type];

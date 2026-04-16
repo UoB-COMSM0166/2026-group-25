@@ -179,13 +179,5 @@ function updateEffects(g, dt, dtF) {
         if (c.x > 1.3) c.x = -0.3;
     });
 
-    // Level clear detection
-    if (g.currentLevel === 1 && g.wave > MAX_WAVES_LEVEL1 && !g.levelCompleted) {
-        g.levelCompleted = true;
-        triggerLevelComplete();
-    }
-    if (g.currentLevel === 2 && g.wave > MAX_WAVES_LEVEL2 && !g.levelCompleted) {
-        g.levelCompleted = true;
-        triggerLevelComplete();
-    }
+    completeLevelOnce(g);
 }

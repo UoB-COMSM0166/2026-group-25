@@ -1158,6 +1158,47 @@ html, body {
 }
 
 /* ============================================================
+   CRITICAL ASSET ERROR OVERLAY
+   ============================================================ */
+#assetError {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(5, 7, 18, 0.96);
+    color: #f4f7ff;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+#assetError.hidden {
+    display: none;
+}
+#assetErrorPanel {
+    width: min(520px, calc(100vw - 32px));
+    border: 1px solid rgba(240, 184, 40, 0.35);
+    background: #111827;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}
+#assetErrorPanel h2 {
+    margin: 0 0 12px;
+    color: #f0b828;
+    font-size: 24px;
+}
+#assetErrorPanel p {
+    color: #aeb8d2;
+    margin: 0 0 14px;
+}
+#assetErrorList {
+    margin: 0 0 20px 20px;
+    padding: 0;
+    color: #ffb3b3;
+    line-height: 1.6;
+}
+
+/* ============================================================
    LEADERBOARD OVERLAY
    ============================================================ */
 #leaderboardOverlay {

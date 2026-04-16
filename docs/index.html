@@ -29,6 +29,18 @@ body > canvas {
 })();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.0/p5.min.js"></script>
+<script>
+window.addEventListener('load', function() {
+    if (!window.p5) {
+        var el = document.getElementById('assetError');
+        var listEl = document.getElementById('assetErrorList');
+        if (listEl) {
+            listEl.innerHTML = '<li>p5.js failed to load from the CDN. Please check the network connection and reload.</li>';
+        }
+        if (el) el.classList.remove('hidden');
+    }
+});
+</script>
 </head>
 <body>
 
@@ -213,6 +225,16 @@ body > canvas {
             请使用电脑浏览器打开游戏
         </p>
         <div id="mobileBlockUrl">www.lzqqq.org/game</div>
+    </div>
+</div>
+
+<!-- Critical asset/dependency error overlay -->
+<div id="assetError" class="hidden">
+    <div id="assetErrorPanel">
+        <h2>Game assets failed to load</h2>
+        <p>The game can not start correctly until these files are available:</p>
+        <ul id="assetErrorList"></ul>
+        <button class="btn" onclick="location.reload()">Reload</button>
     </div>
 </div>
 

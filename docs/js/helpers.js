@@ -43,7 +43,7 @@ function handleBossDeath(g, enemy) {
     const otherBossAlive = g.enemies.some(o => o !== enemy && o.alive && o.isBoss);
     if (!otherBossAlive) {
         g.enemyBullets = [];
-        if (enemy.isMegaBoss) g.midShopTimer = 90;
+        if (enemy.isMegaBoss && !isFinalWave(g)) g.midShopTimer = 90;
         // Track boss wave with zero troop loss
         if (g.preBossSquad && g.squadCount >= g.preBossSquad) {
             addStat('bossZeroLossWaves', 1);

@@ -99,8 +99,11 @@ function updateWorld(g, dt, dtF, bossAlive) {
         }
     });
 
+    if (completeLevelOnce(g)) return;
+
     // Spawning — blocked while boss is alive (must defeat boss before next wave)
     if (!bossAlive && g.cameraZ + CONFIG.SPAWN_DISTANCE > g.nextWaveZ) {
+        if (g.finalWaveSpawned && isFinalWave(g)) return;
         spawnEnemyWave();
         if (Math.random() > 0.55) spawnBarrels();
         g.wave++;
@@ -110,12 +113,14 @@ function updateWorld(g, dt, dtF, bossAlive) {
         if (g.wave === 66 && g.currentLevel === 1) {
             g.preBossSquad = g.squadCount;
             g.squadLostDuringBoss = 0;
+            g.finalWaveSpawned = true;
             const xOff = CONFIG.ROAD_HALF_WIDTH * 0.45;
             spawnMegaBoss(g.nextWaveZ - 80, -xOff);
             spawnMegaBoss(g.nextWaveZ - 80,  xOff);
         } else if (g.wave === 88 && g.currentLevel === 2) {
             g.preBossSquad = g.squadCount;
             g.squadLostDuringBoss = 0;
+            g.finalWaveSpawned = true;
             const xOff = CONFIG.ROAD_HALF_WIDTH * 0.45;
             spawnElephantBoss(g.nextWaveZ - 80, -xOff);
             spawnElephantBoss(g.nextWaveZ - 80,  xOff);

@@ -10,6 +10,7 @@ function update(dt) {
     updateBulletCollisions(g, dtF);
     updateEnemies(g, dt, dtF, bossAlive);
     updateWorld(g, dt, dtF, bossAlive);
+    if (game !== g) return;
     updateEffects(g, dt, dtF);
 
     flushPlayerDataSave(false);

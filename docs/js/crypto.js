@@ -99,16 +99,8 @@ _s1=function(sk){
 // Global aliases — use non-obvious names
 _0x={s:_s0,l:_s1};
 
-// Runtime anti-debug: detect console open via timing
-// (lightweight — doesn't block, just adds friction)
-_p.push(setInterval(function(){
-    var t0=performance.now();
-    debugger;  // pauses only when DevTools is open
-    if(performance.now()-t0>100){
-        // DevTools detected — corrupt cached key (recovers on reload without DevTools)
-        _kf=_h(Math.random().toString());
-    }
-},5000));
+// Keep save validation deterministic so browser DevTools and automated tests
+// can inspect the game without being interrupted by runtime debugger traps.
 }();
 
 function _signedSave(k,d){_0x.s(k,d)}

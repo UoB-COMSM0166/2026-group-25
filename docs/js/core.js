@@ -71,6 +71,7 @@ function createGame() {
         exp: playerData.exp || 0,
         currentLevel: 1,
         levelCompleted: false,
+        finalWaveSpawned: false,
         fireRateDebuff: 0,
     };
 }
