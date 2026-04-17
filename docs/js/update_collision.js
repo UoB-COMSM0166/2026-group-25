@@ -39,7 +39,7 @@ function updateBulletCollisions(g, dtF) {
     // Bullet-enemy collision
     // Per-frame throttle maps to avoid redundant work when many bullets hit same frame
     let hitSoundedThisFrame = false;         // play hit sound at most once per frame
-    const enemyDmgMap = new Map();           // enemy → accumulated damage this frame (for merged damage numbers)
+    const enemyDmgMap = new Map();           // enemy -> merged damage payload for this frame
     g.bullets.forEach(b => {
         if (b.dead) return; // lingering impact flash, no more collisions
         for (let e of g.enemies) {
@@ -96,13 +96,42 @@ function updateBulletCollisions(g, dtF) {
                     }
                     hitDmg = Math.max(1, Math.round(hitDmg * mult));
                 }
+                const isCrit = Math.random() < CONFIG.CRIT_CHANCE;
+                if (isCrit) {
+                    hitDmg = Math.max(hitDmg + 1, Math.round(hitDmg * CONFIG.CRIT_MULT));
+                }
                 e.hp -= hitDmg;
                 e.hitFlash = 4;
-                // hit sound disabled — too noisy during rapid combat
-                // Skip hit particles when near the particle cap to avoid wasted work
-                if (g.particles.length < 320) addParticles(e.x, e.z, 3, 0xffaa00, 2, 10);
+                if (!hitSoundedThisFrame) {
+                    playSound('hit');
+                    hitSoundedThisFrame = true;
+                }
+                addImpactFeedback(e.x, e.z, isCrit
+                    ? {
+                        color: 0xffc24b,
+                        particleBurst: 10,
+                        sparkleBurst: 5,
+                        flash: 0.09,
+                        shake: CONFIG.HIT_SHAKE_CRIT,
+                        shakePower: 1.15,
+                        particleSize: 3.6,
+                        particleLife: 14,
+                    }
+                    : {
+                        color: 0xffaa00,
+                        particleBurst: 4,
+                        sparkleBurst: 2,
+                        flash: 0.035,
+                        shake: CONFIG.HIT_SHAKE_LIGHT,
+                        shakePower: 0.45,
+                        particleSize: 2.2,
+                        particleLife: 9,
+                    });
                 // Accumulate damage per enemy; emit merged damage number after loop
-                enemyDmgMap.set(e, (enemyDmgMap.get(e) || 0) + hitDmg);
+                const merged = enemyDmgMap.get(e) || { damage: 0, crit: false };
+                merged.damage += hitDmg;
+                merged.crit = merged.crit || isCrit;
+                enemyDmgMap.set(e, merged);
 
                 if (b.pierce && b.hitEnemies) { b.hitEnemies.add(e); }
                 else if (b.aoeRadius) {
@@ -148,7 +177,13 @@ function updateBulletCollisions(g, dtF) {
         }
     });
     // Emit one merged damage number per enemy (replaces per-hit addDamageNumber calls)
-    enemyDmgMap.forEach((totalDmg, e) => addDamageNumber(e.x, e.z, totalDmg));
+    enemyDmgMap.forEach((payload, e) => addDamageNumber(
+        e.x,
+        e.z,
+        payload.damage,
+        payload.crit ? 0xffc24b : 0xffffff,
+        payload.crit ? { crit: true, prefix: 'CRIT ', scaleBoost: 0.45 } : null
+    ));
     g.bullets = g.bullets.filter(b => !b.dead || b.deathTimer > 0);
 
     // Bullet-barrel collision (also swept so fast bullets can't skip barrels)

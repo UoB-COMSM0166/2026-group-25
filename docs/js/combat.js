@@ -246,11 +246,29 @@ function spawnBossGems(x, z) {
     }
 }
 
-function addDamageNumber(x, z, value, color) {
+function addDamageNumber(x, z, value, color, opts) {
+    const o = opts || {};
     game.damageNumbers.push({
         x, z, value, color: color || 0xffffff,
         life: 50, maxLife: 50, offsetY: 0,
+        crit: !!o.crit,
+        prefix: o.prefix || '',
+        scaleBoost: o.scaleBoost || 0,
     });
+}
+
+function addImpactFeedback(x, z, opts) {
+    const g = game;
+    if (!g) return;
+    const o = opts || {};
+    const color = o.color || 0xffdd88;
+    const particleBurst = o.particleBurst || 5;
+    const sparkleBurst = o.sparkleBurst || 2;
+    addParticles(x, z, particleBurst, color, o.particleSize || 2.5, o.particleLife || 10);
+    addParticles(x, z, sparkleBurst, 0xffffff, 1.8, 6);
+    g.screenFlash = Math.max(g.screenFlash, o.flash || 0.04);
+    g.shakeTimer = Math.max(g.shakeTimer, o.shake || CONFIG.HIT_SHAKE_LIGHT);
+    g.shakePower = Math.max(g.shakePower || 0, o.shakePower || 0.55);
 }
 
 function addScorePopup(text, sx, sy, color) {
