@@ -131,4 +131,6 @@ if (!playerData.stats) playerData.stats = {};
 if (!playerData.achievements) playerData.achievements = {};
 if (!playerData.achievementsClaimed) playerData.achievementsClaimed = {};
 if (playerData.hasSeenTutorial === undefined) playerData.hasSeenTutorial = false;
+if (playerData.tutorialRewardClaimed === undefined) playerData.tutorialRewardClaimed = false;
+if (playerData.tutorialRewardChoice === undefined) playerData.tutorialRewardChoice = '';
 savePlayerData(playerData);
