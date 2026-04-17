@@ -64,9 +64,40 @@ https://github.com/user-attachments/assets/04cb0453-2a8d-4174-9a1d-9fa1a06367ee
 - 15% ~750 words
 - Early stages design. Ideation process. How did you decide as a team what to develop? Use case diagrams, user stories.  
 
+#### 2.0&nbsp;&nbsp;Game Inspiration Research (Longlist + Ranking)
+
+Before finalising the concept, the team conducted a structured inspiration review to reduce design bias and ensure sufficient option coverage. We first built a longlist of candidate references, then evaluated each candidate against two criteria on a 1–5 scale:
+
+- **Suitability:** feasibility within module scope (team capacity, implementation complexity in p5.js, balancing effort).
+- **Team Interest:** motivation to develop and iterate the design over the project timeline.
+
+The table below summarises the ranked shortlist used in decision-making.
+
+| Rank | Reference Game | Key Strength Observed | Suitability (1–5) | Team Interest (1–5) | Relevance to Our Final Design |
+|---|---|---|---:|---:|---|
+| 1 | **Vampire Survivors** | Highly effective short-run loop and progression readability. | 5 | 5 | Primary structural reference for survival progression and build evolution. |
+| 2 | **20 Minutes Till Dawn** | Strong synergy design with minimal control complexity. | 5 | 4 | Informed our upgrade readability and combat pacing. |
+| 3 | **Brotato** | High replayability through compact round design and stat trade-offs. | 4 | 5 | Inspired concise feedback and decision density under simple controls. |
+| 4 | **Nuclear Throne** | Fast combat tempo and distinct weapon identity. | 4 | 4 | Shaped target combat intensity and threat pressure. |
+| 5 | **Archero** | Accessible movement-focused survival loop. | 4 | 4 | Reinforced lane-based positioning and approachable controls. |
+| 6 | **Contra / Metal Slug** | Clear arcade action language and strong hit feedback. | 4 | 5 | Influenced visual/combat style and overall arcade tone. |
+| 7 | **Enter the Gungeon** | Excellent dodge-centric encounter design. | 3 | 4 | Useful combat reference but too complex to fully reproduce in scope. |
+| 8 | **Risk of Rain Returns** | Layered scaling and item interaction depth. | 3 | 4 | Informed long-term scaling ideas, selectively adopted. |
+| 9 | **Hades** | Exceptional polish and progression integration. | 2 | 5 | Aspirational quality benchmark; scope too large for this module. |
+| 10 | **Slay the Spire** | Strong decision pacing and economy tension. | 2 | 3 | Useful economy lessons; genre mismatch with real-time shooter goal. |
+| 11 | **Buckshot Roulette** | Effective uncertainty-driven tension. | 2 | 3 | Useful risk framing ideas; limited fit for core action loop. |
+| 12 | **I Wanna** | Precise pattern-learning challenge design. | 2 | 2 | Valuable for difficulty thinking; not feasible for planned timeline. |
+
+**Findings and selection outcome**
+
+1. The highest combined scores consistently favoured **survival-shooter references**.
+2. The selected direction therefore prioritised a **readable, replayable, short-session combat loop** with scalable progression.
+3. We intentionally excluded high-polish but high-cost mechanics that would threaten delivery within module constraints.
+4. This process directly informed our final concept: an on-rails survival shooter with constrained controls, in-run upgrades, and meta-progression.
+
 #### 2.1&nbsp;&nbsp;Early Stage Design & Ideation  
 
-During ideation, our team deliberately explored a wide range of game genres and identified their “core loops” and difficulty structures before committing to a concept. Our discussion covered:  
+During the ideation phase, the team conducted a comparative review of multiple genres before selecting a final direction. The objective was to identify a concept that simultaneously offered (i) a clear and testable core loop, (ii) sufficient strategic depth for replayability, and (iii) feasible implementation within module constraints. The references below were analysed using these criteria.  
 
 | Game / Genre reference | Core loop / What we analysed | Key design takeaways (what it taught us) | Why we didn't choose it as our main direction |
 |---|---|---|---|
@@ -76,9 +107,9 @@ During ideation, our team deliberately explored a wide range of game genres and 
 | **Vampire Survivors** (auto-attack survival) | Survive a timed run → XP/level-ups → build choices; auto-attacking weapons; elites/chests as “spike moments”; meta-progression between runs | “One more run” loop; build-crafting via upgrades; meta-progression gives long-term goals; hidden math makes progression feel good | **We *did* choose this as the closest foundation**, but decided to remix it with a different control constraint and theme |
 | **Our final direction** (on-rails survival shooter) | Auto-scrolling battlefield + **left/right movement only** + **auto upward shooting** → waves escalate → coins → fixed-wave shop → persistent upgrades/unlocks | Keeps controls simple but decision density high (lane choice, threat reading, spending timing). Novel twist: **two-layer progression** (in-run bullet/weapon evolution + out-of-run permanent upgrades) plus **fixed-wave shop milestones** | selected |  
 
-This comparative analysis helped us evaluate ideas against three criteria: (1) clarity of the core loop, (2) depth of decision-making, and (3) feasibility within the module timeframe. We ultimately chose an auto-attack survival shooter direction inspired by the “survive-and-build” structure of Vampire Survivors, but with a distinct arcade identity and control constraint: an on-rails battlefield where the player advances automatically and can only move left/right while firing upward. This constraint increases decision density (lane choice, threat reading, timing purchases) while keeping controls accessible.  
+The analysis indicated that a survival-shooter framework provided the strongest balance between gameplay depth and delivery feasibility. Consequently, we selected a design primarily informed by *Vampire Survivors*, while introducing a deliberate control constraint to differentiate the project: the player advances on an on-rails battlefield and can move only along the horizontal axis while firing upward automatically. This constraint preserves accessibility while increasing tactical load through lane selection, threat anticipation, and positioning discipline.
 
-The twist comes from combining in-run build evolution (weapon type, fire rate, bullet count, and bullet behaviours such as spread/fire/piercing) with meta-progression (coins earned from kills used for persistent upgrades and unlocks), plus a fixed-wave shop that introduces predictable strategic milestones—forcing meaningful “spend now vs save later” decisions and giving runs a clear tempo.  
+The final concept is further differentiated by a two-layer progression model. At run-time, players alter weapon behaviour through upgrades (fire rate, bullet count, and bullet types such as spread, fire, and piercing). Across runs, coin-based meta-progression supports persistent upgrades and unlocks. In addition, fixed-wave shop milestones create predictable strategic checkpoints, formalising the trade-off between immediate spending and long-term saving.
 
 ---
 
