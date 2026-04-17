@@ -53,7 +53,7 @@ https://github.com/user-attachments/assets/04cb0453-2a8d-4174-9a1d-9fa1a06367ee
 - Yiyang Dong, hh25303@bristol.ac.uk, Coder
 
 ## Kanban
-https://teletubbies.atlassian.net/jira/software/projects/SMS/list?jql=project+%3D+SMS+ORDER+BY+created+DESC&atlOrigin=eyJpIjoiZDEzMGFlMzI1MmQ1NDAwNzg4OWJjZTM4MGQxMWFlMTkiLCJwIjoiaiJ9
+[Kanban board](https://teletubbies.atlassian.net/jira/software/projects/SMS/list)
 ## Project Report
 
 ### 1. Introduction
