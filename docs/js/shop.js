@@ -56,10 +56,219 @@ function renderShop() {
     else if (_shopTab === 'defense') renderDefenseItems();
 }
 
+function ensureShopAdviceBox(panelId) {
+    const panel = document.getElementById(panelId);
+    if (!panel) return null;
+    let box = panel.querySelector('.shop-advice');
+    if (!box) {
+        box = document.createElement('div');
+        box.className = 'shop-advice';
+        panel.insertBefore(box, panel.firstChild);
+    }
+    return box;
+}
+
+function renderShopAdvice(panelId, items) {
+    const box = ensureShopAdviceBox(panelId);
+    if (!box) return;
+    const list = (items || []).slice(0, 3);
+    box.innerHTML = `
+        <div class="shop-advice-title">${T('shop.advice.title')}</div>
+        <div class="shop-advice-list">
+            ${list.map(item => `
+                <div class="shop-advice-item">
+                    <div class="shop-advice-top">
+                        <span class="shop-advice-badge">${item.tag}</span>
+                        <span class="shop-advice-name" style="color:${item.color || '#ffffff'}">${item.name}</span>
+                    </div>
+                    <div class="shop-advice-text">${item.text}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function recommendWeaponPurchases() {
+    const recommendations = [];
+    const owned = playerData.ownedPistolTiers || [0];
+    const equipped = playerData.equippedPistolTier || 0;
+    const level = playerData.level || 1;
+    const coins = playerData.coins || 0;
+    const unlocked = PISTOL_TIERS.filter((tier, idx) => idx > 0 && tier.requireLevel <= level && !owned.includes(idx));
+    const nextLocked = PISTOL_TIERS.find((tier, idx) => idx > 0 && !owned.includes(idx) && tier.requireLevel > level);
+    const bestOwned = owned.reduce((best, idx) => Math.max(best, idx), 0);
+
+    if (unlocked.length > 0) {
+        const target = unlocked[unlocked.length - 1];
+        const idx = PISTOL_TIERS.indexOf(target);
+        const shortfall = Math.max(0, target.price - coins);
+        recommendations.push({
+            tag: shortfall === 0 ? T('shop.advice.tag.unlock') : T('shop.advice.tag.save'),
+            name: T('pistol.' + idx + '.name'),
+            color: target.colorStr,
+            text: shortfall === 0
+                ? T('shop.advice.weapon.buyNow', T('pistol.' + idx + '.name'))
+                : T('shop.advice.weapon.saveFor', T('pistol.' + idx + '.name'), shortfall),
+        });
+    }
+
+    if (bestOwned > equipped) {
+        const bestTier = PISTOL_TIERS[bestOwned];
+        recommendations.push({
+            tag: T('shop.advice.tag.power'),
+            name: T('pistol.' + bestOwned + '.name'),
+            color: bestTier.colorStr,
+            text: T('shop.advice.weapon.equipBetter', T('pistol.' + bestOwned + '.name')),
+        });
+    }
+
+    if (nextLocked) {
+        recommendations.push({
+            tag: T('shop.advice.tag.progress'),
+            name: T('pistol.' + PISTOL_TIERS.indexOf(nextLocked) + '.name'),
+            color: nextLocked.colorStr,
+            text: T('shop.advice.weapon.levelGate', nextLocked.requireLevel, nextLocked.requireLevel - level),
+        });
+    }
+
+    if (recommendations.length === 0) {
+        const current = PISTOL_TIERS[equipped];
+        recommendations.push({
+            tag: T('shop.advice.tag.ready'),
+            name: T('pistol.' + equipped + '.name'),
+            color: current.colorStr,
+            text: T('shop.advice.weapon.setForNow'),
+        });
+    }
+    return recommendations;
+}
+
+function recommendSpecialPurchases() {
+    const recommendations = [];
+    const coins = playerData.coins || 0;
+    const weaponLevels = playerData.weaponLevels || {};
+    const priorities = ['shotgun', 'laser', 'rocket'];
+    const focus = priorities
+        .map(key => {
+            const level = weaponLevels[key] || 0;
+            const weapon = SHOP_WEAPONS[key];
+            if (level >= 3) return null;
+            return { key, level, cost: weapon.upgradePrices[level], weapon };
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.level - b.level || a.cost - b.cost);
+
+    focus.slice(0, 2).forEach(entry => {
+        const shortfall = Math.max(0, entry.cost - coins);
+        recommendations.push({
+            tag: entry.level === 0 ? T('shop.advice.tag.unlock') : T('shop.advice.tag.power'),
+            name: T('weapon.' + entry.key + '.name'),
+            color: entry.weapon.color,
+            text: shortfall === 0
+                ? T('shop.advice.special.buyNow', T('weapon.' + entry.key + '.name'), entry.level + 1)
+                : T('shop.advice.special.saveFor', T('weapon.' + entry.key + '.name'), shortfall),
+        });
+    });
+
+    const unlockedCount = priorities.filter(key => (weaponLevels[key] || 0) > 0).length;
+    recommendations.push({
+        tag: unlockedCount >= 2 ? T('shop.advice.tag.balance') : T('shop.advice.tag.variety'),
+        name: T('shop.advice.special.loadout'),
+        color: unlockedCount >= 2 ? '#88ddff' : '#ffd36a',
+        text: unlockedCount >= 2 ? T('shop.advice.special.balance') : T('shop.advice.special.variety'),
+    });
+
+    return recommendations.slice(0, 3);
+}
+
+function recommendTalentPurchases() {
+    const recommendations = [];
+    const gems = playerData.gems || 0;
+    const tracked = [
+        { id: 'damage', weight: 0 },
+        { id: 'fireRate', weight: 0.15 },
+        { id: 'squad', weight: 0.25 },
+        { id: 'armor', weight: 0.35 },
+        { id: 'luck', weight: 0.5 },
+    ].map(info => {
+        const def = TALENT_DEFS.find(d => d.id === info.id);
+        const level = def.isArmor ? (playerData.armor || 0) : ((playerData.talents || {})[info.id] || 0);
+        const nextCost = level < def.maxLevel ? def.gemCosts[level] : null;
+        return { def, level, nextCost, weight: info.weight };
+    }).filter(entry => entry.nextCost !== null)
+      .sort((a, b) => (a.level + a.weight) - (b.level + b.weight));
+
+    tracked.slice(0, 3).forEach(entry => {
+        const shortfall = Math.max(0, entry.nextCost - gems);
+        recommendations.push({
+            tag: entry.def.id === 'armor' ? T('shop.advice.tag.survival') : T('shop.advice.tag.core'),
+            name: T('talent.' + entry.def.id + '.name'),
+            color: entry.def.color,
+            text: shortfall === 0
+                ? T('shop.advice.talent.buyNow', T('talent.' + entry.def.id + '.name'))
+                : T('shop.advice.talent.saveFor', T('talent.' + entry.def.id + '.name'), shortfall),
+        });
+    });
+
+    if (recommendations.length === 0) {
+        recommendations.push({
+            tag: T('shop.advice.tag.ready'),
+            name: T('shop.advice.talent.complete'),
+            color: '#cc88ff',
+            text: T('shop.advice.talent.maxed'),
+        });
+    }
+    return recommendations;
+}
+
+function recommendDefensePurchases() {
+    const recommendations = [];
+    const coins = playerData.coins || 0;
+    const charges = playerData.weaponCharges || {};
+    const shieldCharges = charges.invincibility || 0;
+    const frenzyCharges = charges.stimulant || 0;
+
+    if (shieldCharges === 0) {
+        const shortfall = Math.max(0, SHOP_WEAPONS.invincibility.price - coins);
+        recommendations.push({
+            tag: T('shop.advice.tag.survival'),
+            name: T('weapon.invincibility.name'),
+            color: SHOP_WEAPONS.invincibility.color,
+            text: shortfall === 0
+                ? T('shop.advice.defense.shieldNow')
+                : T('shop.advice.defense.shieldSave', shortfall),
+        });
+    }
+
+    if (frenzyCharges === 0 || frenzyCharges < shieldCharges) {
+        const shortfall = Math.max(0, SHOP_WEAPONS.stimulant.price - coins);
+        recommendations.push({
+            tag: T('shop.advice.tag.power'),
+            name: T('weapon.stimulant.name'),
+            color: SHOP_WEAPONS.stimulant.color,
+            text: shortfall === 0
+                ? T('shop.advice.defense.frenzyNow')
+                : T('shop.advice.defense.frenzySave', shortfall),
+        });
+    }
+
+    if (recommendations.length === 0) {
+        recommendations.push({
+            tag: T('shop.advice.tag.ready'),
+            name: T('shop.advice.defense.stocked'),
+            color: '#88ffcc',
+            text: T('shop.advice.defense.covered'),
+        });
+    }
+
+    return recommendations.slice(0, 3);
+}
+
 function renderShopItems() {
     const container = document.getElementById('shopItems');
     const equippedEl = document.getElementById('equippedInfo');
     container.innerHTML = '';
+    renderShopAdvice('shopWeaponPanel', recommendWeaponPurchases());
 
     const owned = playerData.ownedPistolTiers || [0];
     const equipped = playerData.equippedPistolTier || 0;
@@ -118,6 +327,7 @@ function renderShopItems() {
 function renderSpecialItems() {
     const container = document.getElementById('shopSpecialItems');
     container.innerHTML = '';
+    renderShopAdvice('shopSpecialPanel', recommendSpecialPurchases());
 
     for (const [key, weapon] of Object.entries(SHOP_WEAPONS)) {
         if (weapon.defenseOnly) continue;
@@ -182,6 +392,7 @@ function equipPistolTier(idx) {
 function renderTalentItems() {
     const container = document.getElementById('talentItems');
     container.innerHTML = '';
+    renderShopAdvice('shopTalentPanel', recommendTalentPurchases());
 
     for (const def of TALENT_DEFS) {
         const currentLevel = def.isArmor ? (playerData.armor || 0) : (playerData.talents[def.id] || 0);
@@ -262,6 +473,7 @@ function buyTalent(talentId) {
 function renderDefenseItems() {
     const container = document.getElementById('defenseItems');
     container.innerHTML = '';
+    renderShopAdvice('shopDefensePanel', recommendDefensePurchases());
 
     // Helper: render one consumable special-effect item
     function addSpecialItem(key) {

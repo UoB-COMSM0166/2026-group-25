@@ -505,6 +505,70 @@ body::after {
     margin-bottom: min(16px, 2.5vh);
 }
 
+.shop-advice {
+    margin-bottom: min(16px, 2.5vh);
+    padding: min(14px, 2.8vw);
+    background: linear-gradient(180deg, rgba(255,210,120,0.12), rgba(255,255,255,0.04));
+    border: 1px solid rgba(255,210,120,0.28);
+    border-radius: 14px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.shop-advice-title {
+    font-size: min(14px, 3vw);
+    font-weight: bold;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: #ffd36a;
+    margin-bottom: 10px;
+}
+
+.shop-advice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.shop-advice-item {
+    padding: 10px 12px;
+    background: rgba(8,10,18,0.48);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+}
+
+.shop-advice-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+    flex-wrap: wrap;
+}
+
+.shop-advice-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(255,211,106,0.16);
+    border: 1px solid rgba(255,211,106,0.28);
+    color: #ffd36a;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.shop-advice-name {
+    font-size: min(14px, 3vw);
+    font-weight: bold;
+}
+
+.shop-advice-text {
+    font-size: min(12px, 2.7vw);
+    color: #c7cfdb;
+    line-height: 1.45;
+}
+
 #shopHeader {
     display: flex;
     justify-content: space-between;
@@ -1217,6 +1281,9 @@ body::after {
     }
     #shopScrollArea {
         height: min(380px, calc(100svh - 215px));
+    }
+    .shop-advice {
+        padding: 12px;
     }
     .shop-item {
         padding: 10px;
