@@ -34,8 +34,10 @@ function menuFromPause() {
         playerData.exp = game.exp;
         flushPlayerDataSave(true);
         savePlayerData(playerData);
-        saveHighScore(game.score, game.wave);
-        syncHighScore();
+        if (!game.isTutorial) {
+            saveHighScore(game.score, game.wave);
+            syncHighScore();
+        }
     }
     const slotsDiv = document.getElementById('weaponSlots');
     if (slotsDiv) slotsDiv.style.display = 'none';
