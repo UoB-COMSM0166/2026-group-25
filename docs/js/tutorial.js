@@ -295,8 +295,6 @@ function completeTutorial() {
     savePlayerData(playerData);
     const slotsDiv = document.getElementById('weaponSlots');
     if (slotsDiv) slotsDiv.style.display = 'none';
-    const skillBtn = document.getElementById('skillBtn');
-    if (skillBtn) skillBtn.style.display = 'none';
     overlay.classList.remove('hidden');
     renderTutorialCompleteOverlay();
     game = null;

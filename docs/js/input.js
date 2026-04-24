@@ -48,14 +48,6 @@ function setupInput() {
             else if (game.state === 'paused') { resumeGame(); }
         }
     });
-
-    const skillBtn = document.getElementById('skillBtn');
-    if (skillBtn) {
-        skillBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            activateSkillWeapon();
-        });
-    }
 }
 
 // ============================================================
