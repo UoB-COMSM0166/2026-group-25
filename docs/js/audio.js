@@ -119,6 +119,13 @@ function stopBGM() {
         _bgmSource = null;
         _bgmPlaying = false;
     }
+    // Disconnect the gain node so the previous BGM track's audio graph
+    // can be garbage-collected. Without this, every level transition
+    // orphans a GainNode that stays connected to audioCtx.destination.
+    if (_bgmGain) {
+        try { _bgmGain.disconnect(); } catch (_) {}
+        _bgmGain = null;
+    }
 }
 
 function setBGMVolume(vol) {
