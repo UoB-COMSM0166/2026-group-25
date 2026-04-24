@@ -216,7 +216,7 @@ function triggerLevelComplete() {
     `;
     if (isL2Clear) {
         const prev = playerData.l2HighScore || { score: 0, wave: 0 };
-        if (g.score > prev.score) {
+        if (isBetterRunRecord(g.score, g.wave - 1, prev)) {
             playerData.l2HighScore = { score: g.score, wave: g.wave - 1 };
             savePlayerData(playerData);
         }
@@ -584,11 +584,17 @@ function getHighScore() {
 
 function saveHighScore(score, wave) {
     const prev = getHighScore();
-    if (score > prev.score) {
+    if (isBetterRunRecord(score, wave, prev)) {
         _signedSave('bridgeAssault_highScore', { score, wave });
         return true;
     }
     return false;
+}
+
+function isBetterRunRecord(score, wave, prev) {
+    const prevScore = prev && prev.score ? prev.score : 0;
+    const prevWave = prev && prev.wave ? prev.wave : 0;
+    return score > prevScore || (score === prevScore && wave > prevWave);
 }
 
 // ============================================================
@@ -685,7 +691,7 @@ function showGameOver() {
     let isNewRecord;
     if (currentLvl === 2) {
         const prev = playerData.l2HighScore || { score: 0, wave: 0 };
-        if (game.score > prev.score) {
+        if (isBetterRunRecord(game.score, game.wave, prev)) {
             playerData.l2HighScore = { score: game.score, wave: game.wave };
             savePlayerData(playerData);
             isNewRecord = true;

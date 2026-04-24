@@ -47,7 +47,6 @@ const keys = {};
 
 // DOM references
 const overlay = document.getElementById('overlay');
-const startBtn = document.getElementById('startBtn');
 
 // Snapshot of the pristine main-menu markup. Captured at page load (before
 // any user interaction or dynamic writes) so that returning to the menu
