@@ -182,11 +182,10 @@ function updateEffects(g, dt, dtF) {
     });
 
     // Level clear detection
-    if (g.currentLevel === 1 && g.wave > MAX_WAVES_LEVEL1 && !g.levelCompleted) {
-        g.levelCompleted = true;
-        triggerLevelComplete();
-    }
-    if (g.currentLevel === 2 && g.wave > MAX_WAVES_LEVEL2 && !g.levelCompleted) {
+    const maxWave = g.currentLevel === 2 ? MAX_WAVES_LEVEL2 : MAX_WAVES_LEVEL1;
+    const finalBossAlive = g.enemies.some(e => e.alive && e.isBoss);
+    if ((g.currentLevel === 1 || g.currentLevel === 2) &&
+        g.wave >= maxWave && !finalBossAlive && !g.levelCompleted) {
         g.levelCompleted = true;
         triggerLevelComplete();
     }
