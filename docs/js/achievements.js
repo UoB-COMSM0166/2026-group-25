@@ -174,9 +174,13 @@ const ACHIEVEMENTS = {
     },
     iron_fortress: {
         name: 'Iron Fortress', icon: 'shield', category: 'arsenal',
-        desc: ['Max armor (Lv3)'],
+        desc: ['Max armor'],
         tiers: 1, goals: [1],
-        check: () => (playerData.armor || 0) >= 3 ? 1 : 0,
+        check: () => {
+            const armorDef = TALENT_DEFS.find(d => d.id === 'armor');
+            const maxArmorLevel = armorDef ? armorDef.maxLevel : 6;
+            return (playerData.armor || 0) >= maxArmorLevel ? 1 : 0;
+        },
         rewards: [{ gems: 2 }],
     },
 
