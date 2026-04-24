@@ -214,7 +214,15 @@ function triggerLevelComplete() {
             <button class="btn" onclick="restoreMainMenu()">${T('levelcomplete.mainmenu')}</button>
         </div>
     `;
-    saveHighScore(g.score, g.wave - 1);
+    if (isL2Clear) {
+        const prev = playerData.l2HighScore || { score: 0, wave: 0 };
+        if (g.score > prev.score) {
+            playerData.l2HighScore = { score: g.score, wave: g.wave - 1 };
+            savePlayerData(playerData);
+        }
+    } else {
+        saveHighScore(g.score, g.wave - 1);
+    }
     syncHighScore();
     const slotsDiv = document.getElementById('weaponSlots');
     if (slotsDiv) slotsDiv.style.display = 'none';
