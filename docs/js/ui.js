@@ -542,7 +542,9 @@ function showGameOver() {
         isNewRecord = saveHighScore(game.score, game.wave);
     }
     syncHighScore();
-    const hs = getHighScore();
+    const hs = currentLvl === 2
+        ? (playerData.l2HighScore || { score: 0, wave: 0 })
+        : getHighScore();
     overlay.classList.remove('hidden');
     document.getElementById('midShopOverlay').classList.add('hidden');
     const slotsDiv = document.getElementById('weaponSlots');
