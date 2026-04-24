@@ -98,6 +98,8 @@ The twist comes from combining in-run build evolution (weapon type, fire rate, b
 |:--:|:--:|
 | ![0217_1](https://github.com/user-attachments/assets/d578d5f3-0aec-4c03-8010-c235f9561890) | ![0217_2](https://github.com/user-attachments/assets/5f7a262b-34e9-45d0-8786-355abe415dfa) |
 
+The final paper prototype consolidated the adopted concept into a single, testable gameplay blueprint: an on-rails survival shooter in which player agency is intentionally constrained to horizontal movement while upward firing is automated. This prototype specified the intended experiential core—continuous lane-based evasion under escalating enemy pressure—together with two linked progression layers: short-term in-run modification of weapon behaviour (e.g., fire rate, bullet count, and bullet type), and long-term coin-driven meta progression through persistent upgrades and unlocks. In addition, fixed-wave shop milestones were formalised as strategic decision checkpoints to regulate pacing and support comparative playtesting. As a design artefact, the prototype functioned not only as a visual concept but also as an implementation contract, enabling the team to align system boundaries, prioritise feature scope, and maintain consistency between early ideation and the currently developed game build.
+
 ---
 
 #### 2.3&nbsp;&nbsp;Stakeholders & Onion Model  
