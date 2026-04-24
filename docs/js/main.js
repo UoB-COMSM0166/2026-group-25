@@ -105,7 +105,6 @@ function _buildSpriteFrames() {
         tutorialBossFrames.push({ img: _p5TutorialBossImg, sx: i * TUTORIAL_BOSS_FRAME_SIZE, sy: 0, sw: TUTORIAL_BOSS_FRAME_SIZE, sh: TUTORIAL_BOSS_FRAME_SIZE });
     }
     monsterSpritesLoaded = true;
-    console.log('Sprites loaded: Patrick', normalMonsterFrames.length, 'XiaoNaiLong', xiaoNaiLongFrames.length, 'Boss', bossFrames.length);
 }
 
 function draw() {
