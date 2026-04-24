@@ -387,6 +387,17 @@ const TRANSLATIONS = {
         'tutorial.complete.subtitle': 'You have learned the core mechanics',
         'tutorial.complete.body':     'Good luck out there, soldier!',
         'tutorial.complete.continue': '▶ GO TO LEVEL SELECT',
+        'tutorial.reward.choose':     'Choose 1 permanent reward',
+        'tutorial.reward.pick':       'PICK THIS REWARD',
+        'tutorial.reward.once':       'Tutorial rewards can only be claimed once, so pick the bonus that fits your playstyle.',
+        'tutorial.reward.claimed':    'TUTORIAL REWARD CLAIMED',
+        'tutorial.reward.already':    'You have already claimed your tutorial reward.',
+        'tutorial.reward.shotgun.title': 'Permanent SHOTGUN Lv.1',
+        'tutorial.reward.shotgun.body':  'Unlock Shotgun level 1 for free and bring reliable close-range burst into future runs.',
+        'tutorial.reward.laser.title':   'Permanent LASER Lv.1',
+        'tutorial.reward.laser.body':    'Unlock Laser level 1 for free and start future runs with piercing wave-clear ready to build on.',
+        'tutorial.reward.magnum.title':  'Early MAGNUM unlock',
+        'tutorial.reward.magnum.body':   'Claim the Magnum pistol tier immediately and auto-equip it for your later runs.',
 
         // Level select
         'levelselect.title':    'SELECT LEVEL',
