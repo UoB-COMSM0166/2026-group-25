@@ -216,10 +216,9 @@ function spawnBossGems(x, z) {
     const bossLvl = Math.floor(g.wave / 5);
     const isL2 = g.currentLevel === 2;
     // Multi-boss: only the last boss drops gems (max 1 gem drop per wave)
-    const bossCount = Math.min(1 + Math.floor((bossLvl - 1) / 2), 4);
-    const aliveBosses = g.enemies.filter(e => e.alive && e.isBoss).length;
+    const otherBossAlive = g.enemies.some(e => e.alive && e.isBoss);
     // Only drop gems when the last boss dies
-    if (aliveBosses > 1) return;
+    if (otherBossAlive) return;
     // Drop chance: L1: wave5=20%...wave25+=75%; L2 +25%
     const gemDropChance = Math.min(0.97, 0.0 + bossLvl * 0.2 + (isL2 ? 0.25 : 0));
     if (Math.random() > gemDropChance) return;
