@@ -387,7 +387,7 @@ function initWeaponSlots() {
     slotsDiv.appendChild(currentBadge);
     const orderedTempWeapons = ['shotgun', 'laser', 'rocket'];
     const tempWeaponDisplayNames = {
-        shotgun: 'Shortgun',
+        shotgun: 'Shotgun',
         laser: 'Laser',
         rocket: 'Rocket',
     };
@@ -452,7 +452,7 @@ function _getCurrentWeaponDisplay() {
 
     const def = SHOP_WEAPONS[wKey] || {};
     const tempWeaponDisplayNames = {
-        shotgun: 'Shortgun',
+        shotgun: 'Shotgun',
         laser: 'Laser',
         rocket: 'Rocket',
     };
@@ -542,7 +542,7 @@ function updateWeaponSlots() {
             const isGateActive = g.weapon === key && g.weaponTimer > 0;
             const levelEl = slot.querySelector('.wslot-level');
             const tempWeaponDisplayNames = {
-                shotgun: 'Shortgun',
+                shotgun: 'Shotgun',
                 laser: 'Laser',
                 rocket: 'Rocket',
             };
