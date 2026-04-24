@@ -859,7 +859,10 @@ body::after {
     left: 16px;
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
     gap: 6px;
+    width: min(300px, 24vw);
     z-index: 5;
     pointer-events: auto;
     padding: 7px;
@@ -869,6 +872,124 @@ body::after {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    transition: background 0.15s, box-shadow 0.15s, border-color 0.15s, padding 0.15s;
+}
+
+.weapon-panel-toggle {
+    position: absolute;
+    top: -10px;
+    right: 6px;
+    width: 28px;
+    height: 22px;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid rgba(120, 190, 255, 0.55);
+    background: linear-gradient(180deg, rgba(34, 80, 130, 0.95), rgba(20, 40, 80, 0.95));
+    color: #c8e8ff;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    letter-spacing: 0;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.weapon-panel-toggle:hover {
+    background: linear-gradient(180deg, rgba(46, 106, 166, 0.95), rgba(24, 62, 110, 0.95));
+}
+
+.weapon-panel-toggle:active {
+    transform: scale(0.94);
+}
+
+.weapon-panel-toggle.is-collapsed {
+    border-color: rgba(130, 220, 180, 0.62);
+    background: linear-gradient(180deg, rgba(26, 118, 88, 0.95), rgba(18, 78, 62, 0.95));
+    color: #d7ffe8;
+}
+
+#weaponSlots.collapsed {
+    width: auto;
+    padding: 5px 6px;
+    background: rgba(8,8,20,0.5);
+    border-color: rgba(255,255,255,0.12);
+}
+
+#weaponSlots.collapsed > :not(.weapon-panel-toggle) {
+    display: none !important;
+}
+
+#weaponSlots.collapsed .weapon-panel-toggle {
+    top: 4px;
+    right: 6px;
+}
+
+.current-weapon-badge {
+    min-width: 100%;
+    max-width: 100%;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.16);
+    background: rgba(255,255,255,0.04);
+    padding: 5px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.current-weapon-label {
+    font-family: 'Courier New', monospace;
+    font-size: min(10px, 2vw);
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.58);
+    text-transform: uppercase;
+}
+
+.current-weapon-main {
+    --cw-color: #ffff88;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 8px;
+    min-height: 42px;
+    border: 1px solid color-mix(in srgb, var(--cw-color) 45%, rgba(255,255,255,0.2));
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--cw-color) 14%, rgba(10,10,24,0.85));
+    padding: 4px 6px;
+}
+
+.current-weapon-icon {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.current-weapon-icon svg {
+    width: 30px;
+    height: 30px;
+}
+
+.current-weapon-name {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    letter-spacing: 0.6px;
+    color: #fff;
+    font-size: min(13px, 2.5vw);
+    line-height: 1.05;
+}
+
+.current-weapon-meta {
+    font-family: 'Courier New', monospace;
+    font-size: min(10px, 2vw);
+    color: rgba(255,255,255,0.72);
+    min-height: 11px;
+    margin-top: 2px;
 }
 
 .wslot {
@@ -1189,8 +1310,28 @@ body::after {
         left: 50%;
         bottom: 10px;
         transform: translateX(-50%);
+        max-width: calc(100vw - 16px);
+        overflow-x: auto;
+        overflow-y: hidden;
         gap: 5px;
         padding: 5px 7px;
+    }
+    .current-weapon-badge {
+        min-width: min(168px, 52vw);
+        max-width: min(188px, 56vw);
+    }
+    .current-weapon-name {
+        font-size: min(12px, 3.1vw);
+    }
+    .current-weapon-meta {
+        font-size: min(9px, 2.5vw);
+    }
+    .weapon-panel-toggle {
+        top: -8px;
+        right: 6px;
+        width: 26px;
+        height: 20px;
+        font-size: 12px;
     }
     .wslot {
         width: min(62px, 20vw);

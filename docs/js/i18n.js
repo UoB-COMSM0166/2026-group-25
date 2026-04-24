@@ -210,6 +210,12 @@ const TRANSLATIONS = {
         'shop.special.hint':    '按 [1] 激活无敌护盾 · 按 [2] 激活亢奋，各消耗1次充能',
         'shop.talent.hint':     '宝石由 Boss 随机掉落，用于永久提升角色属性',
         'shop.locked':          '🔒 需要 Lv.{0}',
+        'hud.current.weapon':   '当前武器',
+        'hud.current.weapon.temp': '临时',
+        'hud.panel.show':       '显示武器面板',
+        'hud.panel.hide':       '收起武器面板',
+    'hud.panel.show.short': 'Show Weapons',
+    'hud.panel.hide.short': 'Hide Weapons',
 
         // Weapon names & descriptions
         'weapon.shotgun.name':        '霰弹枪',
@@ -462,6 +468,12 @@ const TRANSLATIONS = {
         'shop.special.hint':    '[1] Activate Shield · [2] Activate Frenzy, each uses 1 charge',
         'shop.talent.hint':     'Gems drop from bosses, used to permanently upgrade attributes',
         'shop.locked':          '🔒 Requires Lv.{0}',
+        'hud.current.weapon':   'Current Weapon',
+        'hud.current.weapon.temp': 'TEMP',
+        'hud.panel.show':       'Show weapon panel',
+        'hud.panel.hide':       'Hide weapon panel',
+    'hud.panel.show.short': 'Show Weapons',
+    'hud.panel.hide.short': 'Hide Weapons',
 
         // Weapon names & descriptions
         'weapon.shotgun.name':        'Shotgun',

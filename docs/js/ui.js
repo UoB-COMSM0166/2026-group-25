@@ -252,8 +252,8 @@ function startGame(level) {
     overlay.classList.add('hidden');
     const skillBtn = document.getElementById('skillBtn');
     if (skillBtn) skillBtn.style.display = 'none';
-    const slotsDiv = document.getElementById('weaponSlots');
-    if (slotsDiv) slotsDiv.style.display = 'none';
+    initWeaponSlots();
+    updateWeaponSlots();
     _skyBgW = 0; _skyBgH = 0; _skyBgLevel = 0;
     resetAchTempFlags();
     // Start BGM matching current level (tutorial uses L1 track)
@@ -320,19 +320,87 @@ function activateSkillWeapon() {
 // ============================================================
 // WEAPON SLOTS
 // ============================================================
+const WEAPON_PANEL_COLLAPSE_KEY = 'bridgeAssault_weaponPanelCollapsed';
+
+function _loadWeaponPanelCollapsed() {
+    try {
+        return localStorage.getItem(WEAPON_PANEL_COLLAPSE_KEY) === '1';
+    } catch {
+        return false;
+    }
+}
+
+function _saveWeaponPanelCollapsed(collapsed) {
+    try {
+        localStorage.setItem(WEAPON_PANEL_COLLAPSE_KEY, collapsed ? '1' : '0');
+    } catch {}
+}
+
+function setWeaponPanelCollapsed(collapsed) {
+    const slotsDiv = document.getElementById('weaponSlots');
+    if (!slotsDiv) return;
+    slotsDiv.classList.toggle('collapsed', !!collapsed);
+    const toggleBtn = document.getElementById('weaponPanelToggle');
+    if (toggleBtn) {
+        toggleBtn.textContent = collapsed ? '▶' : '◀';
+        toggleBtn.classList.toggle('is-collapsed', !!collapsed);
+        toggleBtn.title = collapsed ? T('hud.panel.show') : T('hud.panel.hide');
+        toggleBtn.setAttribute('aria-label', toggleBtn.title);
+    }
+    _saveWeaponPanelCollapsed(!!collapsed);
+}
+
+function toggleWeaponPanel() {
+    const slotsDiv = document.getElementById('weaponSlots');
+    if (!slotsDiv) return;
+    setWeaponPanelCollapsed(!slotsDiv.classList.contains('collapsed'));
+}
+
 function initWeaponSlots() {
     const slotsDiv = document.getElementById('weaponSlots');
     if (!slotsDiv) return;
     slotsDiv.innerHTML = '';
-    for (const [key, w] of Object.entries(SHOP_WEAPONS)) {
-        if (w.defenseOnly) continue;
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.id = 'weaponPanelToggle';
+    toggleBtn.className = 'weapon-panel-toggle';
+    toggleBtn.type = 'button';
+    toggleBtn.textContent = '◀';
+    toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleWeaponPanel();
+    });
+    slotsDiv.appendChild(toggleBtn);
+
+    const currentBadge = document.createElement('div');
+    currentBadge.id = 'currentWeaponBadge';
+    currentBadge.className = 'current-weapon-badge';
+    currentBadge.innerHTML = `
+        <div class="current-weapon-label">${T('hud.current.weapon')}</div>
+        <div class="current-weapon-main" style="--cw-color:#ffff88;">
+            <div class="current-weapon-icon"></div>
+            <div class="current-weapon-name">-</div>
+            <div class="current-weapon-meta"></div>
+        </div>
+    `;
+    slotsDiv.appendChild(currentBadge);
+    const orderedTempWeapons = ['shotgun', 'laser', 'rocket'];
+    const tempWeaponDisplayNames = {
+        shotgun: 'Shortgun',
+        laser: 'Laser',
+        rocket: 'Rocket',
+    };
+    for (const key of orderedTempWeapons) {
+        const w = SHOP_WEAPONS[key];
+        if (!w) continue;
         const slot = document.createElement('div');
         slot.className = 'wslot';
         slot.dataset.weapon = key;
         slot.style.setProperty('--wcolor', w.color);
         slot.innerHTML = `
             <div class="wslot-icon">${w.icon}</div>
-            <div class="wslot-level" style="font-size:10px;color:rgba(255,255,255,0.4)">LOCKED</div>
+            <div class="wslot-level" style="font-size:10px;color:rgba(255,255,255,0.9)">${tempWeaponDisplayNames[key] || key}</div>
             <div class="wslot-equipped" style="font-size:9px;color:#ffd700;min-height:12px"></div>
         `;
         slotsDiv.appendChild(slot);
@@ -354,6 +422,76 @@ function initWeaponSlots() {
         slotsDiv.appendChild(slot);
     }
     slotsDiv.style.display = 'flex';
+    setWeaponPanelCollapsed(_loadWeaponPanelCollapsed());
+}
+
+function _getCurrentWeaponDisplay() {
+    if (!game) {
+        return {
+            icon: '',
+            name: '-',
+            color: '#ffff88',
+            meta: '',
+        };
+    }
+
+    const g = game;
+    const wKey = g.weapon || 'pistol';
+    const isTemp = wKey !== 'pistol' && g.weaponTimer > 0;
+
+    if (wKey === 'pistol') {
+        const tierIdx = playerData.equippedPistolTier || 0;
+        const tier = PISTOL_TIERS[tierIdx] || PISTOL_TIERS[0];
+        return {
+            icon: tier.icon || '',
+            name: T('pistol.' + tierIdx + '.name'),
+            color: tier.colorStr || '#ffff88',
+            meta: '',
+        };
+    }
+
+    const def = SHOP_WEAPONS[wKey] || {};
+    const tempWeaponDisplayNames = {
+        shotgun: 'Shortgun',
+        laser: 'Laser',
+        rocket: 'Rocket',
+    };
+    const fallbackName = tempWeaponDisplayNames[wKey] || def.name || wKey.toUpperCase();
+    return {
+        icon: def.icon || '',
+        name: tempWeaponDisplayNames[wKey] || fallbackName,
+        color: def.color || '#ffffff',
+        meta: '',
+    };
+}
+
+function updateCurrentWeaponBadge() {
+    const badge = document.getElementById('currentWeaponBadge');
+    if (!badge) return;
+
+    const toggleBtn = document.getElementById('weaponPanelToggle');
+    const slotsDiv = document.getElementById('weaponSlots');
+    if (toggleBtn && slotsDiv) {
+        const collapsed = slotsDiv.classList.contains('collapsed');
+        toggleBtn.textContent = collapsed ? '▶' : '◀';
+        toggleBtn.classList.toggle('is-collapsed', collapsed);
+        toggleBtn.title = collapsed ? T('hud.panel.show') : T('hud.panel.hide');
+        toggleBtn.setAttribute('aria-label', toggleBtn.title);
+    }
+
+    const labelEl = badge.querySelector('.current-weapon-label');
+    if (labelEl) labelEl.textContent = T('hud.current.weapon');
+
+    const data = _getCurrentWeaponDisplay();
+    const main = badge.querySelector('.current-weapon-main');
+    const iconEl = badge.querySelector('.current-weapon-icon');
+    const nameEl = badge.querySelector('.current-weapon-name');
+    const metaEl = badge.querySelector('.current-weapon-meta');
+
+    if (main) main.style.setProperty('--cw-color', data.color);
+    if (iconEl) iconEl.innerHTML = data.icon;
+    if (nameEl) nameEl.textContent = data.name;
+    if (metaEl) metaEl.textContent = data.meta || '';
 }
 
 function updateWeaponSlots() {
@@ -361,6 +499,7 @@ function updateWeaponSlots() {
     const g = game;
     const slotsDiv = document.getElementById('weaponSlots');
     if (!slotsDiv || slotsDiv.style.display === 'none') return;
+    updateCurrentWeaponBadge();
     const levels = playerData.weaponLevels || {};
     const charges = playerData.weaponCharges || {};
     slotsDiv.querySelectorAll('.wslot').forEach(slot => {
@@ -402,9 +541,14 @@ function updateWeaponSlots() {
             const level = levels[key] || 0;
             const isGateActive = g.weapon === key && g.weaponTimer > 0;
             const levelEl = slot.querySelector('.wslot-level');
+            const tempWeaponDisplayNames = {
+                shotgun: 'Shortgun',
+                laser: 'Laser',
+                rocket: 'Rocket',
+            };
             if (levelEl) {
-                levelEl.textContent = level > 0 ? ('\u2605'.repeat(level) + '\u2606'.repeat(3 - level)) : 'LOCKED';
-                levelEl.style.color = level > 0 ? w.color : 'rgba(255,255,255,0.3)';
+                levelEl.textContent = tempWeaponDisplayNames[key] || key;
+                levelEl.style.color = level > 0 ? w.color : 'rgba(255,255,255,0.8)';
             }
             const equippedEl = slot.querySelector('.wslot-equipped');
             if (equippedEl) equippedEl.textContent = isGateActive ? 'TEMP' : '';

@@ -103,6 +103,10 @@ function updateHUD() {
         _drawWeaponHUD();
     }
 
+    if (typeof updateWeaponSlots === 'function') {
+        updateWeaponSlots();
+    }
+
     drawSkillHud();
     drawTutorialHint();
 }
