@@ -63,12 +63,16 @@ const DATA_VERSION = 'v2';
 (function checkDataVersion() {
     const stored = localStorage.getItem('bridgeAssault_dataVersion');
     if (stored !== DATA_VERSION) {
-        Object.keys(localStorage)
-            .filter(k => k.startsWith('bridgeAssault_'))
-            .forEach(k => localStorage.removeItem(k));
         localStorage.setItem('bridgeAssault_dataVersion', DATA_VERSION);
     }
 })();
+
+function resetBridgeAssaultSaveData() {
+    Object.keys(localStorage)
+        .filter(k => k.startsWith('bridgeAssault_'))
+        .forEach(k => localStorage.removeItem(k));
+    localStorage.setItem('bridgeAssault_dataVersion', DATA_VERSION);
+}
 
 function loadPlayerData() {
     try {
