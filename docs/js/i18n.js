@@ -214,8 +214,6 @@ const TRANSLATIONS = {
         'hud.current.weapon.temp': '临时',
         'hud.panel.show':       '显示武器面板',
         'hud.panel.hide':       '收起武器面板',
-    'hud.panel.show.short': 'Show Weapons',
-    'hud.panel.hide.short': 'Hide Weapons',
 
         // Weapon names & descriptions
         'weapon.shotgun.name':        '霰弹枪',
@@ -483,8 +481,6 @@ const TRANSLATIONS = {
         'hud.current.weapon.temp': 'TEMP',
         'hud.panel.show':       'Show weapon panel',
         'hud.panel.hide':       'Hide weapon panel',
-    'hud.panel.show.short': 'Show Weapons',
-    'hud.panel.hide.short': 'Hide Weapons',
 
         // Weapon names & descriptions
         'weapon.shotgun.name':        'Shotgun',
