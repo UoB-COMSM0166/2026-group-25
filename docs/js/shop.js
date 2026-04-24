@@ -453,11 +453,6 @@ function closeMidShop() {
     document.getElementById('midShopOverlay').classList.add('hidden');
 }
 
-// Initialize shop events
+// Initialize shop currencies; click handlers are bound in main.js setup()
+// (or via inline onclick in index.html) so they only attach once.
 updateShopCurrencies();
-document.getElementById('shopBtn').addEventListener('click', openShop);
-document.getElementById('shopBackBtn').addEventListener('click', closeShop);
-document.getElementById('midShopGoBtn').addEventListener('click', closeMidShop);
-document.querySelectorAll('.shop-tab').forEach(btn => {
-    btn.addEventListener('click', () => switchShopTab(btn.dataset.tab));
-});
