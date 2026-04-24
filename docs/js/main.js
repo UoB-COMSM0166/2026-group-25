@@ -45,9 +45,13 @@ function setup() {
     initAudio();
     setupInput();
 
-    // Shop buttons
-    document.getElementById('shopBtn') && document.getElementById('shopBtn').addEventListener('click', openShop);
-    document.getElementById('shopBackBtn') && document.getElementById('shopBackBtn').addEventListener('click', closeShop);
+    // Shop buttons — #shopBtn / #shopBackBtn already wired via inline
+    // onclick in index.html; only bind the elements that have no inline handler.
+    const midShopGoBtn = document.getElementById('midShopGoBtn');
+    if (midShopGoBtn) midShopGoBtn.addEventListener('click', closeMidShop);
+    document.querySelectorAll('.shop-tab').forEach(btn => {
+        btn.addEventListener('click', () => switchShopTab(btn.dataset.tab));
+    });
 
     // Start button
     const startBtnEl = document.getElementById('startBtn');
