@@ -111,7 +111,14 @@ async function toggleLbVisibility() {
     const btn = document.getElementById('lbToggleBtn');
     if (btn) { btn.disabled = true; btn.textContent = T('lb.processing'); }
     try {
-        await _patchRecord(player.recordId, { hidden: newHidden });
+        const patch = { hidden: newHidden };
+        if (!newHidden) {
+            const hs = _getLeaderboardBestScore();
+            patch.score = Math.floor(hs.score);
+            patch.wave = Math.floor(hs.wave);
+            patch.level = Math.floor(hs.level || 1);
+        }
+        await _patchRecord(player.recordId, patch);
         _saveLbPlayer(player.name, player.recordId, newHidden);
         // 只更新按钮文字，不重建面板（避免抖动）
         if (btn) { btn.disabled = false; btn.textContent = newHidden ? T('lb.toggle.show') : T('lb.toggle.hide'); }
@@ -188,8 +195,8 @@ async function _handleJoin() {
     btn.textContent = T('lb.join.loading');
     statusEl.textContent = '';
     try {
-        const hs = getHighScore();
-        const lv = playerData ? Math.floor(playerData.level || 1) : 1;
+        const hs = _getLeaderboardBestScore();
+        const lv = Math.floor(hs.level || 1);
         // Privacy by default: hidden=true until player explicitly enables visibility.
         const rec = await _createRecord(name, hs.score, hs.wave, lv, true);
         _saveLbPlayer(name, rec.id, true);
