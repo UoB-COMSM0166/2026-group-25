@@ -64,6 +64,18 @@ async function fetchLeaderboard(limit = 5) {
     return await resp.json();
 }
 
+function _getLeaderboardBestScore() {
+    const defaultHs = getHighScore();
+    const level2Hs = (playerData && playerData.l2HighScore) || { score: 0, wave: 0 };
+    if (
+        level2Hs.score > defaultHs.score ||
+        (level2Hs.score === defaultHs.score && level2Hs.wave > defaultHs.wave)
+    ) {
+        return { score: level2Hs.score, wave: level2Hs.wave, level: 2 };
+    }
+    return { score: defaultHs.score, wave: defaultHs.wave, level: 1 };
+}
+
 // Count non-hidden players with score strictly higher than myScore → rank = count + 1
 async function _fetchMyRank(myScore) {
     const filter = encodeURIComponent(`hidden=false&&score>${Math.floor(myScore)}`);
@@ -77,9 +89,9 @@ async function _fetchMyRank(myScore) {
 async function syncHighScore() {
     const player = getLbPlayer();
     if (!player || player.hidden) return; // skip if player hid themselves
-    const hs = getHighScore();
+    const hs = _getLeaderboardBestScore();
     if (hs.score <= 0) return;
-    const lv = playerData ? Math.floor(playerData.level || 1) : 1;
+    const lv = hs.level || (playerData ? Math.floor(playerData.level || 1) : 1);
     try {
         await _patchRecord(player.recordId, { score: Math.floor(hs.score), wave: Math.floor(hs.wave), level: lv });
     } catch {
@@ -110,7 +122,7 @@ async function toggleLbVisibility() {
             if (newHidden) {
                 if (rankSpan) { rankSpan.textContent = '--'; rankSpan.style.color = '#888'; }
             } else {
-                const hs = getHighScore();
+                const hs = _getLeaderboardBestScore();
                 if (hs.score > 0 && rankSpan) {
                     const myRank = await _fetchMyRank(hs.score);
                     if (myRank !== null) {
@@ -241,8 +253,8 @@ async function _renderList(myName) {
         if (myName && player) {
             html += `<div class="lb-my-rank-sep"></div>`;
             if (player.hidden) {
-                const lv = playerData ? Math.floor(playerData.level || 1) : 1;
-                const hs = getHighScore();
+                const hs = _getLeaderboardBestScore();
+                const lv = hs.level || (playerData ? Math.floor(playerData.level || 1) : 1);
                 html += `<div class="lb-row lb-mine">
                     <span class="lb-rank" style="color:#888">--</span>
                     <span class="lb-name">${_lbEscape(myName)}</span>
@@ -251,10 +263,10 @@ async function _renderList(myName) {
                     <span class="lb-wave">${hs.wave > 0 ? 'W'+hs.wave : '--'}</span>
                 </div>`;
             } else {
-                const hs = getHighScore();
+                const hs = _getLeaderboardBestScore();
                 if (hs.score > 0) {
                     const myRank = await _fetchMyRank(hs.score);
-                    const lv = playerData ? Math.floor(playerData.level || 1) : 1;
+                    const lv = hs.level || (playerData ? Math.floor(playerData.level || 1) : 1);
                     if (myRank !== null) {
                         const myMedal = myRank === 1 ? '🥇' : myRank === 2 ? '🥈' : myRank === 3 ? '🥉' : `${myRank}`;
                         html += `<div class="lb-row lb-mine">
