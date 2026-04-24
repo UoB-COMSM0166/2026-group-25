@@ -36,10 +36,12 @@ function updateEffects(g, dt, dtF) {
 
     // Shake
     if (g.shakeTimer > 0) {
-        g.shakeX = (Math.random() - 0.5) * g.shakeTimer * 1.5;
-        g.shakeY = (Math.random() - 0.5) * g.shakeTimer * 1.5;
+        const amp = Math.max(0.25, g.shakePower || 0.6);
+        g.shakeX = (Math.random() - 0.5) * g.shakeTimer * amp;
+        g.shakeY = (Math.random() - 0.5) * g.shakeTimer * amp * 0.7;
+        g.shakePower = Math.max(0, (g.shakePower || 0) * Math.pow(0.9, dtF));
         g.shakeTimer = Math.max(0, g.shakeTimer - dtF);
-    } else { g.shakeX = 0; g.shakeY = 0; }
+    } else { g.shakeX = 0; g.shakeY = 0; g.shakePower = 0; }
 
     // Gate shatter pieces (fly toward player then fade)
     g.gateShatterPieces.forEach(p => {

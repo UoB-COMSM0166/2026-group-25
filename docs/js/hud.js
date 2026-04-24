@@ -453,11 +453,14 @@ function drawDamageNumbers() {
         if (relZ < -20) return;
         const p = project(d.x, Math.max(0, relZ));
         const t = d.life / d.maxLife;
+        const size = (d.crit ? 20 : 16) + (1 - t) * (d.crit ? 8 : 4) + (d.scaleBoost || 0) * 8;
+        const xJitter = d.crit ? Math.sin((1 - t) * 18) * 2.5 : 0;
         push();
-        textFont('Arial'); textSize(16 + (1 - t) * 4); textStyle(BOLD); textAlign(CENTER, CENTER);
-        drawingContext.shadowColor = 'rgba(0,0,0,0.9)'; drawingContext.shadowBlur = 3;
+        textFont('Arial'); textSize(size); textStyle(BOLD); textAlign(CENTER, CENTER);
+        drawingContext.shadowColor = d.crit ? 'rgba(255,196,75,0.95)' : 'rgba(0,0,0,0.9)';
+        drawingContext.shadowBlur = d.crit ? 10 : 3;
         hexFill(d.color, Math.floor(t * 255)); noStroke();
-        text(String(d.value), p.x, p.y + d.offsetY);
+        text(`${d.prefix || ''}${d.value}`, p.x + xJitter, p.y + d.offsetY);
         drawingContext.shadowBlur = 0; drawingContext.shadowColor = 'transparent';
         pop();
     });
