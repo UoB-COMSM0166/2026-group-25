@@ -53,9 +53,7 @@ function setup() {
         btn.addEventListener('click', () => switchShopTab(btn.dataset.tab));
     });
 
-    // Start button
-    const startBtnEl = document.getElementById('startBtn');
-    if (startBtnEl) startBtnEl.addEventListener('click', showLevelSelect);
+    // #startBtn is wired via inline onclick in index.html — no JS binding here.
 
     // Update coin/gem display on menu
     const coinCountEl = document.getElementById('coinCount');
