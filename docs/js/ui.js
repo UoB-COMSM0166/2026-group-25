@@ -250,8 +250,6 @@ function startGame(level) {
     game.skillCooldown = 0;
     spawnEnemyWave();
     overlay.classList.add('hidden');
-    const skillBtn = document.getElementById('skillBtn');
-    if (skillBtn) skillBtn.style.display = 'none';
     initWeaponSlots();
     updateWeaponSlots();
     _skyBgW = 0; _skyBgH = 0; _skyBgLevel = 0;
@@ -707,8 +705,6 @@ function showGameOver() {
     document.getElementById('midShopOverlay').classList.add('hidden');
     const slotsDiv = document.getElementById('weaponSlots');
     if (slotsDiv) slotsDiv.style.display = 'none';
-    const skillBtn = document.getElementById('skillBtn');
-    if (skillBtn) skillBtn.style.display = 'none';
     overlay.innerHTML = `
         <h1>${T('gameover.title')}</h1>
         <div id="scoreDisplay">${T('gameover.score')}</div>
