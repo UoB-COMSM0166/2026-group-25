@@ -12,6 +12,7 @@ let _bgmSource = null;
 let _bgmGain = null;
 let _bgmBuffers = {};  // level → AudioBuffer
 let _bgmPlaying = false;
+let _pendingBgmLevel = null;
 const BGM_FILES = {
     1: 'assets/audio/bgm.mp3',
     2: 'assets/audio/bgm_l2.mp3',
@@ -75,6 +76,11 @@ async function _preloadAudioBuffers() {
         } catch (_) {}
     }
     console.log(`Audio: BGM loaded for ${Object.keys(_bgmBuffers).length} level(s)`);
+    if (_pendingBgmLevel !== null && !_bgmPlaying) {
+        const pendingLevel = _pendingBgmLevel;
+        _pendingBgmLevel = null;
+        playBGM(pendingLevel);
+    }
 }
 
 // ============================================================
@@ -82,8 +88,12 @@ async function _preloadAudioBuffers() {
 // ============================================================
 function playBGM(level) {
     stopBGM();
-    const buf = _bgmBuffers[level || 1];
-    if (!audioCtx || !buf) return;
+    const bgmLevel = level || 1;
+    const buf = _bgmBuffers[bgmLevel];
+    if (!audioCtx || !buf) {
+        _pendingBgmLevel = bgmLevel;
+        return;
+    }
     if (audioCtx.state === 'suspended') audioCtx.resume();
     _bgmGain = audioCtx.createGain();
     _bgmGain.gain.value = BGM_VOLUME;
@@ -98,6 +108,7 @@ function playBGM(level) {
 }
 
 function stopBGM() {
+    _pendingBgmLevel = null;
     if (_bgmSource && _bgmPlaying) {
         try { _bgmSource.stop(); } catch (_) {}
         _bgmSource = null;
