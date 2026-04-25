@@ -318,58 +318,15 @@ function activateSkillWeapon() {
 // ============================================================
 // WEAPON SLOTS
 // ============================================================
-const WEAPON_PANEL_COLLAPSE_KEY = 'bridgeAssault_weaponPanelCollapsed';
-
-function _loadWeaponPanelCollapsed() {
-    try {
-        return localStorage.getItem(WEAPON_PANEL_COLLAPSE_KEY) === '1';
-    } catch {
-        return false;
-    }
-}
-
-function _saveWeaponPanelCollapsed(collapsed) {
-    try {
-        localStorage.setItem(WEAPON_PANEL_COLLAPSE_KEY, collapsed ? '1' : '0');
-    } catch {}
-}
-
-function setWeaponPanelCollapsed(collapsed) {
-    const slotsDiv = document.getElementById('weaponSlots');
-    if (!slotsDiv) return;
-    slotsDiv.classList.toggle('collapsed', !!collapsed);
-    const toggleBtn = document.getElementById('weaponPanelToggle');
-    if (toggleBtn) {
-        toggleBtn.textContent = collapsed ? '▶' : '◀';
-        toggleBtn.classList.toggle('is-collapsed', !!collapsed);
-        toggleBtn.title = collapsed ? T('hud.panel.show') : T('hud.panel.hide');
-        toggleBtn.setAttribute('aria-label', toggleBtn.title);
-    }
-    _saveWeaponPanelCollapsed(!!collapsed);
-}
-
-function toggleWeaponPanel() {
-    const slotsDiv = document.getElementById('weaponSlots');
-    if (!slotsDiv) return;
-    setWeaponPanelCollapsed(!slotsDiv.classList.contains('collapsed'));
-}
+// Panel auto-manages itself: the current-weapon badge is always shown,
+// each skill tile (shield / frenzy) is shown only when it has something
+// to surface (≥1 charge, currently active, or on cooldown). No manual
+// collapse toggle and no persisted state.
 
 function initWeaponSlots() {
     const slotsDiv = document.getElementById('weaponSlots');
     if (!slotsDiv) return;
     slotsDiv.innerHTML = '';
-
-    const toggleBtn = document.createElement('button');
-    toggleBtn.id = 'weaponPanelToggle';
-    toggleBtn.className = 'weapon-panel-toggle';
-    toggleBtn.type = 'button';
-    toggleBtn.textContent = '◀';
-    toggleBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleWeaponPanel();
-    });
-    slotsDiv.appendChild(toggleBtn);
 
     const currentBadge = document.createElement('div');
     currentBadge.id = 'currentWeaponBadge';
@@ -402,10 +359,12 @@ function initWeaponSlots() {
             <div class="wslot-cd"></div>
         `;
         slot.addEventListener('click', () => activateWeaponByKey(key));
+        // Hidden by default; updateWeaponSlots reveals each tile when it
+        // becomes relevant (charges, active, or cooldown).
+        slot.style.display = 'none';
         slotsDiv.appendChild(slot);
     }
     slotsDiv.style.display = 'flex';
-    setWeaponPanelCollapsed(_loadWeaponPanelCollapsed());
 }
 
 function _getCurrentWeaponDisplay() {
@@ -452,16 +411,6 @@ function updateCurrentWeaponBadge() {
     const badge = document.getElementById('currentWeaponBadge');
     if (!badge) return;
 
-    const toggleBtn = document.getElementById('weaponPanelToggle');
-    const slotsDiv = document.getElementById('weaponSlots');
-    if (toggleBtn && slotsDiv) {
-        const collapsed = slotsDiv.classList.contains('collapsed');
-        toggleBtn.textContent = collapsed ? '▶' : '◀';
-        toggleBtn.classList.toggle('is-collapsed', collapsed);
-        toggleBtn.title = collapsed ? T('hud.panel.show') : T('hud.panel.hide');
-        toggleBtn.setAttribute('aria-label', toggleBtn.title);
-    }
-
     const labelEl = badge.querySelector('.current-weapon-label');
     if (labelEl) labelEl.textContent = T('hud.current.weapon');
 
@@ -488,38 +437,43 @@ function updateWeaponSlots() {
         const key = slot.dataset.weapon;
         const w = SHOP_WEAPONS[key];
         if (!w) return;
-        {
-            const count = charges[key] || 0;
-            const isActive = key === 'invincibility' ? g.shieldActive : g.stimulantActive;
-            const isOnCooldown = key === 'invincibility' ? (g.skillCooldown > 0) : (g.stimulantCooldown > 0);
-            const activeTimer = key === 'invincibility' ? g.shieldTimer : g.stimulantTimer;
-            const activeDuration = (key === 'invincibility' ? WEAPON_DEFS['invincibility'].duration : SHOP_WEAPONS['stimulant'].duration) * 1000;
-            const cdSec = Math.ceil((key === 'invincibility' ? g.skillCooldown : g.stimulantCooldown) / 1000);
-            const countEl = slot.querySelector('.wslot-count');
-            if (countEl) {
-                countEl.textContent = `\u00D7${count}`;
-                countEl.style.color = isActive ? '#ffd700' : (!isOnCooldown && count > 0) ? w.color : 'rgba(255,255,255,0.5)';
-            }
-            const cdEl = slot.querySelector('.wslot-cd');
-            if (cdEl) {
-                if (isActive) { cdEl.textContent = Math.ceil(activeTimer / 1000) + 's'; cdEl.style.color = '#ffd700'; cdEl.style.display = 'flex'; }
-                else if (isOnCooldown) { cdEl.textContent = cdSec + 's'; cdEl.style.color = '#999'; cdEl.style.display = 'flex'; }
-                else { cdEl.style.display = 'none'; }
-            }
-            const barFill = slot.querySelector('.wslot-bar-fill');
-            if (barFill) {
-                if (isActive) {
-                    barFill.style.width = Math.max(0, activeTimer / activeDuration) * 100 + '%';
-                    barFill.style.background = w.color;
-                    slot.querySelector('.wslot-bar').style.display = 'block';
-                } else { slot.querySelector('.wslot-bar').style.display = 'none'; }
-            }
-            slot.className = 'wslot';
-            if (isActive) { slot.classList.add('wslot-active'); slot.style.borderColor = '#ffd700'; }
-            else if (count <= 0) { slot.classList.add('wslot-empty'); slot.style.borderColor = 'rgba(255,255,255,0.08)'; }
-            else if (isOnCooldown) { slot.classList.add('wslot-dim'); slot.style.borderColor = 'rgba(255,255,255,0.12)'; }
-            else { slot.classList.add('wslot-ready'); slot.style.borderColor = w.color; }
+        const count = charges[key] || 0;
+        const isActive = key === 'invincibility' ? g.shieldActive : g.stimulantActive;
+        const isOnCooldown = key === 'invincibility' ? (g.skillCooldown > 0) : (g.stimulantCooldown > 0);
+        // Auto-hide when the slot has nothing to surface — fresh runs start
+        // with both tiles invisible; they materialise the moment the player
+        // owns a charge, triggers it, or it enters cooldown.
+        if (count <= 0 && !isActive && !isOnCooldown) {
+            slot.style.display = 'none';
+            return;
         }
+        slot.style.display = 'flex';
+        const activeTimer = key === 'invincibility' ? g.shieldTimer : g.stimulantTimer;
+        const activeDuration = (key === 'invincibility' ? WEAPON_DEFS['invincibility'].duration : SHOP_WEAPONS['stimulant'].duration) * 1000;
+        const cdSec = Math.ceil((key === 'invincibility' ? g.skillCooldown : g.stimulantCooldown) / 1000);
+        const countEl = slot.querySelector('.wslot-count');
+        if (countEl) {
+            countEl.textContent = `\u00D7${count}`;
+            countEl.style.color = isActive ? '#ffd700' : (!isOnCooldown && count > 0) ? w.color : 'rgba(255,255,255,0.5)';
+        }
+        const cdEl = slot.querySelector('.wslot-cd');
+        if (cdEl) {
+            if (isActive) { cdEl.textContent = Math.ceil(activeTimer / 1000) + 's'; cdEl.style.color = '#ffd700'; cdEl.style.display = 'flex'; }
+            else if (isOnCooldown) { cdEl.textContent = cdSec + 's'; cdEl.style.color = '#999'; cdEl.style.display = 'flex'; }
+            else { cdEl.style.display = 'none'; }
+        }
+        const barFill = slot.querySelector('.wslot-bar-fill');
+        if (barFill) {
+            if (isActive) {
+                barFill.style.width = Math.max(0, activeTimer / activeDuration) * 100 + '%';
+                barFill.style.background = w.color;
+                slot.querySelector('.wslot-bar').style.display = 'block';
+            } else { slot.querySelector('.wslot-bar').style.display = 'none'; }
+        }
+        slot.className = 'wslot';
+        if (isActive) { slot.classList.add('wslot-active'); slot.style.borderColor = '#ffd700'; }
+        else if (isOnCooldown) { slot.classList.add('wslot-dim'); slot.style.borderColor = 'rgba(255,255,255,0.12)'; }
+        else { slot.classList.add('wslot-ready'); slot.style.borderColor = w.color; }
     });
 }
 
