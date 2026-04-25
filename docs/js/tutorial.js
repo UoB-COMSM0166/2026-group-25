@@ -82,6 +82,7 @@ function _snapshotStep() {
         kills:         g.killCount,
         coins:         g.coinsCollected,
         gems:          g.gemsCollected,
+        score:         g.score,
         squad:         g.squadCount,
         weapon:        g.weapon,
         barrelAlive:   g.barrels.filter(b => b.alive).length,
@@ -212,7 +213,7 @@ function _checkStepGoal(step) {
         case 'coins':           return (g.coinsCollected  - s.coins) >= goal.count;
         case 'troopUp':         return g.squadCount > s.squad;
         case 'weaponChange':    return g.weapon !== 'pistol';
-        case 'barrelExploded':  return g.barrels.filter(b => b.alive).length < s.barrelAlive;
+        case 'barrelExploded':  return g.score > s.score;
         case 'miniBossAndGem': {
             const bossAlive = g.enemies.some(e => e.alive && e.tutorialMiniBoss);
             return !bossAlive && g.gemsCollected > s.gems;
@@ -273,6 +274,9 @@ function updateTutorial() {
                            timer: 0, maxTimer: 70, scale: 0.1 };
             g.screenFlash = Math.max(g.screenFlash, 0.18);
             playSound('gate_good');
+        } else if (_checkStepSoftlock(step)) {
+            // Player missed the required entities and they are gone. Respawn them.
+            spawnTutorialWaveContent();
         }
     } else {
         g.tutorialGoalTimer--;
@@ -281,6 +285,29 @@ function updateTutorial() {
             if (g.wave > TUTORIAL_MAX_WAVE) { completeTutorial(); return; }
             spawnTutorialWaveContent();
         }
+    }
+}
+
+function _checkStepSoftlock(step) {
+    const g = game;
+    const goal = step.goal;
+    switch (goal.type) {
+        case 'kills':
+            return g.enemies.filter(e => e.alive).length === 0;
+        case 'coins':
+            return g.enemies.filter(e => e.alive).length === 0 && g.coins.length === 0;
+        case 'troopUp':
+        case 'weaponChange':
+            return g.gates.length === 0;
+        case 'barrelExploded':
+            // If all barrels are gone and goal is not met (score didn't increase)
+            return g.barrels.length === 0;
+        case 'miniBossAndGem':
+            // If the boss is dead/gone but we still haven't collected the gem, and the gem fell off screen
+            const bossAlive = g.enemies.some(e => e.alive && e.tutorialMiniBoss);
+            return !bossAlive && g.gems.length === 0;
+        default:
+            return false;
     }
 }
 
