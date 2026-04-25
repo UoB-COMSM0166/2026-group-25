@@ -1,6 +1,13 @@
 // ============================================================
 // UPDATE SUBSYSTEM: Bullet physics and collision detection
 // ============================================================
+// Time-window throttle for the 'hit' SFX. Once-per-frame deduplication is
+// not enough — at 60fps with sustained contacts the synth tails overlap
+// into a metallic drone. Cap the play rate to ~10/sec so each landing
+// group still gets an audible punch but the buzz goes away.
+let _lastHitSoundT = 0;
+const HIT_SFX_MIN_INTERVAL_MS = 100;
+
 function updateBulletCollisions(g, dtF) {
     // Bullets
     g.bullets.forEach(b => {
@@ -37,8 +44,7 @@ function updateBulletCollisions(g, dtF) {
     if (g.bullets.length > bulletLimit) g.bullets.splice(0, g.bullets.length - Math.floor(bulletLimit * 0.7));
 
     // Bullet-enemy collision
-    // Per-frame throttle maps to avoid redundant work when many bullets hit same frame
-    let hitSoundedThisFrame = false;         // play hit sound at most once per frame
+    // Per-frame throttle map to avoid redundant work when many bullets hit same frame
     const enemyDmgMap = new Map();           // enemy -> merged damage payload for this frame
     g.bullets.forEach(b => {
         if (b.dead) return; // lingering impact flash, no more collisions
@@ -102,9 +108,10 @@ function updateBulletCollisions(g, dtF) {
                 }
                 e.hp -= hitDmg;
                 e.hitFlash = 4;
-                if (!hitSoundedThisFrame) {
+                const _hitNow = performance.now();
+                if (_hitNow - _lastHitSoundT >= HIT_SFX_MIN_INTERVAL_MS) {
                     playSound('hit');
-                    hitSoundedThisFrame = true;
+                    _lastHitSoundT = _hitNow;
                 }
                 addImpactFeedback(e.x, e.z, isCrit
                     ? {
