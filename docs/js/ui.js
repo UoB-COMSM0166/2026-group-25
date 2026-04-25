@@ -254,8 +254,10 @@ function startGame(level) {
     updateWeaponSlots();
     _skyBgW = 0; _skyBgH = 0; _skyBgLevel = 0;
     resetAchTempFlags();
-    // Start BGM matching current level (tutorial uses L1 track)
-    playBGM(game.currentLevel);
+    // BGM disabled: the looping track was reported as a sustained low hum.
+    // The playBGM / stopBGM machinery is kept intact so a gentler track can
+    // be re-enabled by uncommenting this call.
+    // playBGM(game.currentLevel);
 }
 
 function startTutorial() {
