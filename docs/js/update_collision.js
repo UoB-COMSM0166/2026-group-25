@@ -1,12 +1,9 @@
 // ============================================================
 // UPDATE SUBSYSTEM: Bullet physics and collision detection
 // ============================================================
-// Time-window throttle for the 'hit' SFX. Once-per-frame deduplication is
-// not enough — at 60fps with sustained contacts the synth tails overlap
-// into a metallic drone. Cap the play rate to ~10/sec so each landing
-// group still gets an audible punch but the buzz goes away.
-let _lastHitSoundT = 0;
-const HIT_SFX_MIN_INTERVAL_MS = 100;
+// Note: hit / explosion SFX rate-limiting is now centralised in
+// audio.js playSound (_SFX_MIN_INTERVAL_MS). Call sites here just call
+// playSound(...) and the throttle takes care of the rest.
 
 function updateBulletCollisions(g, dtF) {
     // Bullets
@@ -108,11 +105,7 @@ function updateBulletCollisions(g, dtF) {
                 }
                 e.hp -= hitDmg;
                 e.hitFlash = 4;
-                const _hitNow = performance.now();
-                if (_hitNow - _lastHitSoundT >= HIT_SFX_MIN_INTERVAL_MS) {
-                    playSound('hit');
-                    _lastHitSoundT = _hitNow;
-                }
+                playSound('hit');
                 addImpactFeedback(e.x, e.z, isCrit
                     ? {
                         color: 0xffc24b,

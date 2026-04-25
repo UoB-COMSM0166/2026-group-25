@@ -26,11 +26,11 @@ const SOUND_DEFS = {
     shoot_shotgun:  { file: 'assets/audio/shoot_shotgun.mp3',  vol: 0.35 },
     shoot_laser:    { file: 'assets/audio/shoot_laser.mp3',    vol: 0.3  },
     shoot_rocket:   { file: 'assets/audio/shoot_rocket.mp3',   vol: 0.3  },
-    explosion:      { file: 'assets/audio/explosion.mp3',      vol: 0.4  },
+    explosion:      { file: 'assets/audio/explosion.mp3',      vol: 0.22 },
     gate_good:      { file: 'assets/audio/gate_good.mp3',      vol: 0.5  },
     gate_bad:       { file: 'assets/audio/gate_bad.mp3',       vol: 0.5  },
     weapon_pickup:  { file: 'assets/audio/weapon_pickup.mp3',  vol: 0.5  },
-    hit:            { file: 'assets/audio/hit.mp3',            vol: 0.25 },
+    hit:            { file: 'assets/audio/hit.mp3',            vol: 0.16 },
     wave_start:     { file: 'assets/audio/wave_start.mp3',     vol: 0.5  },
 };
 
@@ -132,8 +132,22 @@ function setBGMVolume(vol) {
     if (_bgmGain) _bgmGain.gain.value = vol;
 }
 
+// Per-type throttle for SFX whose tails would otherwise stack into a drone
+// during sustained fire. The synth fallback for `explosion` is a 250ms
+// 150→30Hz sawtooth — repeated kills overlap into a continuous heavy-metal
+// hum. `hit` has the same problem at smaller scale. Cap their play rate
+// here so every call site is covered by a single throttle.
+const _SFX_MIN_INTERVAL_MS = { hit: 90, explosion: 200 };
+const _lastSfxT = {};
+
 function playSound(type) {
     if (!audioCtx) return;
+    const minGap = _SFX_MIN_INTERVAL_MS[type];
+    if (minGap !== undefined) {
+        const now = performance.now();
+        if (now - (_lastSfxT[type] || 0) < minGap) return;
+        _lastSfxT[type] = now;
+    }
     // Ensure context is running (user gesture may have happened since init)
     if (audioCtx.state === 'suspended') audioCtx.resume();
 
