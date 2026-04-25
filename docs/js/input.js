@@ -81,7 +81,7 @@ function touchMoved() {
 
 function touchStarted() {
     if (game && game.state === 'playing' && touches.length > 0) {
-        game.inputX = _getWorldX(touches[0].x);
+        game.inputX = Math.max(-CONFIG.ROAD_HALF_WIDTH, Math.min(CONFIG.ROAD_HALF_WIDTH, _getWorldX(touches[0].x)));
     }
     return false;
 }
