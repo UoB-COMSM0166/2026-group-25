@@ -31,7 +31,7 @@ function spawnEnemyWaveL2() {
     const baseZ = g.cameraZ + CONFIG.SPAWN_DISTANCE;
     const earlyDmgMult = g.wave <= 2 ? 0.5 : 1.0;
     // L2 base damage: significantly higher than L1 (×3)
-    const rawDmg = (1 + Math.floor(g.wave / 5)) * Math.sqrt(af) * earlyDmgMult * 3;
+    const rawDmg = (1 + Math.floor(g.wave / 4)) * Math.sqrt(af) * earlyDmgMult * 3;
     const baseDmg = rawDmg <= 3 ? Math.ceil(rawDmg) : Math.ceil(3 + Math.log2(rawDmg - 2));
 
     for (let r = 0; r < rows; r++) {
@@ -162,7 +162,7 @@ function spawnEnemyWave() {
     // Damage scales with wave × adaptive factor; early waves deal less damage
     // Late-game damage grows more gently: logarithmic growth + soft cap
     const earlyDmgMult = g.wave <= 2 ? 0.5 : 1.0;
-    const rawDmg = (1 + Math.floor(g.wave / 5)) * Math.sqrt(af) * earlyDmgMult;
+    const rawDmg = (1 + Math.floor(g.wave / 4)) * Math.sqrt(af) * earlyDmgMult;
     // Soft cap: growth slows after 3 (log decay), milder late-game damage
     const baseDmg = rawDmg <= 3 ? Math.ceil(rawDmg) : Math.ceil(3 + Math.log2(rawDmg - 2));
     for (let r = 0; r < rows; r++) {
@@ -175,7 +175,7 @@ function spawnEnemyWave() {
             const rawHp = CONFIG.ENEMY_HP + g.wave + Math.floor(g.wave * g.wave / 40);
             const baseHp = Math.ceil(rawHp * af * earlyMult);
             // Heavy enemies: chance also scaled by adaptive factor
-            const heavyChance = g.wave >= 6 ? (0.12 + g.wave * 0.006) * Math.min(1.5, af) : 0;
+            const heavyChance = g.wave >= 6 ? (0.15 + g.wave * 0.006) * Math.min(1.5, af) : 0;
             const isHeavy = Math.random() < heavyChance;
             // Type distribution by tier: common=high weight, elite=low; shifts with wave
             // type0/2: Patrick (common), type1: small dragon (mid), type3: fire dragon (elite)
