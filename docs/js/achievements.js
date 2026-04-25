@@ -455,7 +455,7 @@ function _achRewardHtml(reward) {
     return `${_ACH_SVG.gem} <span style="color:#cc44ff">${reward.gems}</span>`;
 }
 
-function showAchievementPanel() {
+function showAchievementPanel(restoreTab, restoreScroll) {
     ensureStats();
     checkAchievements();
     const stats = playerData.stats;
@@ -476,7 +476,7 @@ function showAchievementPanel() {
             <div id="achTabs">`;
 
     for (const cat of ACH_CATEGORIES) {
-        html += `<button class="ach-tab" data-cat="${cat.key}" onclick="_achSwitchTab('${cat.key}')">${cat.name}</button>`;
+        html += `<button class="ach-tab" data-cat="${cat.key}" onclick="_achSwitchTab('${cat.key}')">${T('ach.cat.' + cat.key)}</button>`;
     }
 
     html += `</div><div id="achScrollArea">`;
@@ -508,8 +508,8 @@ function showAchievementPanel() {
                 html += `<div class="${cls}">
                     <div class="ach-item-icon" style="background:${cat.color}22;border:2px solid ${cat.color}">${_ACH_SVG[_ACH_ICON_MAP[cat.key]] || _ACH_SVG.star}</div>
                     <div class="ach-item-info">
-                        <div class="ach-item-name">${def.name}${tierLabel}</div>
-                        <div class="ach-item-desc">${def.desc[t]}</div>
+                        <div class="ach-item-name">${T('ach.' + id + '.name')}${tierLabel}</div>
+                        <div class="ach-item-desc">${T('ach.' + id + '.desc.' + t)}</div>
                         <div class="ach-item-bar-row">
                             <div class="ach-item-bar"><div class="ach-item-bar-fill" style="width:${pct}%;background:${unlocked ? '#ffd700' : cat.color}"></div></div>
                             <span class="ach-item-progress">${progress} / ${goal}</span>
@@ -535,7 +535,12 @@ function showAchievementPanel() {
     document.body.appendChild(div);
 
     // Activate first tab
-    _achSwitchTab(ACH_CATEGORIES[0].key);
+    _achSwitchTab(restoreTab || ACH_CATEGORIES[0].key);
+
+    if (restoreScroll) {
+        const scrollArea = document.getElementById('achScrollArea');
+        if (scrollArea) scrollArea.scrollTop = restoreScroll;
+    }
 }
 
 function _achSwitchTab(catKey) {
@@ -556,7 +561,16 @@ function closeAchievementPanel() {
 function claimAndRefresh(achId, tier) {
     if (claimAchievementReward(achId, tier)) {
         playSound('gate_good');
-        showAchievementPanel(); // re-render
+        
+        let activeTab = null;
+        const activeTabEl = document.querySelector('.ach-tab.active');
+        if (activeTabEl) activeTab = activeTabEl.dataset.cat;
+        
+        let scrollY = 0;
+        const scrollArea = document.getElementById('achScrollArea');
+        if (scrollArea) scrollY = scrollArea.scrollTop;
+        
+        showAchievementPanel(activeTab, scrollY); // re-render with restored state
     }
 }
 
