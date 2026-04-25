@@ -383,26 +383,11 @@ function initWeaponSlots() {
         </div>
     `;
     slotsDiv.appendChild(currentBadge);
-    const orderedTempWeapons = ['shotgun', 'laser', 'rocket'];
-    const tempWeaponDisplayNames = {
-        shotgun: 'Shotgun',
-        laser: 'Laser',
-        rocket: 'Rocket',
-    };
-    for (const key of orderedTempWeapons) {
-        const w = SHOP_WEAPONS[key];
-        if (!w) continue;
-        const slot = document.createElement('div');
-        slot.className = 'wslot';
-        slot.dataset.weapon = key;
-        slot.style.setProperty('--wcolor', w.color);
-        slot.innerHTML = `
-            <div class="wslot-icon">${w.icon}</div>
-            <div class="wslot-level" style="font-size:10px;color:rgba(255,255,255,0.9)">${tempWeaponDisplayNames[key] || key}</div>
-            <div class="wslot-equipped" style="font-size:9px;color:#ffd700;min-height:12px"></div>
-        `;
-        slotsDiv.appendChild(slot);
-    }
+    // Temp-weapon slots (shotgun / laser / rocket) used to live here but
+    // were passive — non-interactive, and the current-weapon badge above
+    // already surfaces whichever temp weapon is firing. Skill slots below
+    // are the only entries the player can act on, so the panel only
+    // renders those now.
     for (const key of ['invincibility', 'stimulant']) {
         const sw = SHOP_WEAPONS[key];
         const slot = document.createElement('div');
@@ -498,13 +483,12 @@ function updateWeaponSlots() {
     const slotsDiv = document.getElementById('weaponSlots');
     if (!slotsDiv || slotsDiv.style.display === 'none') return;
     updateCurrentWeaponBadge();
-    const levels = playerData.weaponLevels || {};
     const charges = playerData.weaponCharges || {};
     slotsDiv.querySelectorAll('.wslot').forEach(slot => {
         const key = slot.dataset.weapon;
         const w = SHOP_WEAPONS[key];
         if (!w) return;
-        if (key === 'invincibility' || key === 'stimulant') {
+        {
             const count = charges[key] || 0;
             const isActive = key === 'invincibility' ? g.shieldActive : g.stimulantActive;
             const isOnCooldown = key === 'invincibility' ? (g.skillCooldown > 0) : (g.stimulantCooldown > 0);
@@ -534,25 +518,6 @@ function updateWeaponSlots() {
             if (isActive) { slot.classList.add('wslot-active'); slot.style.borderColor = '#ffd700'; }
             else if (count <= 0) { slot.classList.add('wslot-empty'); slot.style.borderColor = 'rgba(255,255,255,0.08)'; }
             else if (isOnCooldown) { slot.classList.add('wslot-dim'); slot.style.borderColor = 'rgba(255,255,255,0.12)'; }
-            else { slot.classList.add('wslot-ready'); slot.style.borderColor = w.color; }
-        } else {
-            const level = levels[key] || 0;
-            const isGateActive = g.weapon === key && g.weaponTimer > 0;
-            const levelEl = slot.querySelector('.wslot-level');
-            const tempWeaponDisplayNames = {
-                shotgun: 'Shotgun',
-                laser: 'Laser',
-                rocket: 'Rocket',
-            };
-            if (levelEl) {
-                levelEl.textContent = tempWeaponDisplayNames[key] || key;
-                levelEl.style.color = level > 0 ? w.color : 'rgba(255,255,255,0.8)';
-            }
-            const equippedEl = slot.querySelector('.wslot-equipped');
-            if (equippedEl) equippedEl.textContent = isGateActive ? 'TEMP' : '';
-            slot.className = 'wslot';
-            if (isGateActive) { slot.classList.add('wslot-active'); slot.style.borderColor = '#ffd700'; }
-            else if (level <= 0) { slot.classList.add('wslot-empty'); slot.style.borderColor = 'rgba(255,255,255,0.08)'; }
             else { slot.classList.add('wslot-ready'); slot.style.borderColor = w.color; }
         }
     });
