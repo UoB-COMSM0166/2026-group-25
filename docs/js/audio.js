@@ -132,16 +132,23 @@ function setBGMVolume(vol) {
     if (_bgmGain) _bgmGain.gain.value = vol;
 }
 
+// SFX silenced because their synth fallbacks (sawtooth / square) and
+// stacked tails were heard as a sustained heavy-metal drone during
+// combat. Throttling and volume drops still left the buzz audible —
+// visual feedback (hit flash, screen shake, particles, damage numbers)
+// already covers every contact and kill, so the audio is dropped
+// entirely. Re-enable later by removing entries from this set.
+const _MUTED_SFX = new Set(['hit', 'explosion']);
+
 // Per-type throttle for SFX whose tails would otherwise stack into a drone
-// during sustained fire. The synth fallback for `explosion` is a 250ms
-// 150→30Hz sawtooth — repeated kills overlap into a continuous heavy-metal
-// hum. `hit` has the same problem at smaller scale. Cap their play rate
-// here so every call site is covered by a single throttle.
+// during sustained fire. Currently unused while hit/explosion are muted,
+// but the table is kept for future SFX that need rate limiting.
 const _SFX_MIN_INTERVAL_MS = { hit: 90, explosion: 200 };
 const _lastSfxT = {};
 
 function playSound(type) {
     if (!audioCtx) return;
+    if (_MUTED_SFX.has(type)) return;
     const minGap = _SFX_MIN_INTERVAL_MS[type];
     if (minGap !== undefined) {
         const now = performance.now();
