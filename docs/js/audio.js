@@ -148,6 +148,10 @@ function playSound(type) {
             gain.gain.value = (def.vol || 0.5) * _audioVolume;
             source.connect(gain);
             gain.connect(audioCtx.destination);
+            source.onended = () => {
+                try { source.disconnect(); } catch (_) {}
+                try { gain.disconnect(); } catch (_) {}
+            };
             source.start(0);
             return;
         } catch (_) { /* fall through to synth */ }
