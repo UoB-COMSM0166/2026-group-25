@@ -624,6 +624,18 @@ function showGameOver() {
     document.getElementById('midShopOverlay').classList.add('hidden');
     const slotsDiv = document.getElementById('weaponSlots');
     if (slotsDiv) slotsDiv.style.display = 'none';
+
+    game._isNewRecord = isNewRecord;
+    game._hs = hs;
+    renderGameOver();
+}
+
+function renderGameOver() {
+    if (!game) return;
+    const currentLvl = game.currentLevel || 1;
+    const isNewRecord = game._isNewRecord;
+    const hs = game._hs;
+    
     overlay.innerHTML = `
         <h1>${T('gameover.title')}</h1>
         <div id="scoreDisplay">${T('gameover.score')}</div>

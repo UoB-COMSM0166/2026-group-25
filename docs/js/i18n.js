@@ -63,6 +63,11 @@ function applyLang() {
         }
     }
 
+    // If Game Over is open, re-render it
+    if (document.getElementById('scoreDisplay')) {
+        if (typeof renderGameOver === 'function') renderGameOver();
+    }
+
     // data-i18n loop above already handles the main menu elements.
 }
 
@@ -214,6 +219,15 @@ const TRANSLATIONS = {
         'hud.current.weapon.temp': '临时',
         'hud.panel.show':       '显示武器面板',
         'hud.panel.hide':       '收起武器面板',
+        'hud.score':            '得分: ',
+        'hud.squad':            '兵力: ',
+        'hud.wave':             '波次: ',
+        'hud.lv':               'Lv.',
+        'hud.max':              'MAX',
+        'hud.skill.active':     '已激活',
+        'hud.skill.cd':         '冷却中',
+        'hud.skill.empty':      '无充能',
+        'hud.levelup':          '升级',
 
         // Weapon names & descriptions
         'weapon.shotgun.name':        '霰弹枪',
@@ -481,9 +495,15 @@ const TRANSLATIONS = {
         'hud.current.weapon.temp': 'TEMP',
         'hud.panel.show':       'Show weapon panel',
         'hud.panel.hide':       'Hide weapon panel',
-
-        // Weapon names & descriptions
-        'weapon.shotgun.name':        'Shotgun',
+        'hud.score':            'SCORE: ',
+        'hud.squad':            'SQUAD: ',
+        'hud.wave':             'WAVE: ',
+        'hud.lv':               'Lv.',
+        'hud.max':              'MAX',
+        'hud.skill.active':     'ACTIVE',
+        'hud.skill.cd':         'COOLDOWN',
+        'hud.skill.empty':      'NO CHARGE',
+        'hud.levelup':          'LEVEL UP',
         'weapon.shotgun.desc':        'Spread fire, deadly at close range',
         'weapon.shotgun.lv1':         'Strong up close, weak at range',
         'weapon.shotgun.lv2':         'Dmg ×1.6, +2 pellets',
