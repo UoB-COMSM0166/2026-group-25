@@ -198,9 +198,6 @@ function _tutorialGrantCharge(key) {
     if (!playerData.weaponCharges) playerData.weaponCharges = {};
     playerData.weaponCharges[key] = (playerData.weaponCharges[key] || 0) + 1;
     if (key === 'invincibility') game.skillReady = true;
-    // Don't touch #weaponSlots (the DOM inventory panel) — the canvas
-    // drawSkillHud() already reflects charge changes automatically, and
-    // opening both stacks two HUDs on the top-left corner.
 }
 
 function restoreTutorialWeaponCharges() {
