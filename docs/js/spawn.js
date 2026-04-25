@@ -30,8 +30,8 @@ function spawnEnemyWaveL2() {
     const rows = Math.ceil(count / 5);
     const baseZ = g.cameraZ + CONFIG.SPAWN_DISTANCE;
     const earlyDmgMult = g.wave <= 2 ? 0.5 : 1.0;
-    // L2 base damage: significantly higher than L1 (×3)
-    const rawDmg = (1 + Math.floor(g.wave / 4)) * Math.sqrt(af) * earlyDmgMult * 3;
+    // L2 base damage: substantially higher than L1 (×5).
+    const rawDmg = (1 + Math.floor(g.wave / 4)) * Math.sqrt(af) * earlyDmgMult * 5;
     const baseDmg = rawDmg <= 3 ? Math.ceil(rawDmg) : Math.ceil(3 + Math.log2(rawDmg - 2));
 
     for (let r = 0; r < rows; r++) {
@@ -40,8 +40,8 @@ function spawnEnemyWaveL2() {
             const spread = CONFIG.ROAD_HALF_WIDTH * 0.7;
             const x = cols === 1 ? 0 : -spread + (spread * 2) * c / (cols - 1);
             const earlyMult = g.wave <= 2 ? 0.5 : 1.0;
-            // L2 base HP: significantly higher than L1 (×4)
-            const rawHp = (CONFIG.ENEMY_HP + g.wave + Math.floor(g.wave * g.wave / 40)) * 4;
+            // L2 base HP: substantially higher than L1 (×6).
+            const rawHp = (CONFIG.ENEMY_HP + g.wave + Math.floor(g.wave * g.wave / 40)) * 6;
             const baseHp = Math.ceil(rawHp * af * earlyMult);
 
             // L2 type weights: capybara-split 50%, engineer-shield 30%, cow-gun 20%
