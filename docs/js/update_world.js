@@ -133,7 +133,6 @@ function updateWorld(g, dt, dtF, bossAlive) {
             else spawnBoss(g.nextWaveZ - 80);
         }
         g.waveBanner = { wave: g.wave, timer: 0, maxTimer: CONFIG.WAVE_BANNER_DURATION };
-        playSound('wave_start');
     }
     if (g.cameraZ + CONFIG.SPAWN_DISTANCE > g.nextGateZ) spawnGate();
 
