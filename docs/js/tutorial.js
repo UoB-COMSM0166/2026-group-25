@@ -388,6 +388,7 @@ function renderTutorialCompleteOverlay(claimedId) {
         }).join('');
 
         overlay.innerHTML = `
+            <div id="tutorialCompleteScreen">
             <h1 style="color:#44ff88;text-shadow:0 0 30px rgba(68,255,136,0.7);display:inline-flex;align-items:center;justify-content:center;">${gradCapSvg}${T('tutorial.complete.title')}</h1>
             <div style="color:#cc88ff;font-size:min(24px,4.8vw);margin:14px 0 6px;letter-spacing:2px;">${T('tutorial.complete.subtitle')}</div>
             <div style="color:#88ccff;font-size:min(16px,3.4vw);max-width:720px;margin:4px auto 24px;line-height:1.6;">${T('tutorial.complete.body')}</div>
@@ -396,11 +397,13 @@ function renderTutorialCompleteOverlay(claimedId) {
                 ${rewardCards}
             </div>
             <div style="color:#8ea8d4;font-size:min(13px,2.6vw);margin-top:6px;">${T('tutorial.reward.once')}</div>
+            </div>
         `;
         return;
     }
 
     overlay.innerHTML = `
+        <div id="tutorialCompleteScreen">
         <h1 style="color:#44ff88;text-shadow:0 0 30px rgba(68,255,136,0.7);display:inline-flex;align-items:center;justify-content:center;">${gradCapSvg}${T('tutorial.complete.title')}</h1>
         <div style="color:#cc88ff;font-size:min(24px,4.8vw);margin:14px 0 6px;letter-spacing:2px;">${T('tutorial.complete.subtitle')}</div>
         <div style="color:#88ccff;font-size:min(16px,3.4vw);max-width:640px;margin:4px auto 18px;line-height:1.6;">${T('tutorial.complete.body')}</div>
@@ -415,6 +418,7 @@ function renderTutorialCompleteOverlay(claimedId) {
         <div id="menuButtons">
             <button class="btn" style="background:linear-gradient(180deg,#44cc44,#228822);border-color:#55ee55;" onclick="showLevelSelect()">${T('tutorial.complete.continue')}</button>
             <button class="btn" onclick="restoreMainMenu()">${T('levelcomplete.mainmenu')}</button>
+        </div>
         </div>
     `;
 }
@@ -456,8 +460,10 @@ function drawTutorialHint() {
         boxX + 59, boxY + 18, 12, done ? 0x99ffcc : 0x99ddff, CENTER, true);
 
     // Title + body
-    _hudText(h.title, screenW / 2, boxY + 34, 19, 0xffffff, CENTER, true);
-    _hudText(h.body, screenW / 2, boxY + 60, 13, 0xcce0ff, CENTER, false);
+    const titleText = step ? T(step.titleKey) : h.title;
+    const bodyText = step ? T(step.bodyKey) : h.body;
+    _hudText(titleText, screenW / 2, boxY + 34, 19, 0xffffff, CENTER, true);
+    _hudText(bodyText, screenW / 2, boxY + 60, 13, 0xcce0ff, CENTER, false);
 
     // Progress line
     const progText = done ? T('tutorial.goal.done') : progressStr;
