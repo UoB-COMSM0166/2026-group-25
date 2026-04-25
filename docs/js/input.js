@@ -3,6 +3,10 @@
 // ============================================================
 
 function setupInput() {
+    const clearKeys = () => {
+        Object.keys(keys).forEach(k => { keys[k] = false; });
+    };
+
     document.addEventListener('keydown', (e) => {
         keys[e.key] = true;
         if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
@@ -31,6 +35,10 @@ function setupInput() {
         }
     });
     document.addEventListener('keyup', (e) => { keys[e.key] = false; });
+    window.addEventListener('blur', clearKeys);
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) clearKeys();
+    });
 
     // Pause button
     const pauseBtn = document.getElementById('pauseBtn');
