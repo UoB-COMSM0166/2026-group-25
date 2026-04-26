@@ -45,13 +45,15 @@ function setup() {
     initAudio();
     setupInput();
 
-    // Shop buttons
-    document.getElementById('shopBtn') && document.getElementById('shopBtn').addEventListener('click', openShop);
-    document.getElementById('shopBackBtn') && document.getElementById('shopBackBtn').addEventListener('click', closeShop);
+    // Shop buttons — #shopBtn / #shopBackBtn already wired via inline
+    // onclick in index.html; only bind the elements that have no inline handler.
+    const midShopGoBtn = document.getElementById('midShopGoBtn');
+    if (midShopGoBtn) midShopGoBtn.addEventListener('click', closeMidShop);
+    document.querySelectorAll('.shop-tab').forEach(btn => {
+        btn.addEventListener('click', () => switchShopTab(btn.dataset.tab));
+    });
 
-    // Start button
-    const startBtnEl = document.getElementById('startBtn');
-    if (startBtnEl) startBtnEl.addEventListener('click', showLevelSelect);
+    // #startBtn is wired via inline onclick in index.html — no JS binding here.
 
     // Update coin/gem display on menu
     const coinCountEl = document.getElementById('coinCount');
@@ -103,7 +105,6 @@ function _buildSpriteFrames() {
         tutorialBossFrames.push({ img: _p5TutorialBossImg, sx: i * TUTORIAL_BOSS_FRAME_SIZE, sy: 0, sw: TUTORIAL_BOSS_FRAME_SIZE, sh: TUTORIAL_BOSS_FRAME_SIZE });
     }
     monsterSpritesLoaded = true;
-    console.log('Sprites loaded: Patrick', normalMonsterFrames.length, 'XiaoNaiLong', xiaoNaiLongFrames.length, 'Boss', bossFrames.length);
 }
 
 function draw() {

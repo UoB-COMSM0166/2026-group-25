@@ -174,9 +174,13 @@ const ACHIEVEMENTS = {
     },
     iron_fortress: {
         name: 'Iron Fortress', icon: 'shield', category: 'arsenal',
-        desc: ['Max armor (Lv3)'],
+        desc: ['Max armor'],
         tiers: 1, goals: [1],
-        check: () => (playerData.armor || 0) >= 3 ? 1 : 0,
+        check: () => {
+            const armorDef = TALENT_DEFS.find(d => d.id === 'armor');
+            const maxArmorLevel = armorDef ? armorDef.maxLevel : 6;
+            return (playerData.armor || 0) >= maxArmorLevel ? 1 : 0;
+        },
         rewards: [{ gems: 2 }],
     },
 
@@ -451,7 +455,7 @@ function _achRewardHtml(reward) {
     return `${_ACH_SVG.gem} <span style="color:#cc44ff">${reward.gems}</span>`;
 }
 
-function showAchievementPanel(activeCatKey) {
+function showAchievementPanel(activeCatKey, restoreScroll) {
     ensureStats();
     checkAchievements();
     const stats = playerData.stats;
@@ -472,7 +476,7 @@ function showAchievementPanel(activeCatKey) {
             <div id="achTabs">`;
 
     for (const cat of ACH_CATEGORIES) {
-        html += `<button class="ach-tab" data-cat="${cat.key}" onclick="_achSwitchTab('${cat.key}')">${cat.name}</button>`;
+        html += `<button class="ach-tab" data-cat="${cat.key}" onclick="_achSwitchTab('${cat.key}')">${T('ach.cat.' + cat.key)}</button>`;
     }
 
     html += `</div><div id="achScrollArea">`;
@@ -504,8 +508,8 @@ function showAchievementPanel(activeCatKey) {
                 html += `<div class="${cls}">
                     <div class="ach-item-icon" style="background:${cat.color}22;border:2px solid ${cat.color}">${_ACH_SVG[_ACH_ICON_MAP[cat.key]] || _ACH_SVG.star}</div>
                     <div class="ach-item-info">
-                        <div class="ach-item-name">${def.name}${tierLabel}</div>
-                        <div class="ach-item-desc">${def.desc[t]}</div>
+                        <div class="ach-item-name">${T('ach.' + id + '.name')}${tierLabel}</div>
+                        <div class="ach-item-desc">${T('ach.' + id + '.desc.' + t)}</div>
                         <div class="ach-item-bar-row">
                             <div class="ach-item-bar"><div class="ach-item-bar-fill" style="width:${pct}%;background:${unlocked ? '#ffd700' : cat.color}"></div></div>
                             <span class="ach-item-progress">${progress} / ${goal}</span>
@@ -534,6 +538,11 @@ function showAchievementPanel(activeCatKey) {
         ? activeCatKey
         : ACH_CATEGORIES[0].key;
     _achSwitchTab(selectedCatKey);
+
+    if (typeof restoreScroll === 'number') {
+        const scrollArea = document.getElementById('achScrollArea');
+        if (scrollArea) scrollArea.scrollTop = restoreScroll;
+    }
 }
 
 function _achSwitchTab(catKey) {
@@ -554,9 +563,11 @@ function closeAchievementPanel() {
 function claimAndRefresh(achId, tier) {
     const activeTab = document.querySelector('.ach-tab.active');
     const activeCatKey = activeTab ? activeTab.dataset.cat : null;
+    const scrollArea = document.getElementById('achScrollArea');
+    const scrollY = scrollArea ? scrollArea.scrollTop : 0;
     if (claimAchievementReward(achId, tier)) {
         playSound('gate_good');
-        showAchievementPanel(activeCatKey); // re-render without resetting the selected tab
+        showAchievementPanel(activeCatKey, scrollY); // re-render with restored state
     }
 }
 

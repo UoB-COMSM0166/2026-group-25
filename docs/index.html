@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Bridge Assault - 桥梁突击 (p5)</title>
-<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="stylesheet" href="style.css?v=15">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="stylesheet" href="style.css?v=19">
 <style>
 /* p5.js canvas sits behind all overlays.
    Use "body > canvas" to target only the p5 canvas (direct child of body),
@@ -238,7 +238,7 @@ body > canvas {
                 <div class="talent-hint" style="margin-top:min(14px,2vh)"><svg viewBox="0 0 14 14" width="13" height="13" style="vertical-align:-2px"><polygon points="7,1 13,6 7,13 1,6" fill="#8822bb"/><polygon points="7,1 13,6 7,7 1,6" fill="#cc44ff"/><polygon points="5,3 9,3 7,1" fill="#ee88ff"/></svg> <span data-i18n="shop.talent.hint">宝石由 Boss 随机掉落，用于永久提升角色属性</span></div>
             </div>
         </div>
-        <button class="btn btn-back" id="shopBackBtn" data-i18n="shop.back">BACK</button>
+        <button class="btn btn-back" id="shopBackBtn" onclick="closeShop()" data-i18n="shop.back">BACK</button>
     </div>
 </div>
 
@@ -308,30 +308,30 @@ body > canvas {
 </div>
 
 <!-- Game modules (order matters: dependencies first) -->
-<script src="js/crypto.js?v=28"></script>
-<script src="js/config.js?v=28"></script>
-<script src="js/i18n.js?v=28"></script>
-<script src="js/globals.js?v=28"></script>
-<script src="js/audio.js?v=28"></script>
-<script src="js/core.js?v=28"></script>
-<script src="js/helpers.js?v=28"></script>
-<script src="js/spawn.js?v=28"></script>
-<script src="js/combat.js?v=28"></script>
-<script src="js/draw.js?v=28"></script>
-<script src="js/hud.js?v=28"></script>
-<script src="js/update_timers.js?v=28"></script>
-<script src="js/update_collision.js?v=28"></script>
-<script src="js/update_enemies.js?v=28"></script>
-<script src="js/update_world.js?v=28"></script>
-<script src="js/update_effects.js?v=28"></script>
-<script src="js/update.js?v=28"></script>
-<script src="js/render.js?v=28"></script>
-<script src="js/achievements.js?v=28"></script>
-<script src="js/shop.js?v=28"></script>
-<script src="js/leaderboard.js?v=28"></script>
-<script src="js/input.js?v=28"></script>
-<script src="js/ui.js?v=28"></script>
-<script src="js/tutorial.js?v=28"></script>
-<script src="js/main.js?v=28"></script>
+<script src="js/crypto.js?v=38"></script>
+<script src="js/config.js?v=38"></script>
+<script src="js/i18n.js?v=38"></script>
+<script src="js/globals.js?v=38"></script>
+<script src="js/audio.js?v=38"></script>
+<script src="js/core.js?v=38"></script>
+<script src="js/helpers.js?v=38"></script>
+<script src="js/spawn.js?v=38"></script>
+<script src="js/combat.js?v=38"></script>
+<script src="js/draw.js?v=38"></script>
+<script src="js/hud.js?v=38"></script>
+<script src="js/update_timers.js?v=38"></script>
+<script src="js/update_collision.js?v=38"></script>
+<script src="js/update_enemies.js?v=38"></script>
+<script src="js/update_world.js?v=38"></script>
+<script src="js/update_effects.js?v=38"></script>
+<script src="js/update.js?v=38"></script>
+<script src="js/render.js?v=38"></script>
+<script src="js/achievements.js?v=38"></script>
+<script src="js/shop.js?v=38"></script>
+<script src="js/leaderboard.js?v=38"></script>
+<script src="js/input.js?v=38"></script>
+<script src="js/ui.js?v=38"></script>
+<script src="js/tutorial.js?v=38"></script>
+<script src="js/main.js?v=38"></script>
 </body>
 </html>

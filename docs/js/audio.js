@@ -12,6 +12,8 @@ let _bgmSource = null;
 let _bgmGain = null;
 let _bgmBuffers = {};  // level → AudioBuffer
 let _bgmPlaying = false;
+let _pendingBgmLevel = null;
+let _bgmPreloadDone = false;
 const BGM_FILES = {
     1: 'assets/audio/bgm.mp3',
     2: 'assets/audio/bgm_l2.mp3',
@@ -24,11 +26,11 @@ const SOUND_DEFS = {
     shoot_shotgun:  { file: 'assets/audio/shoot_shotgun.mp3',  vol: 0.35 },
     shoot_laser:    { file: 'assets/audio/shoot_laser.mp3',    vol: 0.3  },
     shoot_rocket:   { file: 'assets/audio/shoot_rocket.mp3',   vol: 0.3  },
-    explosion:      { file: 'assets/audio/explosion.mp3',      vol: 0.4  },
+    explosion:      { file: 'assets/audio/explosion.mp3',      vol: 0.22 },
     gate_good:      { file: 'assets/audio/gate_good.mp3',      vol: 0.5  },
     gate_bad:       { file: 'assets/audio/gate_bad.mp3',       vol: 0.5  },
     weapon_pickup:  { file: 'assets/audio/weapon_pickup.mp3',  vol: 0.5  },
-    hit:            { file: 'assets/audio/hit.mp3',            vol: 0.25 },
+    hit:            { file: 'assets/audio/hit.mp3',            vol: 0.16 },
     wave_start:     { file: 'assets/audio/wave_start.mp3',     vol: 0.5  },
 };
 
@@ -75,6 +77,12 @@ async function _preloadAudioBuffers() {
         } catch (_) {}
     }
     console.log(`Audio: BGM loaded for ${Object.keys(_bgmBuffers).length} level(s)`);
+    _bgmPreloadDone = true;
+    if (_pendingBgmLevel !== null && !_bgmPlaying) {
+        const pendingLevel = _pendingBgmLevel;
+        _pendingBgmLevel = null;
+        playBGM(pendingLevel);
+    }
 }
 
 // ============================================================
@@ -82,8 +90,15 @@ async function _preloadAudioBuffers() {
 // ============================================================
 function playBGM(level) {
     stopBGM();
-    const buf = _bgmBuffers[level || 1];
-    if (!audioCtx || !buf) return;
+    const bgmLevel = level || 1;
+    let buf = _bgmBuffers[bgmLevel];
+    if (!buf && _bgmPreloadDone && bgmLevel !== 1) {
+        buf = _bgmBuffers[1];
+    }
+    if (!audioCtx || !buf) {
+        if (!_bgmPreloadDone) _pendingBgmLevel = bgmLevel;
+        return;
+    }
     if (audioCtx.state === 'suspended') audioCtx.resume();
     _bgmGain = audioCtx.createGain();
     _bgmGain.gain.value = BGM_VOLUME;
@@ -98,10 +113,18 @@ function playBGM(level) {
 }
 
 function stopBGM() {
+    _pendingBgmLevel = null;
     if (_bgmSource && _bgmPlaying) {
         try { _bgmSource.stop(); } catch (_) {}
         _bgmSource = null;
         _bgmPlaying = false;
+    }
+    // Disconnect the gain node so the previous BGM track's audio graph
+    // can be garbage-collected. Without this, every level transition
+    // orphans a GainNode that stays connected to audioCtx.destination.
+    if (_bgmGain) {
+        try { _bgmGain.disconnect(); } catch (_) {}
+        _bgmGain = null;
     }
 }
 
@@ -109,8 +132,29 @@ function setBGMVolume(vol) {
     if (_bgmGain) _bgmGain.gain.value = vol;
 }
 
+// SFX silenced because their synth fallbacks (sawtooth / square) and
+// stacked tails were heard as a sustained heavy-metal drone during
+// combat. Throttling and volume drops still left the buzz audible —
+// visual feedback (hit flash, screen shake, particles, damage numbers)
+// already covers every contact and kill, so the audio is dropped
+// entirely. Re-enable later by removing entries from this set.
+const _MUTED_SFX = new Set(['hit', 'explosion']);
+
+// Per-type throttle for SFX whose tails would otherwise stack into a drone
+// during sustained fire. Currently unused while hit/explosion are muted,
+// but the table is kept for future SFX that need rate limiting.
+const _SFX_MIN_INTERVAL_MS = { hit: 90, explosion: 200 };
+const _lastSfxT = {};
+
 function playSound(type) {
     if (!audioCtx) return;
+    if (_MUTED_SFX.has(type)) return;
+    const minGap = _SFX_MIN_INTERVAL_MS[type];
+    if (minGap !== undefined) {
+        const now = performance.now();
+        if (now - (_lastSfxT[type] || 0) < minGap) return;
+        _lastSfxT[type] = now;
+    }
     // Ensure context is running (user gesture may have happened since init)
     if (audioCtx.state === 'suspended') audioCtx.resume();
 
@@ -125,6 +169,10 @@ function playSound(type) {
             gain.gain.value = (def.vol || 0.5) * _audioVolume;
             source.connect(gain);
             gain.connect(audioCtx.destination);
+            source.onended = () => {
+                try { source.disconnect(); } catch (_) {}
+                try { gain.disconnect(); } catch (_) {}
+            };
             source.start(0);
             return;
         } catch (_) { /* fall through to synth */ }

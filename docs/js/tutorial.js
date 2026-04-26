@@ -66,6 +66,8 @@ function setupTutorialRun(g) {
     g.tutorialGoalTimer = 0;
     g.tutorialStepStart = {};
     g.tutorialCamMult = 0;
+    // Keep tutorial-only consumable rewards isolated from the real save.
+    g.tutorialSavedWeaponCharges = { ...(playerData.weaponCharges || {}) };
     g.squadCount = 12;
     g.peakSquad = 12;
     // Prevent the normal random gate spawner from firing during the tutorial.
@@ -196,10 +198,12 @@ function _tutorialGrantCharge(key) {
     if (!playerData.weaponCharges) playerData.weaponCharges = {};
     playerData.weaponCharges[key] = (playerData.weaponCharges[key] || 0) + 1;
     if (key === 'invincibility') game.skillReady = true;
-    savePlayerData(playerData);
-    // Don't touch #weaponSlots (the DOM inventory panel) — the canvas
-    // drawSkillHud() already reflects charge changes automatically, and
-    // opening both stacks two HUDs on the top-left corner.
+}
+
+function restoreTutorialWeaponCharges() {
+    const g = game;
+    if (!g || !g.isTutorial) return;
+    playerData.weaponCharges = { ...(g.tutorialSavedWeaponCharges || {}) };
 }
 
 function _checkStepGoal(step) {
@@ -289,14 +293,81 @@ function completeTutorial() {
     if (!g) return;
     g.state = 'gameover';
     stopBGM();
+    restoreTutorialWeaponCharges();
     playerData.hasSeenTutorial = true;
     markPlayerDataDirty();
     flushPlayerDataSave(true);
     savePlayerData(playerData);
     const slotsDiv = document.getElementById('weaponSlots');
     if (slotsDiv) slotsDiv.style.display = 'none';
-    const skillBtn = document.getElementById('skillBtn');
-    if (skillBtn) skillBtn.style.display = 'none';
+    overlay.classList.remove('hidden');
+    renderTutorialCompleteOverlay();
+    game = null;
+}
+
+function getTutorialRewardOptions() {
+    return [
+        {
+            id: 'shotgun_unlock',
+            icon: WEAPON_ICONS.shotgun,
+            color: '#ff9900',
+            title: T('tutorial.reward.shotgun.title'),
+            body: T('tutorial.reward.shotgun.body'),
+            apply: function() {
+                if (!playerData.weaponLevels) playerData.weaponLevels = {};
+                playerData.weaponLevels.shotgun = Math.max(playerData.weaponLevels.shotgun || 0, 1);
+            },
+        },
+        {
+            id: 'laser_unlock',
+            icon: WEAPON_ICONS.laser,
+            color: '#00e6ff',
+            title: T('tutorial.reward.laser.title'),
+            body: T('tutorial.reward.laser.body'),
+            apply: function() {
+                if (!playerData.weaponLevels) playerData.weaponLevels = {};
+                playerData.weaponLevels.laser = Math.max(playerData.weaponLevels.laser || 0, 1);
+            },
+        },
+        {
+            id: 'magnum_unlock',
+            icon: PISTOL_TIERS[1].icon,
+            color: '#ff7733',
+            title: T('tutorial.reward.magnum.title'),
+            body: T('tutorial.reward.magnum.body'),
+            apply: function() {
+                if (!playerData.ownedPistolTiers) playerData.ownedPistolTiers = [0];
+                if (!playerData.ownedPistolTiers.includes(1)) playerData.ownedPistolTiers.push(1);
+                playerData.equippedPistolTier = Math.max(playerData.equippedPistolTier || 0, 1);
+            },
+        },
+    ];
+}
+
+function getTutorialRewardOption(id) {
+    return getTutorialRewardOptions().find(function(opt) { return opt.id === id; }) || null;
+}
+
+function claimTutorialReward(id) {
+    if (playerData.tutorialRewardClaimed) {
+        renderTutorialCompleteOverlay();
+        return false;
+    }
+    const reward = getTutorialRewardOption(id);
+    if (!reward) return false;
+    reward.apply();
+    playerData.tutorialRewardClaimed = true;
+    playerData.tutorialRewardChoice = id;
+    markPlayerDataDirty();
+    flushPlayerDataSave(true);
+    savePlayerData(playerData);
+    renderTutorialCompleteOverlay(id);
+    return true;
+}
+
+function renderTutorialCompleteOverlay(claimedId) {
+    const chosenId = claimedId || playerData.tutorialRewardChoice || '';
+    const chosen = chosenId ? getTutorialRewardOption(chosenId) : null;
     // Inline SVG grad-cap instead of an emoji so typography matches the rest
     // of the game chrome (retro monospace).
     const gradCapSvg = `
@@ -307,17 +378,50 @@ function completeTutorial() {
             <line x1="56" y1="22" x2="56" y2="40" stroke="#ffd740" stroke-width="2"/>
             <circle cx="56" cy="43" r="3" fill="#ffd740"/>
         </svg>`;
-    overlay.classList.remove('hidden');
+
+    if (!playerData.tutorialRewardClaimed) {
+        const rewardCards = getTutorialRewardOptions().map(function(reward) {
+            return `
+                <button class="btn" onclick="claimTutorialReward('${reward.id}')"
+                    style="width:min(220px,30vw);min-height:228px;padding:18px 16px;background:linear-gradient(180deg,${reward.color}33,#101828);border-color:${reward.color};color:#eef6ff;border-radius:18px;display:flex;flex-direction:column;gap:14px;justify-content:flex-start;align-items:center;text-align:center;">
+                    <div style="width:72px;height:72px;border-radius:18px;border:2px solid ${reward.color};background:${reward.color}22;display:flex;align-items:center;justify-content:center;">${reward.icon}</div>
+                    <div style="font-size:min(18px,3.4vw);font-weight:bold;letter-spacing:1px;color:${reward.color};">${reward.title}</div>
+                    <div style="font-size:min(13px,2.6vw);line-height:1.5;color:#c9daf8;">${reward.body}</div>
+                    <div style="margin-top:auto;font-size:min(13px,2.6vw);font-weight:bold;color:#ffffff;">${T('tutorial.reward.pick')}</div>
+                </button>
+            `;
+        }).join('');
+
+        overlay.innerHTML = `
+            <h1 style="color:#44ff88;text-shadow:0 0 30px rgba(68,255,136,0.7);display:inline-flex;align-items:center;justify-content:center;">${gradCapSvg}${T('tutorial.complete.title')}</h1>
+            <div style="color:#cc88ff;font-size:min(24px,4.8vw);margin:14px 0 6px;letter-spacing:2px;">${T('tutorial.complete.subtitle')}</div>
+            <div style="color:#88ccff;font-size:min(16px,3.4vw);max-width:720px;margin:4px auto 24px;line-height:1.6;">${T('tutorial.complete.body')}</div>
+            <div style="color:#ffd36b;font-size:min(18px,3.4vw);margin-bottom:18px;letter-spacing:1px;">${T('tutorial.reward.choose')}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:18px;justify-content:center;align-items:stretch;max-width:780px;margin:0 auto 18px;">
+                ${rewardCards}
+            </div>
+            <div style="color:#8ea8d4;font-size:min(13px,2.6vw);margin-top:6px;">${T('tutorial.reward.once')}</div>
+        `;
+        return;
+    }
+
     overlay.innerHTML = `
         <h1 style="color:#44ff88;text-shadow:0 0 30px rgba(68,255,136,0.7);display:inline-flex;align-items:center;justify-content:center;">${gradCapSvg}${T('tutorial.complete.title')}</h1>
         <div style="color:#cc88ff;font-size:min(24px,4.8vw);margin:14px 0 6px;letter-spacing:2px;">${T('tutorial.complete.subtitle')}</div>
-        <div style="color:#88ccff;font-size:min(16px,3.4vw);max-width:640px;margin:4px auto 24px;line-height:1.6;">${T('tutorial.complete.body')}</div>
+        <div style="color:#88ccff;font-size:min(16px,3.4vw);max-width:640px;margin:4px auto 18px;line-height:1.6;">${T('tutorial.complete.body')}</div>
+        <div style="display:inline-flex;align-items:center;gap:12px;max-width:700px;margin:0 auto 24px;padding:16px 18px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.12);">
+            <div style="width:64px;height:64px;border-radius:16px;border:2px solid ${chosen ? chosen.color : '#44ff88'};background:${chosen ? chosen.color : '#44ff88'}22;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${chosen ? chosen.icon : ''}</div>
+            <div style="text-align:left;">
+                <div style="color:#ffd36b;font-size:min(16px,3vw);font-weight:bold;letter-spacing:1px;">${T('tutorial.reward.claimed')}</div>
+                <div style="color:${chosen ? chosen.color : '#ffffff'};font-size:min(20px,3.8vw);font-weight:bold;margin-top:4px;">${chosen ? chosen.title : T('tutorial.reward.already')}</div>
+                <div style="color:#c6d8f6;font-size:min(13px,2.5vw);line-height:1.5;margin-top:4px;">${chosen ? chosen.body : T('tutorial.reward.already')}</div>
+            </div>
+        </div>
         <div id="menuButtons">
             <button class="btn" style="background:linear-gradient(180deg,#44cc44,#228822);border-color:#55ee55;" onclick="showLevelSelect()">${T('tutorial.complete.continue')}</button>
             <button class="btn" onclick="restoreMainMenu()">${T('levelcomplete.mainmenu')}</button>
         </div>
     `;
-    game = null;
 }
 
 function drawTutorialHint() {

@@ -30,12 +30,16 @@ const CONFIG = {
     // mid-range while still inside every weapon's effective range.
     BOSS_HOLD_Z: 850,
     GATE_DISTANCE: 300,
-    ENEMY_HP: 3,
+    ENEMY_HP: 4,
     PIXEL_SIZE: 2,
     CLOUD_COUNT: 8,
     VIGNETTE_STRENGTH: 0.4,
     WAVE_BANNER_DURATION: 120,
     COMBO_TIMEOUT: 2000,
+    CRIT_CHANCE: 0.1,
+    CRIT_MULT: 1.8,
+    HIT_SHAKE_LIGHT: 4,
+    HIT_SHAKE_CRIT: 9,
 };
 
 const WEAPON_DEFS = {

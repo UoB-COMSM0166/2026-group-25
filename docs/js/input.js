@@ -3,6 +3,10 @@
 // ============================================================
 
 function setupInput() {
+    const clearKeys = () => {
+        Object.keys(keys).forEach(k => { keys[k] = false; });
+    };
+
     document.addEventListener('keydown', (e) => {
         keys[e.key] = true;
         if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
@@ -31,6 +35,10 @@ function setupInput() {
         }
     });
     document.addEventListener('keyup', (e) => { keys[e.key] = false; });
+    window.addEventListener('blur', clearKeys);
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) clearKeys();
+    });
 
     // Pause button
     const pauseBtn = document.getElementById('pauseBtn');
@@ -48,14 +56,6 @@ function setupInput() {
             else if (game.state === 'paused') { resumeGame(); }
         }
     });
-
-    const skillBtn = document.getElementById('skillBtn');
-    if (skillBtn) {
-        skillBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            activateSkillWeapon();
-        });
-    }
 }
 
 // ============================================================
@@ -81,7 +81,7 @@ function touchMoved() {
 
 function touchStarted() {
     if (game && game.state === 'playing' && touches.length > 0) {
-        game.inputX = _getWorldX(touches[0].x);
+        game.inputX = Math.max(-CONFIG.ROAD_HALF_WIDTH, Math.min(CONFIG.ROAD_HALF_WIDTH, _getWorldX(touches[0].x)));
     }
     return false;
 }

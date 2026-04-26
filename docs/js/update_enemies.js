@@ -154,7 +154,8 @@ function updateEnemies(g, dt, dtF, bossAlive) {
                         g.shakeTimer = Math.max(g.shakeTimer, 10);
                         // Warning text
                         const bp = project(e.x, e.z - g.cameraZ);
-                        addScorePopup('🐘 STOMP WAVE!', bp.x, bp.y - 40, 0xff4400);
+                        const warningText = e.isElephantBoss ? '🔥 LAVA BREATH!' : '🔥 FLAME BREATH!';
+                        addScorePopup(warningText, bp.x, bp.y - 40, 0xff4400);
                     } else if (skill === 1) {
                         // --- SUMMON MINIONS: spawn a small squad of enemies ---
                         if (e.megaSummonCount < 3 + e.megaLevel) {

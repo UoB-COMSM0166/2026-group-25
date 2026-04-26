@@ -216,10 +216,9 @@ function spawnBossGems(x, z) {
     const bossLvl = Math.floor(g.wave / 5);
     const isL2 = g.currentLevel === 2;
     // Multi-boss: only the last boss drops gems (max 1 gem drop per wave)
-    const bossCount = Math.min(1 + Math.floor((bossLvl - 1) / 2), 4);
-    const aliveBosses = g.enemies.filter(e => e.alive && e.isBoss).length;
+    const otherBossAlive = g.enemies.some(e => e.alive && e.isBoss);
     // Only drop gems when the last boss dies
-    if (aliveBosses > 1) return;
+    if (otherBossAlive) return;
     // Drop chance: L1: wave5=20%...wave25+=75%; L2 +25%
     const gemDropChance = Math.min(0.97, 0.0 + bossLvl * 0.2 + (isL2 ? 0.25 : 0));
     if (Math.random() > gemDropChance) return;
@@ -246,11 +245,29 @@ function spawnBossGems(x, z) {
     }
 }
 
-function addDamageNumber(x, z, value, color) {
+function addDamageNumber(x, z, value, color, opts) {
+    const o = opts || {};
     game.damageNumbers.push({
         x, z, value, color: color || 0xffffff,
         life: 50, maxLife: 50, offsetY: 0,
+        crit: !!o.crit,
+        prefix: o.prefix || '',
+        scaleBoost: o.scaleBoost || 0,
     });
+}
+
+function addImpactFeedback(x, z, opts) {
+    const g = game;
+    if (!g) return;
+    const o = opts || {};
+    const color = o.color || 0xffdd88;
+    const particleBurst = o.particleBurst || 5;
+    const sparkleBurst = o.sparkleBurst || 2;
+    addParticles(x, z, particleBurst, color, o.particleSize || 2.5, o.particleLife || 10);
+    addParticles(x, z, sparkleBurst, 0xffffff, 1.8, 6);
+    g.screenFlash = Math.max(g.screenFlash, o.flash || 0.04);
+    g.shakeTimer = Math.max(g.shakeTimer, o.shake || CONFIG.HIT_SHAKE_LIGHT);
+    g.shakePower = Math.max(g.shakePower || 0, o.shakePower || 0.55);
 }
 
 function addScorePopup(text, sx, sy, color) {
@@ -308,7 +325,7 @@ function checkLevelUp(g, bigEffect) {
 
 // Award XP for regular enemy kills — scales with wave
 function awardKillXP(g, isHeavy) {
-    if (!g || g.level >= LEVEL_CONFIG.maxLevel) return;
+    if (!g || g.isTutorial || g.level >= LEVEL_CONFIG.maxLevel) return;
     const kc = LEVEL_CONFIG.killXp;
     const step = Math.floor(g.wave / kc.wavePerStep);
     const baseXp = kc.base + Math.floor(Math.pow(step, kc.exp));
@@ -321,7 +338,7 @@ function awardKillXP(g, isHeavy) {
 
 function awardBossExp(isMegaBoss, x, z) {
     const g = game;
-    if (!g || g.level >= LEVEL_CONFIG.maxLevel) return;
+    if (!g || g.isTutorial || g.level >= LEVEL_CONFIG.maxLevel) return;
 
     // ── Normal-distribution XP roll (exponential scaling) ──
     const cfg = LEVEL_CONFIG.bossXp;

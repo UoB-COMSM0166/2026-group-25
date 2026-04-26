@@ -47,7 +47,6 @@ const keys = {};
 
 // DOM references
 const overlay = document.getElementById('overlay');
-const startBtn = document.getElementById('startBtn');
 
 // Snapshot of the pristine main-menu markup. Captured at page load (before
 // any user interaction or dynamic writes) so that returning to the menu
@@ -64,12 +63,16 @@ const DATA_VERSION = 'v2';
 (function checkDataVersion() {
     const stored = localStorage.getItem('bridgeAssault_dataVersion');
     if (stored !== DATA_VERSION) {
-        Object.keys(localStorage)
-            .filter(k => k.startsWith('bridgeAssault_'))
-            .forEach(k => localStorage.removeItem(k));
         localStorage.setItem('bridgeAssault_dataVersion', DATA_VERSION);
     }
 })();
+
+function resetBridgeAssaultSaveData() {
+    Object.keys(localStorage)
+        .filter(k => k.startsWith('bridgeAssault_'))
+        .forEach(k => localStorage.removeItem(k));
+    localStorage.setItem('bridgeAssault_dataVersion', DATA_VERSION);
+}
 
 function loadPlayerData() {
     try {
@@ -131,4 +134,6 @@ if (!playerData.stats) playerData.stats = {};
 if (!playerData.achievements) playerData.achievements = {};
 if (!playerData.achievementsClaimed) playerData.achievementsClaimed = {};
 if (playerData.hasSeenTutorial === undefined) playerData.hasSeenTutorial = false;
+if (playerData.tutorialRewardClaimed === undefined) playerData.tutorialRewardClaimed = false;
+if (playerData.tutorialRewardChoice === undefined) playerData.tutorialRewardChoice = '';
 savePlayerData(playerData);

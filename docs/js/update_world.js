@@ -133,7 +133,6 @@ function updateWorld(g, dt, dtF, bossAlive) {
             else spawnBoss(g.nextWaveZ - 80);
         }
         g.waveBanner = { wave: g.wave, timer: 0, maxTimer: CONFIG.WAVE_BANNER_DURATION };
-        playSound('wave_start');
     }
     if (g.cameraZ + CONFIG.SPAWN_DISTANCE > g.nextGateZ) spawnGate();
 
@@ -197,9 +196,11 @@ function updateWorld(g, dt, dtF, bossAlive) {
         if (dist < 25) {
             coin.collected = true;
             g.coinsCollected += coin.value;
-            playerData.coins += coin.value;
-            addStat('totalCoinsEarned', coin.value);
-            markPlayerDataDirty();
+            if (!g.isTutorial) {
+                playerData.coins += coin.value;
+                addStat('totalCoinsEarned', coin.value);
+                markPlayerDataDirty();
+            }
             // Pickup effect — golden burst with speed lines
             const cp = project(coin.x, coin.z - g.cameraZ);
             addScorePopup(`🪙+${coin.value}`, cp.x, cp.y - 20, 0xffd700);
@@ -244,9 +245,11 @@ function updateWorld(g, dt, dtF, bossAlive) {
         if (gdist < 25) {
             gem.collected = true;
             g.gemsCollected += gem.value;
-            playerData.gems = (playerData.gems || 0) + gem.value;
-            addStat('totalGemsEarned', gem.value);
-            markPlayerDataDirty();
+            if (!g.isTutorial) {
+                playerData.gems = (playerData.gems || 0) + gem.value;
+                addStat('totalGemsEarned', gem.value);
+                markPlayerDataDirty();
+            }
             // Pickup effect — purple explosion with blast ring + speed lines
             const gp = project(gem.x, gem.z - g.cameraZ);
             addScorePopup(`💎+${gem.value}`, gp.x, gp.y - 25, 0xcc44ff);

@@ -22,7 +22,7 @@ function createGame() {
         shootTimer: 0,
         nextWaveZ: CONFIG.SPAWN_DISTANCE,
         nextGateZ: CONFIG.SPAWN_DISTANCE + 150,
-        shakeX: 0, shakeY: 0, shakeTimer: 0,
+        shakeX: 0, shakeY: 0, shakeTimer: 0, shakePower: 0,
         inputX: null,
         roadSegments: generateRoadDecor(),
         clouds: generateClouds(),

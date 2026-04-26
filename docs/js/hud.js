@@ -103,7 +103,10 @@ function updateHUD() {
         _drawWeaponHUD();
     }
 
-    drawSkillHud();
+    if (typeof updateWeaponSlots === 'function') {
+        updateWeaponSlots();
+    }
+
     drawTutorialHint();
 }
 
@@ -130,101 +133,6 @@ function _drawWeaponHUD() {
 }
 
 // ============================================================
-// SKILL HUD (top-left corner)
-// ============================================================
-function drawSkillHud() {
-    const g = game;
-    const skills = [];
-    const charges = playerData.weaponCharges || {};
-
-    const invN = charges['invincibility'] || 0;
-    if (invN > 0 || g.shieldActive || g.skillCooldown > 0) {
-        const inv = SHOP_WEAPONS['invincibility'];
-        skills.push({
-            icon: '\u{1F6E1}\uFE0F', hotkey: inv ? inv.hotkey : '1',
-            charges: invN, active: g.shieldActive,
-            activeTimer: g.shieldTimer, activeDuration: (inv ? inv.duration : 4) * 1000,
-            cooldown: g.skillCooldown, cooldownMax: SKILL_SHARED_COOLDOWN * 1000,
-            color: 0xffdd44, colorStr: '#ffdd44',
-        });
-    }
-    const stimN = charges['stimulant'] || 0;
-    if (stimN > 0 || g.stimulantActive || g.stimulantCooldown > 0) {
-        const stim = SHOP_WEAPONS['stimulant'];
-        skills.push({
-            icon: '\u{1F49A}', hotkey: stim ? stim.hotkey : '2',
-            charges: stimN, active: g.stimulantActive,
-            activeTimer: g.stimulantTimer, activeDuration: (stim ? stim.duration : 10) * 1000,
-            cooldown: g.stimulantCooldown, cooldownMax: SKILL_SHARED_COOLDOWN * 1000,
-            color: 0x44ff88, colorStr: '#44ff88',
-        });
-    }
-    if (skills.length === 0) return;
-
-    const slotW = 100, slotH = 50, slotGap = 6, marginX = 8, marginY = 8;
-    const now = Date.now();
-
-    skills.forEach((sk, i) => {
-        const sx = marginX + i * (slotW + slotGap);
-        const sy = marginY;
-        const isActive = sk.active;
-        const isOnCD = !isActive && sk.cooldown > 0;
-        const isReady = !isActive && !isOnCD && sk.charges > 0;
-
-        // Outer glow
-        if (isActive || isReady) {
-            const pulse = isActive ? 0.20 + Math.sin(now * 0.006) * 0.08 : 0.12 + Math.sin(now * 0.004) * 0.05;
-            hexFill(sk.color, Math.floor(pulse * 255)); noStroke();
-            rect(sx - 4, sy - 4, slotW + 8, slotH + 8, 9);
-        }
-        // Dark base
-        hexFill(0x050a14, Math.floor(0.88 * 255)); noStroke(); rect(sx, sy, slotW, slotH, 6);
-        hexFill(sk.color, Math.floor((isActive ? 0.28 : isReady ? 0.22 : 0.04) * 255));
-        rect(sx, sy, slotW, slotH, 6);
-        hexStroke(isActive || isReady ? sk.color : 0x2a3a4a,
-            Math.floor((isActive ? 1.0 : isReady ? 0.95 : 0.25) * 255));
-        strokeWeight(2); noFill(); rect(sx, sy, slotW, slotH, 6);
-
-        // Bottom bar
-        const barX = sx + 5, barY = sy + slotH - 7, barW = slotW - 10, barH = 4;
-        hexFill(0x0a1020, 230); noStroke(); rect(barX, barY, barW, barH, 2);
-        if (isActive) {
-            hexFill(sk.color, 255);
-            rect(barX, barY, Math.max(3, barW * Math.max(0, sk.activeTimer / sk.activeDuration)), barH, 2);
-        } else if (isOnCD) {
-            hexFill(0x556677, 204);
-            rect(barX, barY, Math.max(3, barW * Math.max(0, 1 - sk.cooldown / sk.cooldownMax)), barH, 2);
-        } else if (isReady) {
-            hexFill(sk.color, 204); rect(barX, barY, barW, barH, 2);
-        }
-
-        // Icon (emoji)
-        push();
-        textFont('Arial'); textSize(20); textStyle(NORMAL); textAlign(CENTER, CENTER);
-        hexFill(0xffffff, Math.floor((isReady || isActive ? 1 : 0.3) * 255)); noStroke();
-        text(sk.icon, sx + 19, sy + 20);
-        pop();
-
-        // Value / timer text
-        let valStr, valColor;
-        if (isActive) { valStr = `${Math.ceil(sk.activeTimer / 1000)}s`; valColor = sk.color; }
-        else if (isOnCD) { valStr = `${Math.ceil(sk.cooldown / 1000)}s`; valColor = 0x667788; }
-        else { valStr = `x${sk.charges}`; valColor = isReady ? 0xffffff : 0x445566; }
-        const valAlpha = Math.floor((isReady || isActive ? 1 : 0.4) * 255);
-        _hudText(valStr, sx + 35 + slotW * 0.2, sy + 19, 16, valColor, LEFT, true, true);
-
-        // Hotkey top-right
-        _hudText(`[${sk.hotkey}]`, sx + slotW - 3, sy + 8, 12, isReady || isActive ? sk.color : 0x445566, RIGHT, true, false);
-
-        // State label bottom-left
-        if (!isReady) {
-            const stateStr = isActive ? 'ACTIVE' : isOnCD ? 'COOLDOWN' : 'NO CHARGE';
-            const stateColor = isActive ? sk.color : isOnCD ? 0x667788 : 0x334455;
-            _hudText(stateStr, sx + 5, sy + 37, 9, stateColor, LEFT, false, false);
-        }
-    });
-}
-
 // ============================================================
 // BOSS HP BAR (below score HUD)
 // ============================================================
@@ -449,11 +357,14 @@ function drawDamageNumbers() {
         if (relZ < -20) return;
         const p = project(d.x, Math.max(0, relZ));
         const t = d.life / d.maxLife;
+        const size = (d.crit ? 20 : 16) + (1 - t) * (d.crit ? 8 : 4) + (d.scaleBoost || 0) * 8;
+        const xJitter = d.crit ? Math.sin((1 - t) * 18) * 2.5 : 0;
         push();
-        textFont('Arial'); textSize(16 + (1 - t) * 4); textStyle(BOLD); textAlign(CENTER, CENTER);
-        drawingContext.shadowColor = 'rgba(0,0,0,0.9)'; drawingContext.shadowBlur = 3;
+        textFont('Arial'); textSize(size); textStyle(BOLD); textAlign(CENTER, CENTER);
+        drawingContext.shadowColor = d.crit ? 'rgba(255,196,75,0.95)' : 'rgba(0,0,0,0.9)';
+        drawingContext.shadowBlur = d.crit ? 10 : 3;
         hexFill(d.color, Math.floor(t * 255)); noStroke();
-        text(String(d.value), p.x, p.y + d.offsetY);
+        text(`${d.prefix || ''}${d.value}`, p.x + xJitter, p.y + d.offsetY);
         drawingContext.shadowBlur = 0; drawingContext.shadowColor = 'transparent';
         pop();
     });

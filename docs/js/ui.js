@@ -23,6 +23,11 @@ function resumeGame() {
 
 function restartFromPause() {
     hidePauseMenu();
+    if (game && game.isTutorial) {
+        restoreTutorialWeaponCharges();
+        startGame(0);
+        return;
+    }
     startGameWithLevel(game ? (game.currentLevel || 1) : 1);
 }
 
@@ -30,12 +35,16 @@ function menuFromPause() {
     hidePauseMenu();
     stopBGM();
     if (game) {
+        if (game.isTutorial) restoreTutorialWeaponCharges();
+        const currentLvl = game.currentLevel || 1;
         playerData.level = game.level;
         playerData.exp = game.exp;
         flushPlayerDataSave(true);
         savePlayerData(playerData);
-        saveHighScore(game.score, game.wave);
-        syncHighScore();
+        if (!game.isTutorial) {
+            saveLevelAwareHighScore(currentLvl, game.score, game.wave);
+            syncHighScore();
+        }
     }
     const slotsDiv = document.getElementById('weaponSlots');
     if (slotsDiv) slotsDiv.style.display = 'none';
@@ -212,7 +221,15 @@ function triggerLevelComplete() {
             <button class="btn" onclick="restoreMainMenu()">${T('levelcomplete.mainmenu')}</button>
         </div>
     `;
-    saveHighScore(g.score, g.wave - 1);
+    if (isL2Clear) {
+        const prev = playerData.l2HighScore || { score: 0, wave: 0 };
+        if (isBetterRunRecord(g.score, g.wave - 1, prev)) {
+            playerData.l2HighScore = { score: g.score, wave: g.wave - 1 };
+            savePlayerData(playerData);
+        }
+    } else {
+        saveHighScore(g.score, g.wave - 1);
+    }
     syncHighScore();
     const slotsDiv = document.getElementById('weaponSlots');
     if (slotsDiv) slotsDiv.style.display = 'none';
@@ -240,10 +257,8 @@ function startGame(level) {
     game.skillCooldown = 0;
     spawnEnemyWave();
     overlay.classList.add('hidden');
-    const skillBtn = document.getElementById('skillBtn');
-    if (skillBtn) skillBtn.style.display = 'none';
-    const slotsDiv = document.getElementById('weaponSlots');
-    if (slotsDiv) slotsDiv.style.display = 'none';
+    initWeaponSlots();
+    updateWeaponSlots();
     _skyBgW = 0; _skyBgH = 0; _skyBgLevel = 0;
     resetAchTempFlags();
     // Start BGM matching current level (tutorial uses L1 track)
@@ -267,7 +282,7 @@ function activateInvincibility() {
     if (charges <= 0) return;
     const shopW = SHOP_WEAPONS['invincibility'];
     playerData.weaponCharges['invincibility'] = charges - 1;
-    savePlayerData(playerData);
+    if (!g.isTutorial) savePlayerData(playerData);
     g.shieldActive = true;
     g.shieldTimer = shopW.duration * 1000;
     g.skillCooldown = SKILL_SHARED_COOLDOWN * 1000;
@@ -287,7 +302,7 @@ function activateStimulant() {
     if (charges <= 0) return;
     const shopW = SHOP_WEAPONS['stimulant'];
     playerData.weaponCharges['stimulant'] = charges - 1;
-    savePlayerData(playerData);
+    if (!g.isTutorial) savePlayerData(playerData);
     g.stimulantActive = true;
     g.stimulantTimer = shopW.duration * 1000;
     g.stimulantCooldown = 0;
@@ -310,23 +325,33 @@ function activateSkillWeapon() {
 // ============================================================
 // WEAPON SLOTS
 // ============================================================
+// Panel auto-manages itself: the current-weapon badge is always shown,
+// each skill tile (shield / frenzy) is shown only when it has something
+// to surface (≥1 charge, currently active, or on cooldown). No manual
+// collapse toggle and no persisted state.
+
 function initWeaponSlots() {
     const slotsDiv = document.getElementById('weaponSlots');
     if (!slotsDiv) return;
     slotsDiv.innerHTML = '';
-    for (const [key, w] of Object.entries(SHOP_WEAPONS)) {
-        if (w.defenseOnly) continue;
-        const slot = document.createElement('div');
-        slot.className = 'wslot';
-        slot.dataset.weapon = key;
-        slot.style.setProperty('--wcolor', w.color);
-        slot.innerHTML = `
-            <div class="wslot-icon">${w.icon}</div>
-            <div class="wslot-level" style="font-size:10px;color:rgba(255,255,255,0.4)">LOCKED</div>
-            <div class="wslot-equipped" style="font-size:9px;color:#ffd700;min-height:12px"></div>
-        `;
-        slotsDiv.appendChild(slot);
-    }
+
+    const currentBadge = document.createElement('div');
+    currentBadge.id = 'currentWeaponBadge';
+    currentBadge.className = 'current-weapon-badge';
+    currentBadge.innerHTML = `
+        <div class="current-weapon-label">${T('hud.current.weapon')}</div>
+        <div class="current-weapon-main" style="--cw-color:#ffff88;">
+            <div class="current-weapon-icon"></div>
+            <div class="current-weapon-name">-</div>
+            <div class="current-weapon-meta"></div>
+        </div>
+    `;
+    slotsDiv.appendChild(currentBadge);
+    // Temp-weapon slots (shotgun / laser / rocket) used to live here but
+    // were passive — non-interactive, and the current-weapon badge above
+    // already surfaces whichever temp weapon is firing. Skill slots below
+    // are the only entries the player can act on, so the panel only
+    // renders those now.
     for (const key of ['invincibility', 'stimulant']) {
         const sw = SHOP_WEAPONS[key];
         const slot = document.createElement('div');
@@ -341,9 +366,71 @@ function initWeaponSlots() {
             <div class="wslot-cd"></div>
         `;
         slot.addEventListener('click', () => activateWeaponByKey(key));
+        // Hidden by default; updateWeaponSlots reveals each tile when it
+        // becomes relevant (charges, active, or cooldown).
+        slot.style.display = 'none';
         slotsDiv.appendChild(slot);
     }
     slotsDiv.style.display = 'flex';
+}
+
+function _getCurrentWeaponDisplay() {
+    if (!game) {
+        return {
+            icon: '',
+            name: '-',
+            color: '#ffff88',
+            meta: '',
+        };
+    }
+
+    const g = game;
+    const wKey = g.weapon || 'pistol';
+    const isTemp = wKey !== 'pistol' && g.weaponTimer > 0;
+
+    if (wKey === 'pistol') {
+        const tierIdx = playerData.equippedPistolTier || 0;
+        const tier = PISTOL_TIERS[tierIdx] || PISTOL_TIERS[0];
+        return {
+            icon: tier.icon || '',
+            name: T('pistol.' + tierIdx + '.name'),
+            color: tier.colorStr || '#ffff88',
+            meta: '',
+        };
+    }
+
+    const def = SHOP_WEAPONS[wKey] || {};
+    const tempWeaponDisplayNames = {
+        shotgun: 'Shotgun',
+        laser: 'Laser',
+        rocket: 'Rocket',
+    };
+    const fallbackName = tempWeaponDisplayNames[wKey] || def.name || wKey.toUpperCase();
+    return {
+        icon: def.icon || '',
+        name: tempWeaponDisplayNames[wKey] || fallbackName,
+        color: def.color || '#ffffff',
+        meta: '',
+    };
+}
+
+function updateCurrentWeaponBadge() {
+    const badge = document.getElementById('currentWeaponBadge');
+    if (!badge) return;
+
+    const labelEl = badge.querySelector('.current-weapon-label');
+    if (labelEl) labelEl.textContent = T('hud.current.weapon');
+
+    const data = _getCurrentWeaponDisplay();
+    const main = badge.querySelector('.current-weapon-main');
+    const iconEl = badge.querySelector('.current-weapon-icon');
+    const nameEl = badge.querySelector('.current-weapon-name');
+    const metaEl = badge.querySelector('.current-weapon-meta');
+
+    if (main) main.style.setProperty('--cw-color', data.color);
+    if (iconEl) iconEl.innerHTML = data.icon;
+    if (nameEl) nameEl.textContent = data.name;
+    if (metaEl) metaEl.textContent = data.meta || '';
 }
 
 function updateWeaponSlots() {
@@ -351,58 +438,49 @@ function updateWeaponSlots() {
     const g = game;
     const slotsDiv = document.getElementById('weaponSlots');
     if (!slotsDiv || slotsDiv.style.display === 'none') return;
-    const levels = playerData.weaponLevels || {};
+    updateCurrentWeaponBadge();
     const charges = playerData.weaponCharges || {};
     slotsDiv.querySelectorAll('.wslot').forEach(slot => {
         const key = slot.dataset.weapon;
         const w = SHOP_WEAPONS[key];
         if (!w) return;
-        if (key === 'invincibility' || key === 'stimulant') {
-            const count = charges[key] || 0;
-            const isActive = key === 'invincibility' ? g.shieldActive : g.stimulantActive;
-            const isOnCooldown = key === 'invincibility' ? (g.skillCooldown > 0) : (g.stimulantCooldown > 0);
-            const activeTimer = key === 'invincibility' ? g.shieldTimer : g.stimulantTimer;
-            const activeDuration = (key === 'invincibility' ? WEAPON_DEFS['invincibility'].duration : SHOP_WEAPONS['stimulant'].duration) * 1000;
-            const cdSec = Math.ceil((key === 'invincibility' ? g.skillCooldown : g.stimulantCooldown) / 1000);
-            const countEl = slot.querySelector('.wslot-count');
-            if (countEl) {
-                countEl.textContent = `\u00D7${count}`;
-                countEl.style.color = isActive ? '#ffd700' : (!isOnCooldown && count > 0) ? w.color : 'rgba(255,255,255,0.5)';
-            }
-            const cdEl = slot.querySelector('.wslot-cd');
-            if (cdEl) {
-                if (isActive) { cdEl.textContent = Math.ceil(activeTimer / 1000) + 's'; cdEl.style.color = '#ffd700'; cdEl.style.display = 'flex'; }
-                else if (isOnCooldown) { cdEl.textContent = cdSec + 's'; cdEl.style.color = '#999'; cdEl.style.display = 'flex'; }
-                else { cdEl.style.display = 'none'; }
-            }
-            const barFill = slot.querySelector('.wslot-bar-fill');
-            if (barFill) {
-                if (isActive) {
-                    barFill.style.width = Math.max(0, activeTimer / activeDuration) * 100 + '%';
-                    barFill.style.background = w.color;
-                    slot.querySelector('.wslot-bar').style.display = 'block';
-                } else { slot.querySelector('.wslot-bar').style.display = 'none'; }
-            }
-            slot.className = 'wslot';
-            if (isActive) { slot.classList.add('wslot-active'); slot.style.borderColor = '#ffd700'; }
-            else if (count <= 0) { slot.classList.add('wslot-empty'); slot.style.borderColor = 'rgba(255,255,255,0.08)'; }
-            else if (isOnCooldown) { slot.classList.add('wslot-dim'); slot.style.borderColor = 'rgba(255,255,255,0.12)'; }
-            else { slot.classList.add('wslot-ready'); slot.style.borderColor = w.color; }
-        } else {
-            const level = levels[key] || 0;
-            const isGateActive = g.weapon === key && g.weaponTimer > 0;
-            const levelEl = slot.querySelector('.wslot-level');
-            if (levelEl) {
-                levelEl.textContent = level > 0 ? ('\u2605'.repeat(level) + '\u2606'.repeat(3 - level)) : 'LOCKED';
-                levelEl.style.color = level > 0 ? w.color : 'rgba(255,255,255,0.3)';
-            }
-            const equippedEl = slot.querySelector('.wslot-equipped');
-            if (equippedEl) equippedEl.textContent = isGateActive ? 'TEMP' : '';
-            slot.className = 'wslot';
-            if (isGateActive) { slot.classList.add('wslot-active'); slot.style.borderColor = '#ffd700'; }
-            else if (level <= 0) { slot.classList.add('wslot-empty'); slot.style.borderColor = 'rgba(255,255,255,0.08)'; }
-            else { slot.classList.add('wslot-ready'); slot.style.borderColor = w.color; }
+        const count = charges[key] || 0;
+        const isActive = key === 'invincibility' ? g.shieldActive : g.stimulantActive;
+        const isOnCooldown = key === 'invincibility' ? (g.skillCooldown > 0) : (g.stimulantCooldown > 0);
+        // Auto-hide when the slot has nothing to surface — fresh runs start
+        // with both tiles invisible; they materialise the moment the player
+        // owns a charge, triggers it, or it enters cooldown.
+        if (count <= 0 && !isActive && !isOnCooldown) {
+            slot.style.display = 'none';
+            return;
         }
+        slot.style.display = 'flex';
+        const activeTimer = key === 'invincibility' ? g.shieldTimer : g.stimulantTimer;
+        const activeDuration = (key === 'invincibility' ? WEAPON_DEFS['invincibility'].duration : SHOP_WEAPONS['stimulant'].duration) * 1000;
+        const cdSec = Math.ceil((key === 'invincibility' ? g.skillCooldown : g.stimulantCooldown) / 1000);
+        const countEl = slot.querySelector('.wslot-count');
+        if (countEl) {
+            countEl.textContent = `\u00D7${count}`;
+            countEl.style.color = isActive ? '#ffd700' : (!isOnCooldown && count > 0) ? w.color : 'rgba(255,255,255,0.5)';
+        }
+        const cdEl = slot.querySelector('.wslot-cd');
+        if (cdEl) {
+            if (isActive) { cdEl.textContent = Math.ceil(activeTimer / 1000) + 's'; cdEl.style.color = '#ffd700'; cdEl.style.display = 'flex'; }
+            else if (isOnCooldown) { cdEl.textContent = cdSec + 's'; cdEl.style.color = '#999'; cdEl.style.display = 'flex'; }
+            else { cdEl.style.display = 'none'; }
+        }
+        const barFill = slot.querySelector('.wslot-bar-fill');
+        if (barFill) {
+            if (isActive) {
+                barFill.style.width = Math.max(0, activeTimer / activeDuration) * 100 + '%';
+                barFill.style.background = w.color;
+                slot.querySelector('.wslot-bar').style.display = 'block';
+            } else { slot.querySelector('.wslot-bar').style.display = 'none'; }
+        }
+        slot.className = 'wslot';
+        if (isActive) { slot.classList.add('wslot-active'); slot.style.borderColor = '#ffd700'; }
+        else if (isOnCooldown) { slot.classList.add('wslot-dim'); slot.style.borderColor = 'rgba(255,255,255,0.12)'; }
+        else { slot.classList.add('wslot-ready'); slot.style.borderColor = w.color; }
     });
 }
 
@@ -430,11 +508,30 @@ function getHighScore() {
 
 function saveHighScore(score, wave) {
     const prev = getHighScore();
-    if (score > prev.score) {
+    if (isBetterRunRecord(score, wave, prev)) {
         _signedSave('bridgeAssault_highScore', { score, wave });
         return true;
     }
     return false;
+}
+
+function isBetterRunRecord(score, wave, prev) {
+    const prevScore = prev && prev.score ? prev.score : 0;
+    const prevWave = prev && prev.wave ? prev.wave : 0;
+    return score > prevScore || (score === prevScore && wave > prevWave);
+}
+
+function saveLevelAwareHighScore(level, score, wave) {
+    if ((level || 1) === 2) {
+        const prev = playerData.l2HighScore || { score: 0, wave: 0 };
+        if (isBetterRunRecord(score, wave, prev)) {
+            playerData.l2HighScore = { score, wave };
+            savePlayerData(playerData);
+            return true;
+        }
+        return false;
+    }
+    return saveHighScore(score, wave);
 }
 
 // ============================================================
@@ -517,6 +614,7 @@ function showGameOver() {
     // Tutorial: don't treat death as a "game over" — quietly restart the
     // tutorial from wave 1 so the player can keep learning.
     if (game && game.isTutorial) {
+        restoreTutorialWeaponCharges();
         const slotsDiv = document.getElementById('weaponSlots');
         if (slotsDiv) slotsDiv.style.display = 'none';
         startGame(0);
@@ -528,25 +626,15 @@ function showGameOver() {
     savePlayerData(playerData);
     updateEndOfGameStats();
     const currentLvl = game.currentLevel || 1;
-    let isNewRecord;
-    if (currentLvl === 2) {
-        const prev = playerData.l2HighScore || { score: 0, wave: 0 };
-        if (game.score > prev.score) {
-            playerData.l2HighScore = { score: game.score, wave: game.wave };
-            savePlayerData(playerData);
-            isNewRecord = true;
-        } else { isNewRecord = false; }
-    } else {
-        isNewRecord = saveHighScore(game.score, game.wave);
-    }
+    const isNewRecord = saveLevelAwareHighScore(currentLvl, game.score, game.wave);
     syncHighScore();
-    const hs = getHighScore();
+    const hs = currentLvl === 2
+        ? (playerData.l2HighScore || { score: 0, wave: 0 })
+        : getHighScore();
     overlay.classList.remove('hidden');
     document.getElementById('midShopOverlay').classList.add('hidden');
     const slotsDiv = document.getElementById('weaponSlots');
     if (slotsDiv) slotsDiv.style.display = 'none';
-    const skillBtn = document.getElementById('skillBtn');
-    if (skillBtn) skillBtn.style.display = 'none';
     overlay.innerHTML = `
         <h1>${T('gameover.title')}</h1>
         <div id="scoreDisplay">${T('gameover.score')}</div>
