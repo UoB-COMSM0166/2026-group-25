@@ -7,9 +7,15 @@
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="stylesheet" href="style.css?v=22">
 <style>
-/* p5.js canvas sits behind all overlays.
-   Use "body > canvas" to target only the p5 canvas (direct child of body),
-   NOT the level-select mini-canvases which are nested inside divs. */
+/* p5.js 1.11 wraps the default canvas in body > main. Keep that main
+   canvas fixed behind overlays without touching level-select mini-canvases. */
+body > main {
+    position: fixed !important;
+    inset: 0;
+    z-index: 0;
+    display: block;
+}
+body > main > canvas,
 body > canvas {
     position: fixed !important;
     top: 0; left: 0;
