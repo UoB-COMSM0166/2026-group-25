@@ -140,7 +140,11 @@ function updateBulletCollisions(g, dtF) {
                     b.x = e.x; b.z = e.z;
                     b.dead = true; b.deathTimer = 3;
                     addExplosion(b.x, b.z);
-                    g.shakeTimer = 8; g.screenFlash = 0.3;
+                    g.explosions.push({ x: b.x, z: b.z, timer: 0, maxTimer: 35, isBlastRing: true, radius: b.aoeRadius });
+                    g.explosions.push({ x: b.x, z: b.z, timer: 0, maxTimer: 25, isBlastRing: true, radius: b.aoeRadius * 0.6 });
+                    addParticles(b.x, b.z, 15, 0xffaa00, 4, 35);
+                    addParticles(b.x, b.z, 10, 0xffffff, 3, 20);
+                    g.shakeTimer = 12; g.screenFlash = 0.5;
                     playSound('explosion');
                     g.enemies.forEach(other => {
                         if (!other.alive || other === e) return;
@@ -199,7 +203,30 @@ function updateBulletCollisions(g, dtF) {
                 segMaxX >= br.x - 18 && segMinX <= br.x + 18) {
                 br.hp--;
                 addParticles(br.x, br.z, 3, 0xff8800, 2, 10);
-                if (!b.pierce) { b.x = br.x; b.z = br.z; b.dead = true; b.deathTimer = 3; }
+                if (b.aoeRadius) {
+                    b.x = br.x; b.z = br.z;
+                    b.dead = true; b.deathTimer = 3;
+                    addExplosion(b.x, b.z);
+                    g.explosions.push({ x: b.x, z: b.z, timer: 0, maxTimer: 35, isBlastRing: true, radius: b.aoeRadius });
+                    g.explosions.push({ x: b.x, z: b.z, timer: 0, maxTimer: 25, isBlastRing: true, radius: b.aoeRadius * 0.6 });
+                    addParticles(b.x, b.z, 15, 0xffaa00, 4, 35);
+                    addParticles(b.x, b.z, 10, 0xffffff, 3, 20);
+                    g.shakeTimer = 12; g.screenFlash = 0.5;
+                    playSound('explosion');
+                    g.enemies.forEach(other => {
+                        if (!other.alive) return;
+                        const adx = Math.abs(other.x - b.x), adz = Math.abs(other.z - b.z);
+                        if (adx < b.aoeRadius && adz < b.aoeRadius) {
+                            const dist = Math.sqrt(adx * adx + adz * adz);
+                            const falloff = Math.max(0.3, 1 - dist / b.aoeRadius * 0.7);
+                            const aoeDmg = Math.max(1, Math.floor((b.damage || 1) * falloff));
+                            other.hp -= aoeDmg; other.hitFlash = 4;
+                            if (other.hp <= 0) { processEnemyKill(g, other, { skipSound: true }); }
+                        }
+                    });
+                } else if (!b.pierce) { 
+                    b.x = br.x; b.z = br.z; b.dead = true; b.deathTimer = 3; 
+                }
                 if (br.hp <= 0) explodeBarrel(br);
                 if (!b.pierce) break;
             }
