@@ -48,9 +48,20 @@ function setupInput() {
     });
     document.addEventListener('keyup', (e) => { keys[e.key] = false; });
     window.addEventListener('blur', clearKeys);
+    // Flush any pending save when the page goes to the background or is
+    // about to be unloaded — flushPlayerDataSave is throttled to ~3s
+    // during the normal frame loop, which leaves a window where freshly
+    // earned coins / gems can be lost if the tab is closed quickly.
+    const _flushOnLeave = () => {
+        try { if (typeof flushPlayerDataSave === 'function') flushPlayerDataSave(true); } catch (_) {}
+    };
     document.addEventListener('visibilitychange', () => {
-        if (document.hidden) clearKeys();
+        if (document.hidden) {
+            clearKeys();
+            _flushOnLeave();
+        }
     });
+    window.addEventListener('pagehide', _flushOnLeave);
 
     // Pause button
     const pauseBtn = document.getElementById('pauseBtn');
