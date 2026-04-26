@@ -29,8 +29,9 @@ function updateEffects(g, dt, dtF) {
     const particleLimit = _proj.isMobile ? 120 : (frameMs > 30 ? 150 : frameMs > 22 ? 250 : 400);
     if (g.particles.length > particleLimit) g.particles.splice(0, g.particles.length - Math.floor(particleLimit * 0.75));
 
-    // Explosions
-    g.explosions.forEach(e => e.timer++);
+    // Explosions — use dtF so duration stays wall-clock-stable when the
+    // frame rate dips (every other timer in this file already uses dtF).
+    g.explosions.forEach(e => e.timer += dtF);
     g.explosions = g.explosions.filter(e => e.timer < e.maxTimer);
     if (g.explosions.length > 40) g.explosions.splice(0, g.explosions.length - 30);
 
