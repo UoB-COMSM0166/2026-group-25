@@ -258,6 +258,23 @@ const ACH_CATEGORIES = [
     { key: 'special',      name: 'Special',     color: '#cc44ff' },
 ];
 
+function _achText(key, fallback) {
+    const translated = T(key);
+    return translated === key ? fallback : translated;
+}
+
+function _achCategoryName(cat) {
+    return _achText(`ach.cat.${cat.key}`, cat.name);
+}
+
+function _achName(id, def) {
+    return _achText(`ach.${id}.name`, def.name);
+}
+
+function _achDesc(id, def, tierIndex) {
+    return _achText(`ach.${id}.desc.${tierIndex + 1}`, def.desc[tierIndex]);
+}
+
 // Temporary per-run flags (reset at game start)
 let _achTempFlags = {};
 
@@ -278,8 +295,16 @@ function _queueAchToast(achId, tier) {
     const def = ACHIEVEMENTS[achId];
     if (!def) return;
     const reward = def.rewards[tier - 1];
-    const rewardText = reward.coins ? `+${reward.coins} coins` : `+${reward.gems} gems`;
-    _achToastQueue.push({ id: achId, name: def.name, tier, desc: def.desc[tier - 1], reward: rewardText });
+    const rewardText = reward.coins
+        ? `+${reward.coins} ${T('ach.reward.coins')}`
+        : `+${reward.gems} ${T('ach.reward.gems')}`;
+    _achToastQueue.push({
+        id: achId,
+        name: _achName(achId, def),
+        tier,
+        desc: _achDesc(achId, def, tier - 1),
+        reward: rewardText
+    });
 }
 
 // --- Core: check & unlock ---
@@ -472,7 +497,7 @@ function showAchievementPanel() {
             <div id="achTabs">`;
 
     for (const cat of ACH_CATEGORIES) {
-        html += `<button class="ach-tab" data-cat="${cat.key}" onclick="_achSwitchTab('${cat.key}')">${cat.name}</button>`;
+        html += `<button class="ach-tab" data-cat="${cat.key}" onclick="_achSwitchTab('${cat.key}')">${_achCategoryName(cat)}</button>`;
     }
 
     html += `</div><div id="achScrollArea">`;
@@ -504,8 +529,8 @@ function showAchievementPanel() {
                 html += `<div class="${cls}">
                     <div class="ach-item-icon" style="background:${cat.color}22;border:2px solid ${cat.color}">${_ACH_SVG[_ACH_ICON_MAP[cat.key]] || _ACH_SVG.star}</div>
                     <div class="ach-item-info">
-                        <div class="ach-item-name">${def.name}${tierLabel}</div>
-                        <div class="ach-item-desc">${def.desc[t]}</div>
+                        <div class="ach-item-name">${_achName(id, def)}${tierLabel}</div>
+                        <div class="ach-item-desc">${_achDesc(id, def, t)}</div>
                         <div class="ach-item-bar-row">
                             <div class="ach-item-bar"><div class="ach-item-bar-fill" style="width:${pct}%;background:${unlocked ? '#ffd700' : cat.color}"></div></div>
                             <span class="ach-item-progress">${progress} / ${goal}</span>
