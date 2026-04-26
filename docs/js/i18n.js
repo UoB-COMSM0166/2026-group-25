@@ -48,7 +48,11 @@ function applyLang() {
         if (typeof renderShop === 'function') renderShop();
     }
 
-    // Mid-shop: title/subtitle/button are data-i18n handled above
+    // Mid-shop dynamic stats/options are rendered strings, so refresh them too.
+    const midShopEl = document.getElementById('midShopOverlay');
+    if (midShopEl && !midShopEl.classList.contains('hidden')) {
+        if (typeof renderMidShop === 'function') renderMidShop();
+    }
 
     // If leaderboard is open, re-render it
     const lbEl = document.getElementById('leaderboardOverlay');
