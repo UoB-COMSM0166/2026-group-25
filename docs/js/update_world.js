@@ -141,11 +141,17 @@ function updateWorld(g, dt, dtF, bossAlive) {
     }
     if (g.cameraZ + CONFIG.SPAWN_DISTANCE > g.nextGateZ) spawnGate();
 
-    // Barrel chain reaction timers
+    // Barrel chain reaction timers — fire when the timer reaches 0 or
+    // crosses below it. The previous `=== 0` branch could be skipped
+    // entirely when dtF was not a whole number (50fps -> 1.2, 75fps -> 0.8),
+    // because the float decrement jumped from positive to negative without
+    // hitting 0 exactly, leaving the chain barrel inert.
     g.barrels.forEach(br => {
         if (!br.alive || br.chainTimer < 0) return;
-        if (br.chainTimer > 0) { br.chainTimer -= dtF; }
-        else if (br.chainTimer === 0) { br.chainTimer = -1; explodeBarrel(br); }
+        if (br.chainTimer > 0) {
+            br.chainTimer -= dtF;
+            if (br.chainTimer <= 0) { br.chainTimer = -1; explodeBarrel(br); }
+        }
     });
 
     // Barrel smoke/sparks for damaged barrels — probabilistic emission keyed
