@@ -4,7 +4,12 @@
 function updateWorld(g, dt, dtF, bossAlive) {
     // Gate collision
     g.gates.forEach(gate => {
-        if (gate.triggered && gate.fadeTimer > 0) { gate.fadeTimer--; return; }
+        if (gate.triggered && gate.fadeTimer > 0) {
+            // Use dtF so the fade duration stays wall-clock-stable when the
+            // frame rate dips (matches the rest of the effect timers).
+            gate.fadeTimer = Math.max(0, gate.fadeTimer - dtF);
+            return;
+        }
         if (gate.triggered) return;
         const relZ = gate.z - g.cameraZ;
         if (relZ <= 8 && relZ > -25) {
