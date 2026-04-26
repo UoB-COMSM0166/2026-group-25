@@ -1164,10 +1164,15 @@ function drawGateFloatingText() {
     const t = g.gateText;
     const progress = t.timer / t.maxTimer;
     const a = progress > 0.6 ? 1 - (progress - 0.6) / 0.4 : 1;
-    const yPos = screenH * 0.35 - progress * 40;
+    // Sit over the road plate, not over the boss HP bar / wave banner that
+    // now share the upper half with the new level backdrops.
+    const yPos = screenH * 0.52 - progress * 40;
     push();
     textFont('Arial');
-    textSize(Math.floor(42 * t.scale));
+    // Cap peak font size so "-3 TROOPS" etc. don't span half the screen on
+    // wide displays. t.scale ramps to 1.8 in update_effects.js, which gave
+    // 76px before the cap.
+    textSize(Math.min(54, Math.floor(42 * t.scale)));
     textStyle(BOLD);
     textAlign(CENTER, CENTER);
     // Shadow
@@ -1190,7 +1195,9 @@ function drawBarrelExplosionTexts() {
         if (a <= 0) return;
         push();
         textFont('Arial');
-        textSize(Math.floor(36 * t.scale));
+        // Cap peak font size — t.scale ramps to 2.2 in update_effects.js,
+        // which produced ~79px without a clamp.
+        textSize(Math.min(48, Math.floor(36 * t.scale)));
         textStyle(BOLD);
         textAlign(CENTER, CENTER);
         hexFill(0x000000, Math.floor(a * 0.5 * 255)); noStroke();
