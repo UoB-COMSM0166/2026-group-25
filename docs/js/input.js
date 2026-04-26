@@ -65,6 +65,7 @@ function setupInput() {
 
     // Pause button
     const pauseBtn = document.getElementById('pauseBtn');
+    if (!pauseBtn) return;
     if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
         pauseBtn.style.display = 'block';
     }
@@ -98,13 +99,15 @@ function mouseMoved() {
 function touchMoved() {
     if (game && game.state === 'playing' && touches.length > 0) {
         game.inputX = Math.max(-CONFIG.ROAD_HALF_WIDTH, Math.min(CONFIG.ROAD_HALF_WIDTH, _getWorldX(touches[0].x)));
+        return false;
     }
-    return false;
+    return true;
 }
 
 function touchStarted() {
     if (game && game.state === 'playing' && touches.length > 0) {
         game.inputX = Math.max(-CONFIG.ROAD_HALF_WIDTH, Math.min(CONFIG.ROAD_HALF_WIDTH, _getWorldX(touches[0].x)));
+        return false;
     }
-    return false;
+    return true;
 }
