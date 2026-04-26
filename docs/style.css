@@ -70,6 +70,10 @@ body::after {
     overflow: hidden;
 }
 #overlay.hidden { opacity: 0; pointer-events: none; }
+/* Pause descendant CSS animations (menu monster sprite-steps + floats) so
+   they don't keep ticking on the compositor while the menu is invisible
+   during gameplay. Animations resume from where they paused on un-hide. */
+#overlay.hidden .menu-monster { animation-play-state: paused; }
 #overlay::before,
 #overlay::after {
     content: "";
