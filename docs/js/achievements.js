@@ -455,7 +455,7 @@ function _achRewardHtml(reward) {
     return `${_ACH_SVG.gem} <span style="color:#cc44ff">${reward.gems}</span>`;
 }
 
-function showAchievementPanel(restoreTab, restoreScroll) {
+function showAchievementPanel(activeCatKey, restoreScroll) {
     ensureStats();
     checkAchievements();
     const stats = playerData.stats;
@@ -534,10 +534,12 @@ function showAchievementPanel(restoreTab, restoreScroll) {
     div.innerHTML = html;
     document.body.appendChild(div);
 
-    // Activate first tab
-    _achSwitchTab(restoreTab || ACH_CATEGORIES[0].key);
+    const selectedCatKey = ACH_CATEGORIES.some(cat => cat.key === activeCatKey)
+        ? activeCatKey
+        : ACH_CATEGORIES[0].key;
+    _achSwitchTab(selectedCatKey);
 
-    if (restoreScroll) {
+    if (typeof restoreScroll === 'number') {
         const scrollArea = document.getElementById('achScrollArea');
         if (scrollArea) scrollArea.scrollTop = restoreScroll;
     }
@@ -559,18 +561,13 @@ function closeAchievementPanel() {
 }
 
 function claimAndRefresh(achId, tier) {
+    const activeTab = document.querySelector('.ach-tab.active');
+    const activeCatKey = activeTab ? activeTab.dataset.cat : null;
+    const scrollArea = document.getElementById('achScrollArea');
+    const scrollY = scrollArea ? scrollArea.scrollTop : 0;
     if (claimAchievementReward(achId, tier)) {
         playSound('gate_good');
-        
-        let activeTab = null;
-        const activeTabEl = document.querySelector('.ach-tab.active');
-        if (activeTabEl) activeTab = activeTabEl.dataset.cat;
-        
-        let scrollY = 0;
-        const scrollArea = document.getElementById('achScrollArea');
-        if (scrollArea) scrollY = scrollArea.scrollTop;
-        
-        showAchievementPanel(activeTab, scrollY); // re-render with restored state
+        showAchievementPanel(activeCatKey, scrollY); // re-render with restored state
     }
 }
 
