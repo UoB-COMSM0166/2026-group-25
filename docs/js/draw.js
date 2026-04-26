@@ -85,9 +85,49 @@ function _multiGrad(gfx, colors, y0, y1, w) {
     }
 }
 
+function _drawCoverImage(gfx, img, x, y, w, h) {
+    if (!img || !img.width || !img.height) return false;
+    const srcRatio = img.width / img.height;
+    const dstRatio = w / h;
+    let sx = 0, sy = 0, sw = img.width, sh = img.height;
+    if (srcRatio > dstRatio) {
+        sw = img.height * dstRatio;
+        sx = (img.width - sw) / 2;
+    } else {
+        sh = img.width / dstRatio;
+        sy = (img.height - sh) / 2;
+    }
+    gfx ? gfx.image(img, x, y, w, h, sx, sy, sw, sh)
+        : image(img, x, y, w, h, sx, sy, sw, sh);
+    return true;
+}
+
+function _drawBackdropGrade(gfx, isL2, hY) {
+    const sf = (hex, a) => {
+        const r = (hex >> 16) & 0xFF, gv = (hex >> 8) & 0xFF, b = hex & 0xFF;
+        gfx ? gfx.fill(r, gv, b, a) : fill(r, gv, b, a);
+    };
+    const ns = () => { gfx ? gfx.noStroke() : noStroke(); };
+    const dr = (x, y, w, h) => gfx ? gfx.rect(x, y, w, h) : rect(x, y, w, h);
+
+    ns();
+    sf(isL2 ? 0x160505 : 0x081020, 44);
+    dr(0, 0, screenW, screenH);
+
+    const steps = 18;
+    for (let i = 0; i < steps; i++) {
+        const t = i / (steps - 1);
+        const y = hY + t * (screenH - hY);
+        const a = Math.floor((isL2 ? 28 : 22) + t * (isL2 ? 96 : 82));
+        sf(isL2 ? 0x050204 : 0x050914, a);
+        dr(0, y, screenW, (screenH - hY) / steps + 1);
+    }
+}
+
 function drawSky(g) {
     const hY = screenH * getHorizonRatio();
     const isL2 = game && game.currentLevel === 2;
+    const backdropImg = isL2 ? _p5Level2BgImg : _p5Level1BgImg;
 
     const sf = (hex, a) => {
         const r = (hex >> 16) & 0xFF, gv = (hex >> 8) & 0xFF, b = hex & 0xFF;
@@ -109,6 +149,19 @@ function drawSky(g) {
     const sw = (w) => { g ? g.strokeWeight(w) : strokeWeight(w); };
 
     ns();
+
+    if (_drawCoverImage(g, backdropImg, 0, 0, screenW, screenH)) {
+        _drawBackdropGrade(g, isL2, hY);
+        if (isL2) {
+            sf(0xff3300, 28); dr(0, hY - 12, screenW, 22);
+            sf(0xff6600, 30); dr(0, hY - 5, screenW, 12);
+            sf(0xffaa22, 18); dr(0, hY - 2, screenW, 6);
+        } else {
+            sf(0x8ab0cc, 22); dr(0, hY - 8, screenW, 16);
+            sf(0xffb45c, 16); dr(0, hY - 3, screenW, 8);
+        }
+        return;
+    }
 
     if (isL2) {
         // --- LEVEL 2: Volcanic hellscape ---
