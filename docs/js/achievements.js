@@ -278,9 +278,16 @@ function resetAchTempFlags() {
 let _achToastQueue = [];
 let _achCurrentToast = null;
 
+// Each toast displays for ~3s; capping the backlog prevents a burst of
+// simultaneous unlocks (e.g. first kill after a long absence) from
+// monopolising the HUD with 30+ seconds of queued notifications. Surplus
+// achievements still unlock in playerData — only the popup is skipped.
+const ACH_TOAST_QUEUE_MAX = 4;
+
 function _queueAchToast(achId, tier) {
     const def = ACHIEVEMENTS[achId];
     if (!def) return;
+    if (_achToastQueue.length >= ACH_TOAST_QUEUE_MAX) return;
     const reward = def.rewards[tier - 1];
     const rewardText = reward.coins ? `+${reward.coins} coins` : `+${reward.gems} gems`;
     _achToastQueue.push({ id: achId, name: def.name, tier, desc: def.desc[tier - 1], reward: rewardText });
