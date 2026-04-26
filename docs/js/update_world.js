@@ -148,11 +148,13 @@ function updateWorld(g, dt, dtF, bossAlive) {
         else if (br.chainTimer === 0) { br.chainTimer = -1; explodeBarrel(br); }
     });
 
-    // Barrel smoke/sparks for damaged barrels
+    // Barrel smoke/sparks for damaged barrels — probabilistic emission keyed
+    // off dtF so the per-second rate stays constant across frame rates
+    // (per-frame modulo halved the smoke at 30fps).
     g.barrels.forEach(br => {
         if (!br.alive || br.hp >= br.maxHp) return;
-        br.smokeTimer++;
-        if (br.smokeTimer % 6 === 0) {
+        br.smokeTimer += dtF;
+        if (Math.random() < dtF / 6) {
             g.particles.push({
                 x: br.x + (Math.random() - 0.5) * 10, z: br.z,
                 vx: (Math.random() - 0.5) * 0.5, vz: 0,
@@ -161,7 +163,7 @@ function updateWorld(g, dt, dtF, bossAlive) {
                 color: 0x555555, size: 3 + Math.random() * 3,
             });
         }
-        if (br.smokeTimer % 10 === 0) {
+        if (Math.random() < dtF / 10) {
             g.particles.push({
                 x: br.x + (Math.random() - 0.5) * 8, z: br.z,
                 vx: (Math.random() - 0.5) * 2, vz: (Math.random() - 0.5),
