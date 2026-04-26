@@ -288,7 +288,7 @@ function activateInvincibility() {
     g.skillCooldown = SKILL_SHARED_COOLDOWN * 1000;
     g.skillReady = false;
     playSound('weapon_pickup');
-    g.screenFlash = 0.4;
+    g.screenFlash = Math.max(g.screenFlash, 0.4);
     g.shakeTimer = Math.max(g.shakeTimer, 6);
     addParticles(g.player.x, g.cameraZ + 10, 15, shopW.colorHex, 4, 20);
 }
@@ -307,7 +307,7 @@ function activateStimulant() {
     g.stimulantTimer = shopW.duration * 1000;
     g.stimulantCooldown = 0;
     playSound('weapon_pickup');
-    g.screenFlash = 0.35;
+    g.screenFlash = Math.max(g.screenFlash, 0.35);
     g.shakeTimer = Math.max(g.shakeTimer, 5);
     addParticles(g.player.x, g.cameraZ + 10, 18, shopW.colorHex, 4, 22);
     g.gateText = { text: '\uD83D\uDC9A STIMULANT! TROOPS x2, DMG HALVED', color: 0x44ff88, timer: 0, maxTimer: 80, scale: 0.1 };
