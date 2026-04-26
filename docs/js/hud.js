@@ -82,12 +82,12 @@ function updateHUD() {
     rect(panelX + xpBarPad, xpBarY, xpBarW, xpBarH, 3);
 
     // Text: score (center), squad (left), wave (right)
-    _hudText('SCORE: ' + g.score, screenW / 2, 17, 19, 0xffffff);
-    const squadStr = g.stimulantActive ? `SQUAD: ${g.squadCount * 2} x2` : `SQUAD: ${g.squadCount}`;
+    _hudText(T('hud.score') + g.score, screenW / 2, 17, 19, 0xffffff);
+    const squadStr = g.stimulantActive ? `${T('hud.squad')}${g.squadCount * 2} x2` : `${T('hud.squad')}${g.squadCount}`;
     _hudText(squadStr, screenW / 2 - hs, 17, 18, g.stimulantActive ? 0x44ff88 : 0xffffff);
     const maxWaves = g.isTutorial ? TUTORIAL_MAX_WAVE
         : (g.currentLevel === 2 ? MAX_WAVES_LEVEL2 : MAX_WAVES_LEVEL1);
-    _hudText(`WAVE: ${g.wave} / ${maxWaves}`, screenW / 2 + hs, 17, 18, 0xffffff);
+    _hudText(`${T('hud.wave')}${g.wave} / ${maxWaves}`, screenW / 2 + hs, 17, 18, 0xffffff);
 
     // Coins
     _hudText(`\u{1FA99} ${playerData.coins}`, screenW / 2 + hs, 48, 14, 0xffd700, CENTER, false);
@@ -95,7 +95,7 @@ function updateHUD() {
     _hudText(`\u{1F48E} ${playerData.gems || 0}`, screenW / 2 - hs, 48, 14, 0xcc44ff, CENTER, false);
     // Level
     const isMax = g.level >= LEVEL_CONFIG.maxLevel;
-    _hudText(isMax ? '\u2B50 MAX' : `\u2B50 Lv.${g.level}`, screenW / 2, 48, 13, isMax ? 0xffd700 : 0x88ffcc, CENTER, false);
+    _hudText(isMax ? `\u2B50 ${T('hud.max')}` : `\u2B50 ${T('hud.lv')}${g.level}`, screenW / 2, 48, 13, isMax ? 0xffd700 : 0x88ffcc, CENTER, false);
 
     // Weapon timer bar
     const hasGateWeapon = g.weapon !== 'pistol' && g.weaponTimer > 0;
@@ -222,7 +222,7 @@ function drawSkillHud() {
 
         // State label bottom-left
         if (!isReady) {
-            const stateStr = isActive ? 'ACTIVE' : isOnCD ? 'COOLDOWN' : 'NO CHARGE';
+            const stateStr = isActive ? T('hud.skill.active') : isOnCD ? T('hud.skill.cd') : T('hud.skill.empty');
             const stateColor = isActive ? sk.color : isOnCD ? 0x667788 : 0x334455;
             _hudText(stateStr, sx + 5, sy + 37, 9, stateColor, LEFT, false, false);
         }
@@ -520,7 +520,7 @@ function drawLevelUpAnim() {
 
     textSize(Math.floor(20 * sc)); textStyle(BOLD);
     hexFill(0x88ffcc, Math.floor(alpha * 255)); noStroke();
-    text('LEVEL  UP', cx, cy - 18 * sc);
+    text(T('hud.levelup'), cx, cy - 18 * sc);
 
     drawingContext.shadowColor = `rgba(255,215,0,${0.5 * alpha})`;
     drawingContext.shadowBlur = 14;
