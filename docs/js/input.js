@@ -5,7 +5,7 @@
 function isTextEntryTarget(target) {
     if (!target) return false;
     const tag = target.tagName;
-    if (tag === 'TEXTAREA' || target.isContentEditable) return true;
+    if (tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable) return true;
     if (tag !== 'INPUT') return false;
 
     const type = (target.type || 'text').toLowerCase();

@@ -72,10 +72,12 @@ function updateEffects(g, dt, dtF) {
         p.life -= dtF;
     });
     g.gateCollapsePanels = g.gateCollapsePanels.filter(p => p.life > 0);
+    if (g.gateCollapsePanels.length > 60) g.gateCollapsePanels.splice(0, g.gateCollapsePanels.length - 40);
 
     // Speed lines
     g.speedLines.forEach(s => { s.x += s.vx * dtF; s.y += s.vy * dtF; s.life -= dtF; });
     g.speedLines = g.speedLines.filter(s => s.life > 0);
+    if (g.speedLines.length > 200) g.speedLines.splice(0, g.speedLines.length - 140);
 
     // Gate flash
     if (g.gateFlash) {
@@ -90,6 +92,7 @@ function updateEffects(g, dt, dtF) {
         t.y -= 1.5 * dtF;
     });
     g.barrelExplosionTexts = g.barrelExplosionTexts.filter(t => t.timer < t.maxTimer);
+    if (g.barrelExplosionTexts.length > 30) g.barrelExplosionTexts.splice(0, g.barrelExplosionTexts.length - 20);
 
     // Damage numbers
     g.damageNumbers.forEach(d => { d.offsetY -= 1.2 * dtF; d.life -= dtF; });
@@ -99,6 +102,7 @@ function updateEffects(g, dt, dtF) {
     // Score popups
     g.scorePopups.forEach(p => { p.y -= 1.5 * dtF; p.life -= dtF; });
     g.scorePopups = g.scorePopups.filter(p => p.life > 0);
+    if (g.scorePopups.length > 60) g.scorePopups.splice(0, g.scorePopups.length - 40);
 
     // Combo timer
     if (g.comboTimer > 0) {
