@@ -1,7 +1,15 @@
 // ============================================================
 // INTERNATIONALIZATION (i18n)
 // ============================================================
-let LANG = localStorage.getItem('bridgeAssault_lang') || 'en';
+function _safeGetLocalStorage(key) {
+    try { return localStorage.getItem(key); } catch (_) { return null; }
+}
+
+function _safeSetLocalStorage(key, value) {
+    try { localStorage.setItem(key, value); return true; } catch (_) { return false; }
+}
+
+let LANG = _safeGetLocalStorage('bridgeAssault_lang') || 'en';
 
 // T(key, ...args) — look up translation, replace {0} {1} placeholders
 function T(key) {
@@ -14,7 +22,7 @@ function T(key) {
 
 function setLang(lang) {
     LANG = lang;
-    localStorage.setItem('bridgeAssault_lang', lang);
+    _safeSetLocalStorage('bridgeAssault_lang', lang);
     // Update html lang attribute
     document.documentElement.lang = lang;
     applyLang();

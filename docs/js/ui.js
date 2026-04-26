@@ -496,9 +496,9 @@ function getHighScore() {
 }
 
 (function migrateHighScore() {
-    const raw = localStorage.getItem('bridgeAssault_highScore');
-    if (!raw) return;
     try {
+        const raw = localStorage.getItem('bridgeAssault_highScore');
+        if (!raw) return;
         const parsed = JSON.parse(raw);
         if (parsed && parsed.score !== undefined && parsed.d === undefined) {
             _signedSave('bridgeAssault_highScore', parsed);
