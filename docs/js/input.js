@@ -2,12 +2,24 @@
 // INPUT — keyboard, mouse, touch handling
 // ============================================================
 
+function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tag = target.tagName;
+    if (tag === 'TEXTAREA' || target.isContentEditable) return true;
+    if (tag !== 'INPUT') return false;
+
+    const type = (target.type || 'text').toLowerCase();
+    return !['button', 'checkbox', 'radio', 'range', 'reset', 'submit'].includes(type);
+}
+
 function setupInput() {
     const clearKeys = () => {
         Object.keys(keys).forEach(k => { keys[k] = false; });
     };
 
     document.addEventListener('keydown', (e) => {
+        if (isTextEntryTarget(e.target)) return;
+
         keys[e.key] = true;
         if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
             if (game) {
