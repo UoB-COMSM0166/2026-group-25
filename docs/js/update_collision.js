@@ -140,7 +140,11 @@ function updateBulletCollisions(g, dtF) {
                     b.x = e.x; b.z = e.z;
                     b.dead = true; b.deathTimer = 3;
                     addExplosion(b.x, b.z);
-                    g.shakeTimer = 8; g.screenFlash = 0.3;
+                    // Floor with Math.max so a sustained rocket barrage
+                    // doesnt erase a larger shake/flash from a recent
+                    // bigger event (mega-boss death, ground slam, etc.).
+                    g.shakeTimer = Math.max(g.shakeTimer, 8);
+                    g.screenFlash = Math.max(g.screenFlash, 0.3);
                     playSound('explosion');
                     g.enemies.forEach(other => {
                         if (!other.alive || other === e) return;
