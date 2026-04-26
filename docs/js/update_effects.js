@@ -144,7 +144,9 @@ function updateEffects(g, dt, dtF) {
                 const finalDmg = applyTroopDamage(g, sw.damage);
                 g.gateText = { text: `⚡ GROUND SLAM \u2212${finalDmg}!`, color: 0xff2222, timer: 0, maxTimer: 80, scale: 0.1 };
                 g.gateFlash = { color: 0xff2222, timer: 18, maxTimer: 18 };
-                g.vignetteFlash = Math.min(1.5, 0.9);
+                // Floor at 0.9 (capped at 1.5) so a slam doesn't lower an
+                // already-bright vignette from a recent regular hit.
+                g.vignetteFlash = Math.min(1.5, Math.max(g.vignetteFlash, 0.9));
                 addParticles(g.player.x, g.cameraZ + 10, 12, 0xff6644, 4, 15);
                 if (g.squadCount <= 0) { handlePlayerDeath(); }
             } else if (playerInZone && g.shieldActive) {
