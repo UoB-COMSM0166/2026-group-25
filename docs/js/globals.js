@@ -61,17 +61,20 @@ const MAIN_MENU_TEMPLATE = overlay ? overlay.innerHTML : '';
 
 const DATA_VERSION = 'v2';
 (function checkDataVersion() {
-    const stored = localStorage.getItem('bridgeAssault_dataVersion');
+    let stored = null;
+    try { stored = localStorage.getItem('bridgeAssault_dataVersion'); } catch (_) { return; }
     if (stored !== DATA_VERSION) {
-        localStorage.setItem('bridgeAssault_dataVersion', DATA_VERSION);
+        try { localStorage.setItem('bridgeAssault_dataVersion', DATA_VERSION); } catch (_) {}
     }
 })();
 
 function resetBridgeAssaultSaveData() {
-    Object.keys(localStorage)
-        .filter(k => k.startsWith('bridgeAssault_'))
-        .forEach(k => localStorage.removeItem(k));
-    localStorage.setItem('bridgeAssault_dataVersion', DATA_VERSION);
+    try {
+        Object.keys(localStorage)
+            .filter(k => k.startsWith('bridgeAssault_'))
+            .forEach(k => localStorage.removeItem(k));
+        localStorage.setItem('bridgeAssault_dataVersion', DATA_VERSION);
+    } catch (_) {}
 }
 
 function loadPlayerData() {
