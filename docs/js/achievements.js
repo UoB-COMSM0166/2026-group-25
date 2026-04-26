@@ -451,7 +451,7 @@ function _achRewardHtml(reward) {
     return `${_ACH_SVG.gem} <span style="color:#cc44ff">${reward.gems}</span>`;
 }
 
-function showAchievementPanel() {
+function showAchievementPanel(activeCatKey) {
     ensureStats();
     checkAchievements();
     const stats = playerData.stats;
@@ -530,8 +530,10 @@ function showAchievementPanel() {
     div.innerHTML = html;
     document.body.appendChild(div);
 
-    // Activate first tab
-    _achSwitchTab(ACH_CATEGORIES[0].key);
+    const selectedCatKey = ACH_CATEGORIES.some(cat => cat.key === activeCatKey)
+        ? activeCatKey
+        : ACH_CATEGORIES[0].key;
+    _achSwitchTab(selectedCatKey);
 }
 
 function _achSwitchTab(catKey) {
@@ -550,9 +552,11 @@ function closeAchievementPanel() {
 }
 
 function claimAndRefresh(achId, tier) {
+    const activeTab = document.querySelector('.ach-tab.active');
+    const activeCatKey = activeTab ? activeTab.dataset.cat : null;
     if (claimAchievementReward(achId, tier)) {
         playSound('gate_good');
-        showAchievementPanel(); // re-render
+        showAchievementPanel(activeCatKey); // re-render without resetting the selected tab
     }
 }
 
