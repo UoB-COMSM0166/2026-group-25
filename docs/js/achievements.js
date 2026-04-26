@@ -394,7 +394,10 @@ function drawAchievementToast() {
     if (!_achCurrentToast) return;
 
     const toast = _achCurrentToast;
-    toast.timer++;
+    // Tick by dtF (matches update.js) so the toast keeps a stable ~3s
+    // wall-clock duration when the frame rate dips. Per-frame increment
+    // doubled the visible time at 30fps.
+    toast.timer += Math.min(typeof deltaTime === 'number' ? deltaTime : 16.667, 50) / 16.667;
     if (toast.timer >= toast.maxTimer) {
         _achCurrentToast = null;
         return;
