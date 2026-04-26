@@ -589,8 +589,8 @@ function revivePlayer() {
     g.state = 'playing';
     g.shieldActive = true;
     g.shieldTimer = 3000;
-    g.screenFlash = 0.6;
-    g.shakeTimer = 10;
+    g.screenFlash = Math.max(g.screenFlash, 0.6);
+    g.shakeTimer = Math.max(g.shakeTimer, 10);
     addParticles(g.player.x, g.cameraZ + 10, 25, 0xcc44ff, 5, 25);
     addParticles(g.player.x, g.cameraZ + 10, 15, 0xffffff, 4, 15);
     g.gateText = { text: `\uD83D\uDC8E REVIVED! TROOPS ${g.squadCount}`, color: 0xcc44ff, timer: 0, maxTimer: 90, scale: 0.1 };
