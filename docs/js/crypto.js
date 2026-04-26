@@ -53,7 +53,14 @@ _s0=function(sk,data){
     obj['\x63']=sig.substring(0,16); // checksum part 1
     obj['\x6e']=_h(ts.toString(36)+enc.substring(0,20)).substring(0,12); // noise (derived, verifiable)
     obj['\x78']=sig.substring(16);   // checksum part 2
-    localStorage.setItem(sk,JSON.stringify(obj));
+    try{
+        localStorage.setItem(sk,JSON.stringify(obj));
+    }catch(e){
+        // Quota exceeded (Safari iOS private mode = 0 quota) or storage
+        // disabled — surface a single warning instead of letting the throw
+        // abort the caller (level-clear / boss-kill save flushes, etc.).
+        try{console.warn('save failed:',e&&e.name);}catch(_){}
+    }
 };
 
 _s1=function(sk){
