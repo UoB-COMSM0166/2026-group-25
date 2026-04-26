@@ -84,6 +84,7 @@ function _snapshotStep() {
         kills:         g.killCount,
         coins:         g.coinsCollected,
         gems:          g.gemsCollected,
+        score:         g.score,
         squad:         g.squadCount,
         weapon:        g.weapon,
         barrelAlive:   g.barrels.filter(b => b.alive).length,
@@ -216,7 +217,7 @@ function _checkStepGoal(step) {
         case 'coins':           return (g.coinsCollected  - s.coins) >= goal.count;
         case 'troopUp':         return g.squadCount > s.squad;
         case 'weaponChange':    return g.weapon !== 'pistol';
-        case 'barrelExploded':  return g.barrels.filter(b => b.alive).length < s.barrelAlive;
+        case 'barrelExploded':  return g.score > s.score;
         case 'miniBossAndGem': {
             const bossAlive = g.enemies.some(e => e.alive && e.tutorialMiniBoss);
             return !bossAlive && g.gemsCollected > s.gems;
@@ -277,6 +278,9 @@ function updateTutorial() {
                            timer: 0, maxTimer: 70, scale: 0.1 };
             g.screenFlash = Math.max(g.screenFlash, 0.18);
             playSound('gate_good');
+        } else if (_checkStepSoftlock(step)) {
+            // Player missed the required entities and they are gone. Respawn them.
+            spawnTutorialWaveContent();
         }
     } else {
         g.tutorialGoalTimer--;
@@ -285,6 +289,29 @@ function updateTutorial() {
             if (g.wave > TUTORIAL_MAX_WAVE) { completeTutorial(); return; }
             spawnTutorialWaveContent();
         }
+    }
+}
+
+function _checkStepSoftlock(step) {
+    const g = game;
+    const goal = step.goal;
+    switch (goal.type) {
+        case 'kills':
+            return g.enemies.filter(e => e.alive).length === 0;
+        case 'coins':
+            return g.enemies.filter(e => e.alive).length === 0 && g.coins.length === 0;
+        case 'troopUp':
+        case 'weaponChange':
+            return g.gates.length === 0;
+        case 'barrelExploded':
+            // If all barrels are gone and goal is not met (score didn't increase)
+            return g.barrels.length === 0;
+        case 'miniBossAndGem':
+            // If the boss is dead/gone but we still haven't collected the gem, and the gem fell off screen
+            const bossAlive = g.enemies.some(e => e.alive && e.tutorialMiniBoss);
+            return !bossAlive && g.gems.length === 0;
+        default:
+            return false;
     }
 }
 
@@ -393,6 +420,7 @@ function renderTutorialCompleteOverlay(claimedId) {
         }).join('');
 
         overlay.innerHTML = `
+            <div id="tutorialCompleteScreen">
             <h1 style="color:#44ff88;text-shadow:0 0 30px rgba(68,255,136,0.7);display:inline-flex;align-items:center;justify-content:center;">${gradCapSvg}${T('tutorial.complete.title')}</h1>
             <div style="color:#cc88ff;font-size:min(24px,4.8vw);margin:14px 0 6px;letter-spacing:2px;">${T('tutorial.complete.subtitle')}</div>
             <div style="color:#88ccff;font-size:min(16px,3.4vw);max-width:720px;margin:4px auto 24px;line-height:1.6;">${T('tutorial.complete.body')}</div>
@@ -401,11 +429,13 @@ function renderTutorialCompleteOverlay(claimedId) {
                 ${rewardCards}
             </div>
             <div style="color:#8ea8d4;font-size:min(13px,2.6vw);margin-top:6px;">${T('tutorial.reward.once')}</div>
+            </div>
         `;
         return;
     }
 
     overlay.innerHTML = `
+        <div id="tutorialCompleteScreen">
         <h1 style="color:#44ff88;text-shadow:0 0 30px rgba(68,255,136,0.7);display:inline-flex;align-items:center;justify-content:center;">${gradCapSvg}${T('tutorial.complete.title')}</h1>
         <div style="color:#cc88ff;font-size:min(24px,4.8vw);margin:14px 0 6px;letter-spacing:2px;">${T('tutorial.complete.subtitle')}</div>
         <div style="color:#88ccff;font-size:min(16px,3.4vw);max-width:640px;margin:4px auto 18px;line-height:1.6;">${T('tutorial.complete.body')}</div>
@@ -420,6 +450,7 @@ function renderTutorialCompleteOverlay(claimedId) {
         <div id="menuButtons">
             <button class="btn" style="background:linear-gradient(180deg,#44cc44,#228822);border-color:#55ee55;" onclick="showLevelSelect()">${T('tutorial.complete.continue')}</button>
             <button class="btn" onclick="restoreMainMenu()">${T('levelcomplete.mainmenu')}</button>
+        </div>
         </div>
     `;
 }
@@ -461,8 +492,10 @@ function drawTutorialHint() {
         boxX + 59, boxY + 18, 12, done ? 0x99ffcc : 0x99ddff, CENTER, true);
 
     // Title + body
-    _hudText(h.title, screenW / 2, boxY + 34, 19, 0xffffff, CENTER, true);
-    _hudText(h.body, screenW / 2, boxY + 60, 13, 0xcce0ff, CENTER, false);
+    const titleText = step ? T(step.titleKey) : h.title;
+    const bodyText = step ? T(step.bodyKey) : h.body;
+    _hudText(titleText, screenW / 2, boxY + 34, 19, 0xffffff, CENTER, true);
+    _hudText(bodyText, screenW / 2, boxY + 60, 13, 0xcce0ff, CENTER, false);
 
     // Progress line
     const progText = done ? T('tutorial.goal.done') : progressStr;

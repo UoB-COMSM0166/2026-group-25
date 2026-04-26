@@ -67,6 +67,16 @@ function applyLang() {
         }
     }
 
+    // If Game Over is open, re-render it
+    if (document.getElementById('scoreDisplay')) {
+        if (typeof renderGameOver === 'function') renderGameOver();
+    }
+
+    // If Tutorial Complete is open, re-render it
+    if (document.getElementById('tutorialCompleteScreen')) {
+        if (typeof renderTutorialCompleteOverlay === 'function') renderTutorialCompleteOverlay();
+    }
+
     // data-i18n loop above already handles the main menu elements.
 }
 
@@ -133,6 +143,17 @@ const TRANSLATIONS = {
         'tutorial.complete.subtitle': '你已掌握核心机制',
         'tutorial.complete.body':     '祝你在正式战场上好运，士兵！',
         'tutorial.complete.continue': '▶ 进入正式关卡',
+        'tutorial.reward.choose':     '选择 1 个永久奖励',
+        'tutorial.reward.pick':       '选择此奖励',
+        'tutorial.reward.once':       '教程奖励只能领取一次，请选择最适合你游戏风格的强化。',
+        'tutorial.reward.claimed':    '已领取教程奖励',
+        'tutorial.reward.already':    '你已经领取过教程奖励了。',
+        'tutorial.reward.shotgun.title': '永久霰弹枪 Lv.1',
+        'tutorial.reward.shotgun.body':  '免费解锁 1 级霰弹枪，在未来的战斗中获得可靠的近战爆发力。',
+        'tutorial.reward.laser.title':   '永久激光炮 Lv.1',
+        'tutorial.reward.laser.body':    '免费解锁 1 级激光炮，未来的战斗一开始就能享受穿透清怪的快感。',
+        'tutorial.reward.magnum.title':  '提前解锁马格南',
+        'tutorial.reward.magnum.body':   '立即解锁马格南手枪层级，并在后续战斗中自动装备。',
 
         // Level select
         'levelselect.title':    '选择关卡',
