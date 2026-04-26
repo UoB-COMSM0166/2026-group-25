@@ -6,6 +6,7 @@
 let _p5PatrickImg, _p5XiaoNaiLongImg, _p5BossImg, _p5FireEnemyImg;
 let _p5CapybaraImg, _p5PigEngineerImg, _p5CowGunImg, _p5CowCryImg, _p5ElephantImg;
 let _p5TutorialImpImg, _p5TutorialBossImg;
+let _p5Level1BgImg, _p5Level2BgImg;
 
 function preload() {
     _p5PatrickImg      = loadImage('assets/patrick.png');
@@ -19,6 +20,8 @@ function preload() {
     _p5ElephantImg     = loadImage('assets/elephant.png');
     _p5TutorialImpImg  = loadImage('assets/tutorial_imp.png');
     _p5TutorialBossImg = loadImage('assets/tutorial_boss.png');
+    _p5Level1BgImg     = loadImage('assets/level1_background.png');
+    _p5Level2BgImg     = loadImage('assets/level2_background.png');
 }
 
 function setup() {

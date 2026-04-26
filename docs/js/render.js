@@ -15,6 +15,7 @@ function ensureSkyBuffer() {
 
     if (skyBuffer) skyBuffer.remove();
     skyBuffer = createGraphics(screenW, screenH);
+    skyBuffer.noSmooth();
     skyBuffer.noStroke();
     drawSky(skyBuffer);
 
