@@ -325,7 +325,7 @@ function checkLevelUp(g, bigEffect) {
 
 // Award XP for regular enemy kills — scales with wave
 function awardKillXP(g, isHeavy) {
-    if (!g || g.level >= LEVEL_CONFIG.maxLevel) return;
+    if (!g || g.isTutorial || g.level >= LEVEL_CONFIG.maxLevel) return;
     const kc = LEVEL_CONFIG.killXp;
     const step = Math.floor(g.wave / kc.wavePerStep);
     const baseXp = kc.base + Math.floor(Math.pow(step, kc.exp));
@@ -338,7 +338,7 @@ function awardKillXP(g, isHeavy) {
 
 function awardBossExp(isMegaBoss, x, z) {
     const g = game;
-    if (!g || g.level >= LEVEL_CONFIG.maxLevel) return;
+    if (!g || g.isTutorial || g.level >= LEVEL_CONFIG.maxLevel) return;
 
     // ── Normal-distribution XP roll (exponential scaling) ──
     const cfg = LEVEL_CONFIG.bossXp;
