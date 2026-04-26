@@ -23,6 +23,11 @@ function resumeGame() {
 
 function restartFromPause() {
     hidePauseMenu();
+    if (game && game.isTutorial) {
+        restoreTutorialWeaponCharges();
+        startGame(0);
+        return;
+    }
     startGameWithLevel(game ? (game.currentLevel || 1) : 1);
 }
 
@@ -30,6 +35,7 @@ function menuFromPause() {
     hidePauseMenu();
     stopBGM();
     if (game) {
+        if (game.isTutorial) restoreTutorialWeaponCharges();
         playerData.level = game.level;
         playerData.exp = game.exp;
         flushPlayerDataSave(true);
@@ -275,7 +281,7 @@ function activateInvincibility() {
     if (charges <= 0) return;
     const shopW = SHOP_WEAPONS['invincibility'];
     playerData.weaponCharges['invincibility'] = charges - 1;
-    savePlayerData(playerData);
+    if (!g.isTutorial) savePlayerData(playerData);
     g.shieldActive = true;
     g.shieldTimer = shopW.duration * 1000;
     g.skillCooldown = SKILL_SHARED_COOLDOWN * 1000;
@@ -295,7 +301,7 @@ function activateStimulant() {
     if (charges <= 0) return;
     const shopW = SHOP_WEAPONS['stimulant'];
     playerData.weaponCharges['stimulant'] = charges - 1;
-    savePlayerData(playerData);
+    if (!g.isTutorial) savePlayerData(playerData);
     g.stimulantActive = true;
     g.stimulantTimer = shopW.duration * 1000;
     g.stimulantCooldown = 0;
@@ -594,6 +600,7 @@ function showGameOver() {
     // Tutorial: don't treat death as a "game over" — quietly restart the
     // tutorial from wave 1 so the player can keep learning.
     if (game && game.isTutorial) {
+        restoreTutorialWeaponCharges();
         const slotsDiv = document.getElementById('weaponSlots');
         if (slotsDiv) slotsDiv.style.display = 'none';
         startGame(0);

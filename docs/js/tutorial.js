@@ -66,6 +66,8 @@ function setupTutorialRun(g) {
     g.tutorialGoalTimer = 0;
     g.tutorialStepStart = {};
     g.tutorialCamMult = 0;
+    // Keep tutorial-only consumable rewards isolated from the real save.
+    g.tutorialSavedWeaponCharges = { ...(playerData.weaponCharges || {}) };
     g.squadCount = 12;
     g.peakSquad = 12;
     // Prevent the normal random gate spawner from firing during the tutorial.
@@ -196,10 +198,15 @@ function _tutorialGrantCharge(key) {
     if (!playerData.weaponCharges) playerData.weaponCharges = {};
     playerData.weaponCharges[key] = (playerData.weaponCharges[key] || 0) + 1;
     if (key === 'invincibility') game.skillReady = true;
-    savePlayerData(playerData);
     // Don't touch #weaponSlots (the DOM inventory panel) — the canvas
     // drawSkillHud() already reflects charge changes automatically, and
     // opening both stacks two HUDs on the top-left corner.
+}
+
+function restoreTutorialWeaponCharges() {
+    const g = game;
+    if (!g || !g.isTutorial) return;
+    playerData.weaponCharges = { ...(g.tutorialSavedWeaponCharges || {}) };
 }
 
 function _checkStepGoal(step) {
@@ -289,6 +296,7 @@ function completeTutorial() {
     if (!g) return;
     g.state = 'gameover';
     stopBGM();
+    restoreTutorialWeaponCharges();
     playerData.hasSeenTutorial = true;
     markPlayerDataDirty();
     flushPlayerDataSave(true);
