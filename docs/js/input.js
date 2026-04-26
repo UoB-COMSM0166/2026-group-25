@@ -2,25 +2,24 @@
 // INPUT — keyboard, mouse, touch handling
 // ============================================================
 
+function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tag = target.tagName;
+    if (tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable) return true;
+    if (tag !== 'INPUT') return false;
+
+    const type = (target.type || 'text').toLowerCase();
+    return !['button', 'checkbox', 'radio', 'range', 'reset', 'submit'].includes(type);
+}
+
 function setupInput() {
     const clearKeys = () => {
         Object.keys(keys).forEach(k => { keys[k] = false; });
     };
 
-    // While the player is typing in a text field (e.g. the leaderboard
-    // join name input), we must NOT intercept space / Esc / 1 / 2 / etc.
-    // — preventDefault on space would otherwise stop the space character
-    // from reaching the input.
-    const _isTypingTarget = (el) => {
-        if (!el) return false;
-        const tag = el.tagName;
-        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
-        if (el.isContentEditable) return true;
-        return false;
-    };
-
     document.addEventListener('keydown', (e) => {
-        if (_isTypingTarget(e.target)) return;
+        if (isTextEntryTarget(e.target)) return;
+
         keys[e.key] = true;
         if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
             if (game) {
