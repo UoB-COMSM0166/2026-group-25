@@ -387,7 +387,10 @@ function updateEnemies(g, dt, dtF, bossAlive) {
                 if (g.shieldActive) {
                     // invincible: deflect effect, no troop loss
                     addParticles(g.player.x, pz, 10, 0xffdd44, 3, 12);
-                    g.shakeTimer = Math.min(g.shakeTimer, 3);
+                    // Floor at 3 frames so a deflect always feels confirmed —
+                    // Math.min was a typo and produced 0 shake when the timer
+                    // was at 0 (the common case).
+                    g.shakeTimer = Math.max(g.shakeTimer, 3);
                 } else {
                 // Dodge (Miss) chance: base 7.5%, +0.25% per player level above 1, no hard cap
                 // Lucky Break talent applies as a multiplier; level + luck together determine final chance
