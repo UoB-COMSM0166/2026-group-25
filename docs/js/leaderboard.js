@@ -19,7 +19,9 @@ function getLbPlayer() {
     try { const r = localStorage.getItem(LB_STORAGE_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
 }
 function _saveLbPlayer(name, recordId, hidden) {
-    localStorage.setItem(LB_STORAGE_KEY, JSON.stringify({ name, recordId, hidden: !!hidden }));
+    try {
+        localStorage.setItem(LB_STORAGE_KEY, JSON.stringify({ name, recordId, hidden: !!hidden }));
+    } catch (_) {}
 }
 
 function _sanitizeLbName(name) {
