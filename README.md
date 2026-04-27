@@ -1,7 +1,9 @@
 # 2026-group-25
 2026 COMSM0166 group 25
 
-
+<div align="center">
+<img src="docs/assets/poster.png" alt="Bridge Assault Poster" width="100%" />
+</div>
 
 ## Bridge Assault
 
@@ -14,9 +16,6 @@ The game currently includes two playable stages:
 - **Level II: Doomsday Factory** - a harder second stage with additional enemy types and a final wave at wave 88.
 
 This final version also includes permanent progression, a shop, special weapons, talents, achievements, bilingual English/Chinese UI, and an online leaderboard.
-
-
-<img width="2559" height="1382" alt="1696606c-4f9c-4a96-96b0-49af9e06f1ee" src="https://github.com/user-attachments/assets/4b17d1df-666d-4bbe-bd9a-3fe401661677" />
 <br>
 <br>
 <div align="center">
@@ -48,6 +47,7 @@ https://github.com/user-attachments/assets/66b7e2b0-84a3-4597-a25d-86f141d7d775
 
 ![0130_1](https://github.com/user-attachments/assets/36302454-9711-4d80-8e8f-009c0f76e488)
 
+- **[Kanban](https://teletubbies.atlassian.net/jira/software/projects/SMS/boards/1/timeline?atlOrigin=eyJpIjoiYmRkN2Q2NTQ0MzE2NDYxMDk1N2I0MjZmMTA4NTMzY2QiLCJwIjoiaiJ9)**
 
 - Lichong YAO, zi25826@bristol.ac.uk, Designer
 - Yusheng Yang, vj25954@bristol.ac.uk, Manager
@@ -435,9 +435,9 @@ Overall, Bridge Assault helped us practise both game development and software en
 |---|---|---|---|
 | Lichong YAO | Designer | Game concept, visual direction, UI feedback, player experience, documentation support | 20% |
 | Yusheng Yang | Manager | Team coordination, planning, task tracking, repository organisation, report structure | 20% |
-| Zhiqin Lin | Coder | Core gameplay, combat systems, enemy waves, weapons, boss behaviour | 20% |
+| Zhiqin Lin | Coder,Reviewer | Core gameplay, combat systems, enemy waves, weapons, boss behaviour, code review, UI/UX implementation, achivement, shop/progression systems, leaderboard support| 20% |
 | Yulun Wu | Testing engineer | Manual testing, bug reporting, edge-case checks, playtest feedback, QA notes | 20% |
-| Yiyang Dong | Coder | UI implementation, shop/progression systems, achievements, leaderboard support | 20% |
+| Yiyang Dong | Coder | UI implementation, shop/progression systems, leaderboard support | 20% |
 
 
 

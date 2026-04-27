@@ -29,8 +29,9 @@ function updateEffects(g, dt, dtF) {
     const particleLimit = _proj.isMobile ? 120 : (frameMs > 30 ? 150 : frameMs > 22 ? 250 : 400);
     if (g.particles.length > particleLimit) g.particles.splice(0, g.particles.length - Math.floor(particleLimit * 0.75));
 
-    // Explosions
-    g.explosions.forEach(e => e.timer++);
+    // Explosions — use dtF so duration stays wall-clock-stable when the
+    // frame rate dips (every other timer in this file already uses dtF).
+    g.explosions.forEach(e => e.timer += dtF);
     g.explosions = g.explosions.filter(e => e.timer < e.maxTimer);
     if (g.explosions.length > 40) g.explosions.splice(0, g.explosions.length - 30);
 
@@ -143,7 +144,9 @@ function updateEffects(g, dt, dtF) {
                 const finalDmg = applyTroopDamage(g, sw.damage);
                 g.gateText = { text: `⚡ GROUND SLAM \u2212${finalDmg}!`, color: 0xff2222, timer: 0, maxTimer: 80, scale: 0.1 };
                 g.gateFlash = { color: 0xff2222, timer: 18, maxTimer: 18 };
-                g.vignetteFlash = Math.min(1.5, 0.9);
+                // Floor at 0.9 (capped at 1.5) so a slam doesn't lower an
+                // already-bright vignette from a recent regular hit.
+                g.vignetteFlash = Math.min(1.5, Math.max(g.vignetteFlash, 0.9));
                 addParticles(g.player.x, g.cameraZ + 10, 12, 0xff6644, 4, 15);
                 if (g.squadCount <= 0) { handlePlayerDeath(); }
             } else if (playerInZone && g.shieldActive) {

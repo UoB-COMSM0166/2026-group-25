@@ -48,19 +48,6 @@ function updateHUD() {
     rect(screenW / 2 - hs / 2, 10, 1, 38);
     rect(screenW / 2 + hs / 2, 10, 1, 38);
 
-    // Coin pill (right)
-    const pillW = 82, pillH = 22, pillR = 11;
-    hexFill(0xffd700, Math.floor(0.1 * 255)); noStroke();
-    rect(screenW / 2 + hs - pillW / 2, 38, pillW, pillH, pillR);
-    hexStroke(0xffd700, Math.floor(0.2 * 255)); strokeWeight(1); noFill();
-    rect(screenW / 2 + hs - pillW / 2, 38, pillW, pillH, pillR);
-
-    // Gem pill (left)
-    hexFill(0xcc44ff, Math.floor(0.1 * 255)); noStroke();
-    rect(screenW / 2 - hs - pillW / 2, 38, pillW, pillH, pillR);
-    hexStroke(0xcc44ff, Math.floor(0.2 * 255)); strokeWeight(1); noFill();
-    rect(screenW / 2 - hs - pillW / 2, 38, pillW, pillH, pillR);
-
     // XP bar
     const lvl = Math.min(g.level, LEVEL_CONFIG.maxLevel);
     const isMaxLvl = lvl >= LEVEL_CONFIG.maxLevel;

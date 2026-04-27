@@ -96,7 +96,10 @@ function processEnemyKill(g, enemy, opts) {
         addParticles(enemy.x, enemy.z, 60, 0xff4400, 8, 45);
         addParticles(enemy.x, enemy.z, 30, 0xffaa00, 6, 35);
         addParticles(enemy.x, enemy.z, 20, 0xffffff, 5, 25);
-        g.shakeTimer = 35; g.screenFlash = 0.9;
+        // Floor with Math.max so a subsequent regular kill cant erase
+        // this dramatic shake mid-cascade.
+        g.shakeTimer = Math.max(g.shakeTimer, 35);
+        g.screenFlash = Math.max(g.screenFlash, 0.9);
         g.slowMo = 400;
         const label = enemy.isElephantBoss ? T('boss.elephant') : T('boss.mega');
         addScorePopup(`${label} +${killScore}!`, ep.x, ep.y - 40, 0xff4400);
@@ -109,7 +112,8 @@ function processEnemyKill(g, enemy, opts) {
         addExplosion(enemy.x - 20, enemy.z - 15);
         addParticles(enemy.x, enemy.z, 40, 0xcc66ff, 6, 35);
         addParticles(enemy.x, enemy.z, 20, 0xffffff, 4, 25);
-        g.shakeTimer = 25; g.screenFlash = 0.6;
+        g.shakeTimer = Math.max(g.shakeTimer, 25);
+        g.screenFlash = Math.max(g.screenFlash, 0.6);
         const label = enemy.isCowCryBoss ? T('boss.crycow') : T('boss.dragon');
         const labelColor = enemy.isCowCryBoss ? 0xff9944 : 0xcc66ff;
         addScorePopup(`${label} +${killScore}!`, ep.x, ep.y - 30, labelColor);
@@ -117,7 +121,7 @@ function processEnemyKill(g, enemy, opts) {
         if (enemy.spawnTime && (Date.now() - enemy.spawnTime) < 5000) _achTempFlags.speedKill = true;
         handleBossDeath(g, enemy);
     } else {
-        g.shakeTimer = 5;
+        g.shakeTimer = Math.max(g.shakeTimer, 5);
         addScorePopup(`+${killScore}`, ep.x, ep.y - 20, enemy.isHeavy ? 0xff8800 : 0xffcc00);
         awardKillXP(g, enemy.isHeavy);
         // L2 Pig Hero: splits into 2 minis on death

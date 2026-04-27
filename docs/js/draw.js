@@ -85,17 +85,19 @@ function _multiGrad(gfx, colors, y0, y1, w) {
     }
 }
 
-function _drawCoverImage(gfx, img, x, y, w, h) {
+function _drawCoverImage(gfx, img, x, y, w, h, focusX, focusY) {
     if (!img || !img.width || !img.height) return false;
+    const fx = focusX === undefined ? 0.5 : Math.max(0, Math.min(1, focusX));
+    const fy = focusY === undefined ? 0.5 : Math.max(0, Math.min(1, focusY));
     const srcRatio = img.width / img.height;
     const dstRatio = w / h;
     let sx = 0, sy = 0, sw = img.width, sh = img.height;
     if (srcRatio > dstRatio) {
         sw = img.height * dstRatio;
-        sx = (img.width - sw) / 2;
+        sx = (img.width - sw) * fx;
     } else {
         sh = img.width / dstRatio;
-        sy = (img.height - sh) / 2;
+        sy = (img.height - sh) * fy;
     }
     gfx ? gfx.image(img, x, y, w, h, sx, sy, sw, sh)
         : image(img, x, y, w, h, sx, sy, sw, sh);
@@ -150,15 +152,54 @@ function drawSky(g) {
 
     ns();
 
-    if (_drawCoverImage(g, backdropImg, 0, 0, screenW, screenH)) {
+    const textureH = Math.min(screenH, hY + Math.max(44, screenH * 0.08));
+    if (_drawCoverImage(g, backdropImg, 0, 0, screenW, textureH, 0.5, isL2 ? 0.24 : 0.30)) {
         _drawBackdropGrade(g, isL2, hY);
         if (isL2) {
+            sf(0x090304, 218); dr(0, hY + 12, screenW, screenH - hY - 12);
+            sf(0x1a0704, 168); dr(0, hY - 4, screenW, 42);
             sf(0xff3300, 28); dr(0, hY - 12, screenW, 22);
             sf(0xff6600, 30); dr(0, hY - 5, screenW, 12);
             sf(0xffaa22, 18); dr(0, hY - 2, screenW, 6);
+
+            sf(0x100405, 210);
+            if (g) g.beginShape(); else beginShape();
+            if (g) g.vertex(0, hY + 10); else vertex(0, hY + 10);
+            for (let i = 0; i <= 18; i++) {
+                const t = i / 18;
+                const ridge = Math.sin(t * 13.0) * 10 + Math.sin(t * 31.0) * 4;
+                const y = hY - 18 - ridge - (i % 5) * 5;
+                if (g) g.vertex(t * screenW, y); else vertex(t * screenW, y);
+            }
+            if (g) g.vertex(screenW, hY + 10); else vertex(screenW, hY + 10);
+            if (g) g.endShape(CLOSE); else endShape(CLOSE);
         } else {
+            sf(0x07101b, 206); dr(0, hY + 14, screenW, screenH - hY - 14);
+            sf(0x0b1724, 150); dr(0, hY - 5, screenW, 46);
             sf(0x8ab0cc, 22); dr(0, hY - 8, screenW, 16);
             sf(0xffb45c, 16); dr(0, hY - 3, screenW, 8);
+
+            const skyline = [
+                [0.00, 0.08, 0.045], [0.05, 0.14, 0.035], [0.10, 0.10, 0.05],
+                [0.17, 0.19, 0.04], [0.23, 0.12, 0.06], [0.31, 0.22, 0.04],
+                [0.38, 0.15, 0.055], [0.46, 0.20, 0.035], [0.53, 0.11, 0.05],
+                [0.61, 0.18, 0.045], [0.69, 0.13, 0.055], [0.78, 0.21, 0.04],
+                [0.86, 0.12, 0.05], [0.94, 0.16, 0.045],
+            ];
+            for (const [bx, bh, bw] of skyline) {
+                const x = bx * screenW, w = bw * screenW, h = bh * hY * 0.55;
+                sf(0x101927, 225); dr(x, hY - h, w, h);
+                sf(0xffcc72, 120);
+                const cols = Math.max(1, Math.floor(w / 12));
+                const rows = Math.max(1, Math.floor(h / 13));
+                for (let r = 1; r < rows; r += 2) {
+                    for (let c = 0; c < cols; c += 2) {
+                        if ((r * 5 + c * 7 + Math.floor(bx * 100)) % 3 === 0) {
+                            dr(x + 4 + c * 10, hY - h + 5 + r * 9, 2, 2);
+                        }
+                    }
+                }
+            }
         }
         return;
     }
@@ -1124,10 +1165,15 @@ function drawGateFloatingText() {
     const t = g.gateText;
     const progress = t.timer / t.maxTimer;
     const a = progress > 0.6 ? 1 - (progress - 0.6) / 0.4 : 1;
-    const yPos = screenH * 0.35 - progress * 40;
+    // Sit over the road plate, not over the boss HP bar / wave banner that
+    // now share the upper half with the new level backdrops.
+    const yPos = screenH * 0.52 - progress * 40;
     push();
     textFont('Arial');
-    textSize(Math.floor(42 * t.scale));
+    // Cap peak font size so "-3 TROOPS" etc. don't span half the screen on
+    // wide displays. t.scale ramps to 1.8 in update_effects.js, which gave
+    // 76px before the cap.
+    textSize(Math.min(54, Math.floor(42 * t.scale)));
     textStyle(BOLD);
     textAlign(CENTER, CENTER);
     // Shadow
@@ -1150,7 +1196,9 @@ function drawBarrelExplosionTexts() {
         if (a <= 0) return;
         push();
         textFont('Arial');
-        textSize(Math.floor(36 * t.scale));
+        // Cap peak font size — t.scale ramps to 2.2 in update_effects.js,
+        // which produced ~79px without a clamp.
+        textSize(Math.min(48, Math.floor(36 * t.scale)));
         textStyle(BOLD);
         textAlign(CENTER, CENTER);
         hexFill(0x000000, Math.floor(a * 0.5 * 255)); noStroke();
