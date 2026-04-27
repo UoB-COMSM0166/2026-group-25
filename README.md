@@ -106,33 +106,42 @@ The final paper prototype consolidated the adopted concept into a single, testab
 
 #### 2.3&nbsp;&nbsp;Stakeholders & Onion Model  
 
-We identified stakeholders using an onion model approach:  
+We identified stakeholders using Ian Alexander's onion model, which groups them by their proximity to the running system rather than by stake intensity. This produced four concentric layers, from the people who directly operate the game out to the wider environment that constrains it.
 
-Core (Players): casual arcade players who want instant action and short runs; progression-focused players who enjoy long-term unlocks and build crafting.  
+**Core — Operational.** Players. Casual arcade players who want short, immediate runs, and progression-focused players who enjoy long-term unlocks and build crafting. They are the only group that operates the running game on every play session.
 
-Secondary (Testers/Assessors): need clear UI feedback, consistent difficulty ramp, and evidence of design decisions.  
+**Functional Beneficiaries.** Testers / Assessors and the Module Convener. They do not develop the game but interact with the running system to verify design quality, difficulty ramp, and evidence of engineering decisions; their feedback feeds back into the build.
 
-Outer (Developers/Maintainers): our team, who require modular systems (state machine, data-driven configs) for fast iteration and balancing.  
+**Containing Organisation.** The Development Team — Designer, Manager, Coders, and Testing Engineer. The team owns, builds, and maintains the system. We hold the deepest stake in the project's outcome but interact with the running game less frequently than Players or Testers do.
 
-<img width="700" height="633" alt="afc28d4f-42a4-43f6-9c64-56dffc611534" src="https://github.com/user-attachments/assets/3df2c724-9461-466d-ba7c-d25fb816cdd8" />  
+**Wider Environment.** The University of Bristol institutional context, the COMSM0166 module framework, and the open-source communities behind **p5.js** (rendering / runtime) and **PocketBase** (leaderboard backend) that we depend on. These actors do not interact with our specific system but shape constraints, expectations, and the platforms we build on.
+
+<div align="center">
+<img src="docs/assets/onion-model-v4.png" alt="Bridge Assault Stakeholder Onion Model" width="600" />
+</div>
+
 
 ---
 
-#### 2.4&nbsp;&nbsp;Use Case Diagram  
+#### 2.4&nbsp;&nbsp;Use Case Diagram
 
-The use case diagram models the main functional requirements of **Bridge Assault** from three perspectives: the player, the tester/assessor, and the external leaderboard service. Instead of treating the game as a single “start and play” interaction, the diagram separates the full experience into four connected areas: **Access**, **Core Run**, **Progression**, and **End & Online**. This helped us check that the game supports not only moment-to-moment combat, but also onboarding, long-term progression, replayability, and online score sharing.
+The use case diagram captures the functional requirements of **Bridge Assault** from three actor perspectives — the **Player**, the **Tester / Assessor**, and the external **Leaderboard Service** — and groups its 19 top-level use cases into four columns: **Access & Setup**, **Run Loop**, **Progression**, and **End & Online**. The grouping helped us verify that the game supports not just combat, but also onboarding, long-term progression, replayability, and online score sharing.
 
-The **Player** is the primary actor. Before entering a run, the player can switch language, complete the tutorial, choose a level, and start a run. These access features are important because the game contains several mechanics, including gates, coins, gems, active skills, and leaderboard submission. The tutorial therefore introduces core actions before the player enters the main levels, while level selection allows returning players to choose the challenge they want to attempt.
+We follow standard UML 2 stereotype semantics: `«include»` arrows point from a base case to its always-required sub-case (e.g. *Play Run* `«include»` *Move / Auto-fire*), while `«extend»` arrows point from an optional behaviour to the base case it extends (e.g. *Use Skills* `«extend»` *Play Run*, *Buy Upgrades* `«extend»` *Enter Supply Shop*). Sub-cases reachable transitively through include/extend are not duplicated as direct actor associations, which keeps the actor lines focused on top-level intent.
 
-During the **Core Run**, the player controls movement while shooting is handled through auto-fire. The central gameplay loop is to survive enemy waves, choose gates, collect coins and gems, and pause or resume when needed. The diagram uses include relationships to show that surviving waves depends on repeated sub-actions such as moving, fighting, collecting rewards, and making gate choices. This reflects the actual design of the game: progress is not only based on killing enemies, but also on choosing useful upgrades and managing risk under pressure.
+The **Player** is the primary actor. Before entering a run, the player can switch language, complete the tutorial, choose a level, and start a run; *Start Run* `«include»`s *Choose Level* since a level must be picked before the run begins. The tutorial introduces core actions for new players, while level selection lets returning players target a specific challenge.
 
-The **Progression** area shows the systems that extend the basic combat loop. Players can use skills, enter the supply shop, revive after failure, buy upgrades, claim achievements, and persist progress. These use cases represent the game’s long-term structure. Coins and gems collected during runs feed into upgrades, while achievements reward repeated play and skill development. Persistent progress ensures that player investment is saved between sessions, making each run contribute to future attempts.
+During the **Run Loop**, *Play Run* `«include»`s the moment-to-moment *Move / Auto-fire* and the broader *Survive Waves* activity. *Survive Waves* itself `«include»`s *Choose Gates* and *Collect Coins / Gems* — these are not optional sub-events but essential mechanics that any meaningful run goes through. *Pause / Resume* is modelled as an `«extend»` of *Play Run* because it is an optional, conditional interruption.
 
-The **End & Online** area covers what happens after a run ends. When the player reaches game over, they can restart, join the leaderboard, and sync their best score. The **Leaderboard Service** is shown as an external supporting actor because score submission depends on a backend service rather than only local browser storage. This distinction is useful for requirements analysis because it highlights an external dependency with privacy, reliability, and connectivity considerations.
+The **Progression** column shows systems that extend the basic combat loop. *Use Skills* `«extend»`s *Play Run* because skill activation is an optional in-run action. *Enter Supply Shop* is a Player-initiated use case; *Buy Upgrades* `«extend»`s the shop visit (a player may browse without buying). Both *Buy Upgrades* and *Claim Achievements* `«include»` *Persist Progress*, since any state change is immediately written to local storage.
 
-The **Tester/Assessor** is included as a secondary actor. Their role is to verify important flows such as starting a run, observing the combat loop, checking progression behaviour, and confirming that game-over and restart interactions work consistently. This supports structured evaluation and makes the diagram useful not only for design, but also for testing and demonstration.
+The **End & Online** column covers what happens when a run ends. *Game Over / Restart* is the central pivot — *Revive* `«extend»`s it as an optional second-chance action when the player holds a revive item. *Join Leaderboard* `«include»`s *Sync Best Score* because joining the leaderboard always entails syncing. The **Leaderboard Service** is drawn as an external supporting actor (rectangle with `«external»` stereotype) because score submission depends on a backend (PocketBase) rather than only local browser storage; this externalisation flags privacy, reliability, and connectivity considerations as first-class requirements.
 
-<img width="1536" height="1024" alt="7c412ae43f5db6eccb1bb6acd63e77b5" src="https://github.com/user-attachments/assets/1097b022-11c4-460c-80b3-456f8fd931e7" />
+The **Tester / Assessor** is shown as a secondary actor to highlight that the same use cases support both gameplay and structured evaluation. The two actors share the system interface but pursue different goals — players seek immersion and progression, while testers verify the acceptance criteria documented in §5.3. We deliberately did not invent fictitious testing-only use cases; instead, the secondary actor reuses the existing flows under a verification mindset, and only connects to the three anchor flows (*Start Run*, *Play Run*, *Game Over / Restart*) that gate the rest of the verification chain.
+
+<div align="center">
+<img src="docs/assets/use-case-diagram.png" alt="Bridge Assault Use Case Diagram" width="900" />
+</div>
   
 
 ---
