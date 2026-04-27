@@ -124,7 +124,8 @@ The primary actor is the player. The player can start a run, choose a level, mov
 
 A secondary actor is the tester or assessor. They need to verify repeatable flows such as starting a run, pausing, buying upgrades, switching languages, claiming achievements, testing game-over behaviour, and checking that progress persists after reloading the page.
 
-<img width="700" height="491" alt="4babea9e-123a-43cb-a187-bb05f1b08157" src="https://github.com/user-attachments/assets/063b3f8c-dbb3-42d9-acfc-13dfcfedd006" />  
+<img width="1536" height="1024" alt="7c412ae43f5db6eccb1bb6acd63e77b5" src="https://github.com/user-attachments/assets/1097b022-11c4-460c-80b3-456f8fd931e7" />
+  
 
 ---
 
