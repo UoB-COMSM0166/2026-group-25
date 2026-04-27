@@ -389,7 +389,27 @@ The final two areas focus on quality of life. Mobile support would require respo
 
 #### 5.4 Code Testing
 
-Testing focused on the areas most likely to produce bugs: state transitions, persistent data, shop purchases, achievement rewards, leaderboard behaviour, and final wave logic.
+We applied **Black Box Testing** with **Equivalence Partitioning**, as covered in Workshop 9, to structure our manual testing process. Instead of ad-hoc checks, we isolated specific functional units, identified input/state categories, mapped constraints, and generated test cases. 
+
+**Case Study: Shop Upgrade System (Weapon Purchases)**
+
+*Functional Unit:* Purchasing a weapon upgrade in the shop.
+*Categories Identified:*
+- **A:** Player has insufficient coins.
+- **B:** Player has sufficient coins.
+- **C:** Weapon is already at maximum level.
+- **D:** Weapon is below maximum level.
+
+*Constraints:* Categories A & B are mutually exclusive. Categories C & D are mutually exclusive.
+
+*Generated Test Cases:*
+| Test ID | Condition (Partition Combination) | Inputs | Expected Output | Observed Output |
+|:---|:---|:---|:---|:---|
+| **TC1** | B + D (Sufficient Coins, Not Max Level) | Coins: 500, Cost: 200, Current Lvl: 1, Max Lvl: 3 | Deduct 200 coins, Level becomes 2, UI updates. | Pass. Coins deducted, UI refreshed. |
+| **TC2** | A + D (Insufficient Coins, Not Max Level) | Coins: 100, Cost: 200, Current Lvl: 1, Max Lvl: 3 | Purchase blocked, error feedback shown, no coins deducted. | Pass. Button disabled, red flash on click. |
+| **TC3** | B + C (Sufficient Coins, Max Level Reached) | Coins: 500, Cost: 300, Current Lvl: 3, Max Lvl: 3 | Purchase blocked, button says "MAX", no coins deducted. | Pass. Button locked as "MAX". |
+
+Beyond structured Black Box tests, we also performed edge-case testing on broader game flows:
 
 | Test area | Example test |
 |---|---|
@@ -403,7 +423,7 @@ Testing focused on the areas most likely to produce bugs: state transitions, per
 | Final waves | Check Level I wave 66 and Level II wave 88 behaviour |
 | Save data | Reload browser and confirm coins, gems, unlocks, and achievements remain |
 
-We also used branch-based development and pull requests so that larger changes could be reviewed before reaching the main branch.
+We used branch-based development and pull requests so that larger changes could be reviewed and tested locally before reaching the main branch.
 
 ---
 
