@@ -193,13 +193,13 @@ async function _handleJoin() {
     if (!input) return;
     const name = _sanitizeLbName(input.value);
     if (!name) { statusEl.textContent = T('lb.join.empty'); return; }
+    const hs = _getLeaderboardBestScore();
+    if (hs.score <= 0) { statusEl.textContent = T('lb.join.noscore'); return; }
     btn.disabled = true;
     btn.textContent = T('lb.join.loading');
     statusEl.textContent = '';
     try {
-        const hs = _getLeaderboardBestScore();
         const lv = Math.floor(hs.level || 1);
-        // Privacy by default: hidden=true until player explicitly enables visibility.
         const rec = await _createRecord(name, hs.score, hs.wave, lv, true);
         _saveLbPlayer(name, rec.id, true);
         _renderList(name);
