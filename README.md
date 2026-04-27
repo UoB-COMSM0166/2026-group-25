@@ -336,55 +336,29 @@ The final version includes:
 
 ### 5. Evaluation
 
-#### 5.1 Qualitative Evaluation (HCI Workshop Findings)
+#### 5.1 Heuristic Evaluation
 
-During the HCI evaluation workshop, an external student tester evaluated our game using both the **Think Aloud** protocol and a **Heuristic Evaluation** (Nielsen's 10 Heuristics).
+| Interface | Issue | Heuristic(s) | Frequency 0 (rare) to 4 (common) | Impact 0 (easy) to difficult (4) | Persistence 0 (once) to 4 (repeated) | Severity = Sum Total of F+I+P /3 |
+|---|---|---|---:|---:|---:|---:|
+| Leaderboard | Submitted scores may not be fully validated before appearing on the leaderboard, so impossible or suspicious records could reduce fairness. | Error prevention; trust and credibility | 2 | 3 | 3 | 2.7 |
+| Levels / Enemy Variety | After repeated sessions, the current level and enemy variety may become predictable, reducing replay value. | Flexibility and efficiency of use; engagement | 3 | 2 | 3 | 2.7 |
+| Shop / Achievement Rewards | Upgrade costs and achievement rewards may need further balancing, because progression can feel either too slow or too generous depending on the player. | Match between system and player expectations; balance and feedback | 3 | 3 | 3 | 3.0 |
+| Mobile Interface | The game is mainly designed for desktop play, so touch controls and small-screen layouts may not yet provide a smooth experience. | Flexibility of use; accessibility; responsive design | 3 | 3 | 4 | 3.3 |
+| Accessibility Settings | Players have limited control over visual intensity, text size, contrast, and comfort options, which may make the game harder for some users. | Accessibility; user control and freedom; visibility of system status | 2 | 3 | 3 | 2.7 |
 
-**Think Aloud Key Observations:**
-- *Movement:* The tester found the left/right auto-scroll movement intuitive but initially expected up/down arrows to work.
-- *Gates:* The tester vocalized confusion when choosing between "Fire Rate up" and "Damage up" gates, taking damage while deciding. This highlighted that gate text needs to be processed very quickly.
-- *Shop:* The tester successfully identified the shop button but was unsure if upgrades were permanent or just for the next run. 
-
-**Heuristic Evaluation Results:**
-Based on Nielsen's heuristics, the tester identified the following issues:
-
-| Interface | Issue | Heuristic(s) | Frequency (0-4) | Impact (0-4) | Persistence (0-4) | Severity (F+I+P ÷ 3) |
-|-----------|-------|--------------|:---:|:---:|:---:|:---:|
-| Shop Menu | Unclear if purchases are permanent | 1. Visibility of system status | 3 | 2 | 2 | **2.3** (Minor/Major) |
-| Gameplay | Gate text requires too much reading time | 6. Recognition rather than recall | 4 | 3 | 4 | **3.6** (Major) |
-| HUD | Player HP blends in with the busy background | 8. Aesthetic and minimalist design | 3 | 3 | 2 | **2.6** (Minor/Major) |
-
-**Issues to Address Going Forward:**
-1. **Gate Clarity:** We will add clearer iconography or colour-coding (e.g., Green for Buffs, Red for Debuffs) to the gates so players can recognize effects instantly rather than relying solely on text.
-2. **Shop Feedback:** We will update the shop UI to explicitly state "Permanent Upgrades" so the system status is highly visible.
-3. **HUD Contrast:** We plan to add a darker background or stroke outline behind the HP bar to ensure it stands out against chaotic boss waves.
-4. **Difficulty Levels:** As requested during the workshop, we are implementing two difficulty levels (Normal/Hard) with distinct enemy speed and spawn rate multipliers.
-
-| Area tested | Feedback received | Change or response |
-|---|---|---|
-| Controls | Players understood left/right movement quickly. | Kept movement simple and focused on dodging. |
-| Gates | Gate choices were interesting, but feedback needed to be more visible. | Added stronger text and visual effects after gate selection. |
-| Shop | Players wanted clearer separation between upgrade types. | Organised the shop into weapon, special, and talent areas. |
-| Achievements | Claimable rewards were useful but needed a clearer claim action. | Improved achievement panel layout and claim button visibility. |
-| Language | Mixed Chinese/English text made the interface inconsistent. | Added a central bilingual text system and language toggle. |
-| Progression | Players liked earning resources even after losing. | Kept coins, gems, and achievement progress persistent. |
 
 ---
 
-#### 5.2 Quantitative Evaluation
+#### 5.2 Evaluation Discussion and Future Improvements
 
-We used simple measurable checks to evaluate whether the game was playable, repeatable, and not only subjectively fun.
+The heuristic evaluation highlights five main areas for future improvement. The most important technical issue is leaderboard validation. Since the leaderboard depends on an external backend service, future versions should check submitted scores more strictly before accepting them. This would help prevent impossible wave values, unrealistic score totals, invalid level data, or repeated suspicious submissions from affecting the public ranking.
 
-| Metric | Why it matters | Result |
-|---|---|---|
-| First-run survival wave | Checks whether the early game is too hard | TBC after final playtest |
-| Level I completion rate | Checks whether progression and boss difficulty are balanced | TBC after final playtest |
-| Average coins per early run | Checks whether shop progression is too slow or too fast | TBC after final playtest |
-| Achievement reward success | Checks whether claimable rewards update correctly | Pass in manual testing |
-| Language switch coverage | Checks whether bilingual UI is consistent | Pass for main menu, shop, achievements, leaderboard, and game-over UI |
-| Leaderboard failure behaviour | Checks whether online features break core play | Core game remains playable when leaderboard access fails |
+The second area is content variety. Although the current game already includes waves, gates, bosses, shops, achievements, and progression systems, longer play sessions would benefit from more levels and enemy types. New maps, enemy behaviours, hazards, and boss patterns would make the game less predictable and increase replayability.
 
-The quantitative results still need final playtest numbers for difficulty and economy balance. However, feature reliability was tested manually through repeated UI and gameplay flows.
+The third area is progression balance. The shop, weapon upgrades, talents, coins, gems, and achievement rewards are all connected, so small changes can strongly affect the difficulty curve. Future testing should compare different reward rates and upgrade prices to keep the game challenging but still satisfying.
+
+The final two areas focus on quality of life. Mobile support would require responsive layouts and touch controls for menus, gameplay, shop panels, achievements, and leaderboard screens. Accessibility improvements could include clearer text, stronger contrast, adjustable audio, reduced visual intensity, and better control hints. These changes follow the roadmap goal of creating more content, a better experience, and a stronger version of Bridge Assault.
+
 
 ---
 
