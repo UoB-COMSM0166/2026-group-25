@@ -1032,7 +1032,8 @@ function drawExplosions() {
         const progress = exp.timer / exp.maxTimer;
         const a = 1 - progress;
         if (exp.isBlastRing) {
-            const ringR = 90 * p.scale * (0.2 + progress * 0.8);
+            const baseR = exp.radius || 90;
+            const ringR = baseR * p.scale * (0.2 + progress * 0.8);
             hexStroke(0xffcc00, Math.floor(a * 0.3 * 255));
             strokeWeight(Math.max(1, 8 * p.scale * (1 - progress))); noFill();
             circle(p.x, p.y - 3 * p.scale, ringR * 2.3);

@@ -147,6 +147,11 @@ A secondary actor is the tester or assessor. They need to verify repeatable flow
 
 ---
 
+#### 2.6 Reflection on Requirements Engineering
+
+Through this project, we learned that Epics and User Stories are vital for managing feature creep. By breaking down high-level goals into granular stories, we could isolate complex mechanics, such as the "Start and restart loop" or "Shop and progression" systems. Defining clear Acceptance Criteria for every user story listed in section 2.5 was crucial for testing; for example, defining the "Leaderboard" acceptance criteria as "Best score syncs online when available" prevented us from blocking gameplay when the server was unreachable. This structured approach forced us to align our technical implementation—such as modular JavaScript architecture—directly with player-facing needs, ensuring that our final product remained cohesive despite its complex multi-layer progression.
+
+
 ### 3. Design
 
 
@@ -211,6 +216,60 @@ This loop was designed so that even short runs still feel useful. A player who d
 We kept the control model intentionally small. If the player also had to aim, shoot, jump, or manage many buttons, the game would become harder to learn and harder to test. By using automatic shooting and left/right movement, we could put more design effort into enemy pressure, upgrade choices, progression, and feedback.
 
 We also separated short-term and long-term decisions. Gates and weapon pickups affect the current run immediately, while shop upgrades and talents change future runs. This gives the game a layered structure: quick arcade action in the moment, and gradual improvement over time.
+
+#### 3.5 UML Diagrams
+
+**Class Diagram**
+```mermaid
+classDiagram
+    class Game {
+        +object[] bullets
+        +object[] enemies
+        +object[] explosions
+        +object player
+        +number score
+        +update()
+        +draw()
+    }
+    class Player {
+        +number x
+        +number z
+        +number hp
+        +move()
+    }
+    class Bullet {
+        +number x
+        +number z
+        +string weapon
+        +number damage
+    }
+    class Enemy {
+        +number x
+        +number z
+        +number hp
+        +die()
+    }
+    Game "1" *-- "1" Player
+    Game "1" *-- "*" Bullet
+    Game "1" *-- "*" Enemy
+```
+
+**Sequence Diagram (Shooting & Collision)**
+```mermaid
+sequenceDiagram
+    participant Player
+    participant Game
+    participant Collision
+    participant Enemy
+
+    Player->>Game: fire()
+    Game->>Game: createBullet()
+    Game->>Collision: checkBulletCollision()
+    Collision->>Enemy: hitCheck()
+    Enemy-->>Collision: takeDamage()
+    Collision->>Game: addExplosion()
+```
+
 
 
 
