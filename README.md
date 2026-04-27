@@ -120,9 +120,17 @@ Outer (Developers/Maintainers): our team, who require modular systems (state mac
 
 #### 2.4&nbsp;&nbsp;Use Case Diagram  
 
-The primary actor is the player. The player can start a run, choose a level, move left and right, survive waves, collect coins and gems, use weapons or special skills, purchase upgrades, claim achievements, submit leaderboard scores, and restart after game over.
+The use case diagram models the main functional requirements of **Bridge Assault** from three perspectives: the player, the tester/assessor, and the external leaderboard service. Instead of treating the game as a single “start and play” interaction, the diagram separates the full experience into four connected areas: **Access**, **Core Run**, **Progression**, and **End & Online**. This helped us check that the game supports not only moment-to-moment combat, but also onboarding, long-term progression, replayability, and online score sharing.
 
-A secondary actor is the tester or assessor. They need to verify repeatable flows such as starting a run, pausing, buying upgrades, switching languages, claiming achievements, testing game-over behaviour, and checking that progress persists after reloading the page.
+The **Player** is the primary actor. Before entering a run, the player can switch language, complete the tutorial, choose a level, and start a run. These access features are important because the game contains several mechanics, including gates, coins, gems, active skills, and leaderboard submission. The tutorial therefore introduces core actions before the player enters the main levels, while level selection allows returning players to choose the challenge they want to attempt.
+
+During the **Core Run**, the player controls movement while shooting is handled through auto-fire. The central gameplay loop is to survive enemy waves, choose gates, collect coins and gems, and pause or resume when needed. The diagram uses include relationships to show that surviving waves depends on repeated sub-actions such as moving, fighting, collecting rewards, and making gate choices. This reflects the actual design of the game: progress is not only based on killing enemies, but also on choosing useful upgrades and managing risk under pressure.
+
+The **Progression** area shows the systems that extend the basic combat loop. Players can use skills, enter the supply shop, revive after failure, buy upgrades, claim achievements, and persist progress. These use cases represent the game’s long-term structure. Coins and gems collected during runs feed into upgrades, while achievements reward repeated play and skill development. Persistent progress ensures that player investment is saved between sessions, making each run contribute to future attempts.
+
+The **End & Online** area covers what happens after a run ends. When the player reaches game over, they can restart, join the leaderboard, and sync their best score. The **Leaderboard Service** is shown as an external supporting actor because score submission depends on a backend service rather than only local browser storage. This distinction is useful for requirements analysis because it highlights an external dependency with privacy, reliability, and connectivity considerations.
+
+The **Tester/Assessor** is included as a secondary actor. Their role is to verify important flows such as starting a run, observing the combat loop, checking progression behaviour, and confirming that game-over and restart interactions work consistently. This supports structured evaluation and makes the diagram useful not only for design, but also for testing and demonstration.
 
 <img width="1536" height="1024" alt="7c412ae43f5db6eccb1bb6acd63e77b5" src="https://github.com/user-attachments/assets/1097b022-11c4-460c-80b3-456f8fd931e7" />
   
