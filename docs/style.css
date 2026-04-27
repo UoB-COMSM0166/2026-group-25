@@ -1597,34 +1597,6 @@ body::after {
     margin-top: 4px;
 }
 
-/* ── Cheat-tainted notice (replaces join form when playerData.cheatTainted) ── */
-.lb-tainted {
-    text-align: center;
-    padding: min(24px, 4vh) min(20px, 4vw);
-    border-radius: 14px;
-    background: rgba(180, 60, 60, 0.10);
-    border: 1px solid rgba(255, 120, 120, 0.35);
-    margin: min(18px, 3vh) 0 min(18px, 3vh);
-    color: #f4d8d8;
-}
-.lb-tainted-icon {
-    font-size: min(36px, 7vw);
-    margin-bottom: 8px;
-}
-.lb-tainted-title {
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    color: #ff9090;
-    font-size: min(17px, 3.6vw);
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-}
-.lb-tainted-body {
-    font-size: min(13px, 2.9vw);
-    line-height: 1.7;
-    color: #d8c4c4;
-}
-
 /* ── Join form (inside leaderboard panel) ── */
 .lb-join-desc {
     text-align: center;

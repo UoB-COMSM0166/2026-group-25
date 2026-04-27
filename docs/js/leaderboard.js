@@ -89,10 +89,6 @@ async function _fetchMyRank(myScore) {
 
 // ── Sync high score (fire-and-forget after game over) ─────────
 async function syncHighScore() {
-    // Refuse to publish runs from a save tainted by the cheat panel —
-    // keeps modder scores out of the public ranking. Once flipped, this
-    // flag is sticky on this save (cheating in one run doesnt expire).
-    if (playerData && playerData.cheatTainted) return;
     const player = getLbPlayer();
     if (!player || player.hidden) return; // skip if player hid themselves
     const hs = _getLeaderboardBestScore();
@@ -155,10 +151,6 @@ function showLeaderboard() {
     const el = document.getElementById('leaderboardOverlay');
     if (!el) return;
     el.classList.remove('hidden');
-    if (playerData && playerData.cheatTainted) {
-        _renderTaintedNotice();
-        return;
-    }
     const player = getLbPlayer();
     if (player) {
         if (!player.hidden) syncHighScore(); // sync before showing
@@ -166,22 +158,6 @@ function showLeaderboard() {
     } else {
         _renderJoinForm();
     }
-}
-
-function _renderTaintedNotice() {
-    const panel = document.getElementById('leaderboardPanel');
-    if (!panel) return;
-    panel.innerHTML = `
-        <div id="leaderboardTitle">${T('lb.title')}</div>
-        <div class="lb-tainted">
-            <div class="lb-tainted-icon">⚠️</div>
-            <div class="lb-tainted-title">${T('lb.tainted.title')}</div>
-            <div class="lb-tainted-body">${T('lb.tainted.body')}</div>
-        </div>
-        <div class="lb-join-btns">
-            <button class="btn lb-btn-close" onclick="hideLeaderboard()">${T('lb.close')}</button>
-        </div>
-    `;
 }
 
 function hideLeaderboard() {
@@ -211,10 +187,6 @@ function _renderJoinForm() {
 }
 
 async function _handleJoin() {
-    if (playerData && playerData.cheatTainted) {
-        _renderTaintedNotice();
-        return;
-    }
     const input = document.getElementById('lbJoinInput');
     const statusEl = document.getElementById('lbJoinStatus');
     const btn = document.getElementById('lbJoinBtn');

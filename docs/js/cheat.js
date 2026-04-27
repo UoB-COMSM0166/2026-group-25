@@ -15,21 +15,6 @@
     let _liveTickHandle = null;
     let _configDefaults = null;
 
-    // Mark this save as 'cheat tainted' on first modification so the
-    // leaderboard sync logic can refuse to publish modder runs. Idempotent —
-    // safe to call from every write/toggle path.
-    function _markCheatUsed() {
-        if (typeof playerData === 'undefined' || !playerData) return;
-        if (playerData.cheatTainted) return;
-        playerData.cheatTainted = true;
-        try {
-            if (typeof savePlayerData === 'function') savePlayerData(playerData);
-        } catch (_) {}
-        try {
-            if (typeof flushPlayerDataSave === 'function') flushPlayerDataSave(true);
-        } catch (_) {}
-    }
-
     // Persistent live-cheat flags (kept in memory, not saved)
     const live = {
         godMode: false,
@@ -405,12 +390,12 @@
                 ])}
             `)}
             ${_section('无敌 / 自动补给', `
-                ${_chkRow('🛡️ 无敌模式（持续护盾）', live.godMode, v => { live.godMode = v; _applyGodMode(v); if (v) _markCheatUsed(); })}
-                ${_chkRow('♾️ 技能充能不消耗', live.infiniteCharges, v => { live.infiniteCharges = v; if (v) _markCheatUsed(); })}
-                ${_chkRow('💰 自动补金币 (每秒+50)', live.autoCoins, v => { live.autoCoins = v; if (v) _markCheatUsed(); })}
-                ${_chkRow('💎 自动补宝石 (每秒+5)', live.autoGems, v => { live.autoGems = v; if (v) _markCheatUsed(); })}
-                ${_chkRow('💀 一击必杀（敌人 hp 持续清零）', live.oneShotKill, v => { live.oneShotKill = v; if (v) _markCheatUsed(); })}
-                ${_chkRow('⏸ 冻结波次推进', live.freezeWave, v => { live.freezeWave = v; if (v) _markCheatUsed(); })}
+                ${_chkRow('🛡️ 无敌模式（持续护盾）', live.godMode, v => { live.godMode = v; _applyGodMode(v); })}
+                ${_chkRow('♾️ 技能充能不消耗', live.infiniteCharges, v => { live.infiniteCharges = v; })}
+                ${_chkRow('💰 自动补金币 (每秒+50)', live.autoCoins, v => { live.autoCoins = v; })}
+                ${_chkRow('💎 自动补宝石 (每秒+5)', live.autoGems, v => { live.autoGems = v; })}
+                ${_chkRow('💀 一击必杀（敌人 hp 持续清零）', live.oneShotKill, v => { live.oneShotKill = v; })}
+                ${_chkRow('⏸ 冻结波次推进', live.freezeWave, v => { live.freezeWave = v; })}
             `)}
             ${_section('伤害与射速倍率', `
                 <div class="cheat-row">
@@ -450,14 +435,10 @@
         }
     }
 
-    // For sliders: only mark tainted when the value diverges from the
-    // neutral 1.0× default, so just opening the panel and dragging back
-    // to default doesnt permanently taint the save.
-    window._cheatLive = (k, v) => { live[k] = v; if (v !== 1.0) _markCheatUsed(); };
+    window._cheatLive = (k, v) => { live[k] = v; };
 
     window._cheatKillAllEnemies = () => {
         if (!game || !game.enemies) return;
-        _markCheatUsed();
         game.enemies.forEach(e => { e.hp = 0; e.alive = false; });
         _render();
     };
@@ -470,7 +451,6 @@
     };
     window._cheatSpawnBoss = () => {
         if (!game) return;
-        _markCheatUsed();
         // Trigger the existing boss spawn helper if it exists
         if (typeof spawnBoss === 'function') { spawnBoss(); return; }
         // Fallback: nudge wave to a boss-trigger wave
@@ -481,31 +461,26 @@
     };
     window._cheatNextWave = () => {
         if (!game) return;
-        _markCheatUsed();
         game.wave = (game.wave || 1) + 1;
         _render();
     };
     window._cheatJumpWave = (n) => {
         if (!game) return;
-        _markCheatUsed();
         game.wave = (game.wave || 1) + n;
         _render();
     };
     window._cheatActivateShield = () => {
         if (!game) return;
-        _markCheatUsed();
         game.shieldActive = true;
         game.shieldTimer = 30000;
     };
     window._cheatActivateFrenzy = () => {
         if (!game) return;
-        _markCheatUsed();
         game.stimulantActive = true;
         game.stimulantTimer = 30000;
     };
     window._cheatHealAll = () => {
         if (!game) return;
-        _markCheatUsed();
         game.squadCount = Math.max(game.squadCount || 0, game.peakSquad || 50);
         if (game.squadCount < 50) game.squadCount = 50;
         game.peakSquad = Math.max(game.peakSquad || 0, game.squadCount);
@@ -848,9 +823,6 @@
 
     function _markDirty() {
         try { if (typeof markPlayerDataDirty === 'function') markPlayerDataDirty(); } catch {}
-        // Every cheat write path goes through _markDirty, so this is the
-        // single chokepoint that flips the cheat-tainted flag.
-        _markCheatUsed();
     }
 
     function _toast(msg) {
