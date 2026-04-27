@@ -873,36 +873,32 @@ body::after {
    ============================================================ */
 #weaponSlots {
     position: fixed;
-    top: 16px;
-    left: 16px;
+    top: 14px;
+    left: 14px;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-content: flex-start;
     gap: 5px;
-    width: min(220px, 18vw);
+    width: min(180px, 16vw);
     z-index: 5;
     pointer-events: auto;
-    padding: 5px;
-    background: rgba(8,8,20,0.72);
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.07);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    transition: background 0.15s, box-shadow 0.15s, border-color 0.15s, padding 0.15s;
+    padding: 0;
+    background: none;
+    border: none;
+    transition: opacity 0.2s;
 }
 
 .current-weapon-badge {
     min-width: 100%;
     max-width: 100%;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.16);
-    background: rgba(255,255,255,0.04);
-    padding: 4px 6px;
+    border-radius: 0;
+    border: none;
+    background: none;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 5px;
 }
 
 /* Label row hidden — the icon + name already convey "current weapon" */
@@ -912,46 +908,71 @@ body::after {
 
 .current-weapon-main {
     --cw-color: #ffff88;
-    display: grid;
-    grid-template-columns: auto 1fr;
+    position: relative;
+    display: flex;
     align-items: center;
-    column-gap: 6px;
-    min-height: 34px;
-    border: 1px solid color-mix(in srgb, var(--cw-color) 45%, rgba(255,255,255,0.2));
-    border-radius: 7px;
-    background: color-mix(in srgb, var(--cw-color) 14%, rgba(10,10,24,0.85));
-    padding: 3px 5px;
+    gap: 8px;
+    min-height: 36px;
+    border: none;
+    border-radius: 6px;
+    background:
+        linear-gradient(135deg,
+            color-mix(in srgb, var(--cw-color) 10%, rgba(12,12,28,0.88)) 0%,
+            rgba(8,8,20,0.82) 100%);
+    padding: 6px 10px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow:
+        0 0 12px color-mix(in srgb, var(--cw-color) 18%, transparent),
+        0 2px 8px rgba(0,0,0,0.4);
+    overflow: hidden;
+}
+
+/* Left accent bar */
+.current-weapon-main::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 4px; bottom: 4px;
+    width: 2.5px;
+    border-radius: 0 2px 2px 0;
+    background: var(--cw-color);
+    opacity: 0.7;
 }
 
 .current-weapon-icon {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    border-radius: 5px;
+    background: color-mix(in srgb, var(--cw-color) 8%, rgba(255,255,255,0.04));
 }
 
 .current-weapon-icon svg {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
+    filter: drop-shadow(0 0 3px color-mix(in srgb, var(--cw-color) 40%, transparent));
 }
 
 .current-weapon-name {
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-    color: #fff;
-    font-size: min(12px, 2.4vw);
-    line-height: 1.05;
+    font-family: -apple-system, 'Segoe UI', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    color: rgba(255,255,255,0.92);
+    font-size: min(11px, 2.2vw);
+    line-height: 1.15;
+    text-transform: uppercase;
 }
 
 .current-weapon-meta {
-    font-family: 'Courier New', monospace;
-    font-size: min(9px, 1.9vw);
-    color: rgba(255,255,255,0.72);
-    min-height: 9px;
-    margin-top: 1px;
+    font-family: -apple-system, 'Segoe UI', sans-serif;
+    font-size: min(9px, 1.8vw);
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    min-height: 0;
+    margin-top: 0;
 }
 
 .wslot {

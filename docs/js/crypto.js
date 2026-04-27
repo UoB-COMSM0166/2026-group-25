@@ -4,9 +4,30 @@ var _0x,_s0,_s1;!function(){var _p=[],_q=new Uint32Array([0x428a2f98,0x71374491,
 var _k1=function(){var a=[0x9a,0xd6,0xc3,0xb8,0xad,0xc3,0x9f,0xd3,0xd3,0xc1,0xd5,0xcc,0xd4];return a.map(function(c,i){return String.fromCharCode(c^(0xd8+i*3))}).join('')}();
 var _k2=function(){var s='';for(var i=0;i<8;i++)s+=String.fromCharCode(((i*7+13)^0x5A)+i);return s}();
 var _k3=(function(n){return n.toString(36)})(Date.UTC(2024,5,15)/1e5);
-var _kf=_h(_k1+_k2+_k3);
+
+// Hash-chain KDF: defense in depth against trivial off-line replication
+function _hashChain(seed,n){var h=seed;for(var i=0;i<n;i++)h=_h(h);return h}
+var _kf=_hashChain(_k1+_k2+_k3,500);
+
+// Legacy KDF (for reading v2 envelopes written before this upgrade)
+var _kfV2=_h(_k1+_k2+_k3);
+var _ekV2=_h(_kfV2+'encrypt').substring(0,32);
 
 function _hm(m){return _h(_kf.substring(0,32)+'\x00'+m+'\x00'+_kf.substring(32))}
+function _hmV2(m){return _h(_kfV2.substring(0,32)+'\x00'+m+'\x00'+_kfV2.substring(32))}
+
+// Per-save key derived from _kf and IV — same plaintext now produces different
+// ciphertext across saves, and the encryption key is no longer a single static
+// constant in memory.
+function _saveKey(iv){return _h(_kf.substring(0,32)+':'+iv+':'+_kf.substring(32)).substring(0,32)}
+
+function _newIV(){
+    var arr=new Uint8Array(16);
+    try{(window.crypto||window.msCrypto).getRandomValues(arr)}
+    catch(_){for(var j=0;j<16;j++)arr[j]=(Math.random()*256)|0}
+    var hex='';for(var i=0;i<arr.length;i++){var b=arr[i].toString(16);if(b.length<2)b='0'+b;hex+=b}
+    return hex;
+}
 
 // XOR-based data encryption (not just signing - actual obfuscation of stored values)
 function _xc(str,key){
@@ -35,24 +56,20 @@ function _xd(encoded,key){
     }catch(e){return null}
 }
 
-// Encryption key derived differently from signing key
-var _ek=_h(_kf+'encrypt').substring(0,32);
-
-// Anti-tampering: freeze & trap
-var _frozen=false;
-
 _s0=function(sk,data){
-    var enc=_xe(data,_ek);
-    var sig=_hm(sk+':'+enc);
-    // Store with non-obvious field names, add decoy fields
+    var iv=_newIV();
+    var key=_saveKey(iv);
+    var enc=_xe(data,key);
     var ts=Date.now();
+    var sig=_hm(sk+':'+iv+':'+enc+':'+ts);
     var obj={};
-    obj['\x76']=2;              // version marker
-    obj['\x74']=ts;             // timestamp
-    obj['\x70']=enc;            // payload (encrypted)
-    obj['\x63']=sig.substring(0,16); // checksum part 1
-    obj['\x6e']=_h(ts.toString(36)+enc.substring(0,20)).substring(0,12); // noise (derived, verifiable)
-    obj['\x78']=sig.substring(16);   // checksum part 2
+    obj['\x76']=3;                                                                 // version marker
+    obj['\x74']=ts;                                                                // timestamp
+    obj['\x69']=iv;                                                                // per-save IV
+    obj['\x70']=enc;                                                               // payload (encrypted)
+    obj['\x63']=sig.substring(0,16);                                               // checksum part 1
+    obj['\x6e']=_h(ts.toString(36)+iv+enc.substring(0,20)).substring(0,12);        // noise (binds iv + ts + enc prefix)
+    obj['\x78']=sig.substring(16);                                                 // checksum part 2
     try{
         localStorage.setItem(sk,JSON.stringify(obj));
     }catch(e){
@@ -79,28 +96,36 @@ _s1=function(sk){
         return obj; // ancient legacy
     }
 
-    // v2 format
-    if(!obj||obj['\x76']!==2||!obj['\x70']||!obj['\x63']||!obj['\x78'])return null;
+    if(!obj||!obj['\x76'])return null;
 
-    // Verify noise field (anti-edit trap)
-    var expectedNoise=_h(obj['\x74'].toString(36)+obj['\x70'].substring(0,20)).substring(0,12);
-    if(obj['\x6e']!==expectedNoise){
-        localStorage.removeItem(sk);
-        return null;
+    // v3 (current)
+    if(obj['\x76']===3){
+        if(!obj['\x69']||!obj['\x70']||!obj['\x63']||!obj['\x78'])return null;
+        var iv=obj['\x69'],enc=obj['\x70'];
+        var expectedNoise=_h(obj['\x74'].toString(36)+iv+enc.substring(0,20)).substring(0,12);
+        if(obj['\x6e']!==expectedNoise){localStorage.removeItem(sk);return null}
+        var sig=obj['\x63']+obj['\x78'];
+        var expected=_hm(sk+':'+iv+':'+enc+':'+obj['\x74']);
+        if(sig!==expected){localStorage.removeItem(sk);return null}
+        var data=_xd(enc,_saveKey(iv));
+        if(!data){localStorage.removeItem(sk);return null}
+        return data;
     }
 
-    // Reconstruct and verify signature
-    var sig=obj['\x63']+obj['\x78'];
-    var expected=_hm(sk+':'+obj['\x70']);
-    if(sig!==expected){
-        localStorage.removeItem(sk);
-        return null;
+    // v2 (legacy — read only; caller will re-save as v3)
+    if(obj['\x76']===2){
+        if(!obj['\x70']||!obj['\x63']||!obj['\x78'])return null;
+        var expectedNoise2=_h(obj['\x74'].toString(36)+obj['\x70'].substring(0,20)).substring(0,12);
+        if(obj['\x6e']!==expectedNoise2){localStorage.removeItem(sk);return null}
+        var sig2=obj['\x63']+obj['\x78'];
+        var expected2=_hmV2(sk+':'+obj['\x70']);
+        if(sig2!==expected2){localStorage.removeItem(sk);return null}
+        var data2=_xd(obj['\x70'],_ekV2);
+        if(!data2){localStorage.removeItem(sk);return null}
+        return data2;
     }
 
-    // Decrypt payload
-    var data=_xd(obj['\x70'],_ek);
-    if(!data){localStorage.removeItem(sk);return null}
-    return data;
+    return null;
 };
 
 // Global aliases - use non-obvious names
