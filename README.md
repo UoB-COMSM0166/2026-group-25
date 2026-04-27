@@ -327,9 +327,29 @@ The final version includes:
 
 ### 5. Evaluation
 
-#### 5.1 Qualitative Evaluation
+#### 5.1 Qualitative Evaluation (HCI Workshop Findings)
 
-We evaluated the game through informal playtesting and team review. Testers were asked to start from the main menu, enter gameplay, survive several waves, interact with gates, open the shop, check achievements, and comment on what felt clear or confusing.
+During the HCI evaluation workshop, an external student tester evaluated our game using both the **Think Aloud** protocol and a **Heuristic Evaluation** (Nielsen's 10 Heuristics).
+
+**Think Aloud Key Observations:**
+- *Movement:* The tester found the left/right auto-scroll movement intuitive but initially expected up/down arrows to work.
+- *Gates:* The tester vocalized confusion when choosing between "Fire Rate up" and "Damage up" gates, taking damage while deciding. This highlighted that gate text needs to be processed very quickly.
+- *Shop:* The tester successfully identified the shop button but was unsure if upgrades were permanent or just for the next run. 
+
+**Heuristic Evaluation Results:**
+Based on Nielsen's heuristics, the tester identified the following issues:
+
+| Interface | Issue | Heuristic(s) | Frequency (0-4) | Impact (0-4) | Persistence (0-4) | Severity (F+I+P ÷ 3) |
+|-----------|-------|--------------|:---:|:---:|:---:|:---:|
+| Shop Menu | Unclear if purchases are permanent | 1. Visibility of system status | 3 | 2 | 2 | **2.3** (Minor/Major) |
+| Gameplay | Gate text requires too much reading time | 6. Recognition rather than recall | 4 | 3 | 4 | **3.6** (Major) |
+| HUD | Player HP blends in with the busy background | 8. Aesthetic and minimalist design | 3 | 3 | 2 | **2.6** (Minor/Major) |
+
+**Issues to Address Going Forward:**
+1. **Gate Clarity:** We will add clearer iconography or colour-coding (e.g., Green for Buffs, Red for Debuffs) to the gates so players can recognize effects instantly rather than relying solely on text.
+2. **Shop Feedback:** We will update the shop UI to explicitly state "Permanent Upgrades" so the system status is highly visible.
+3. **HUD Contrast:** We plan to add a darker background or stroke outline behind the HP bar to ensure it stands out against chaotic boss waves.
+4. **Difficulty Levels:** As requested during the workshop, we are implementing two difficulty levels (Normal/Hard) with distinct enemy speed and spawn rate multipliers.
 
 | Area tested | Feedback received | Change or response |
 |---|---|---|
