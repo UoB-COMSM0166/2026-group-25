@@ -47,7 +47,7 @@ https://github.com/user-attachments/assets/66b7e2b0-84a3-4597-a25d-86f141d7d775
 
 ![0130_1](https://github.com/user-attachments/assets/36302454-9711-4d80-8e8f-009c0f76e488)
 
-- **[Kanban](https://teletubbies.atlassian.net/jira/software/projects/SMS/boards/1/timeline?atlOrigin=eyJpIjoiYmRkN2Q2NTQ0MzE2NDYxMDk1N2I0MjZmMTA4NTMzY2QiLCJwIjoiaiJ9)**
+
 
 - Lichong YAO, zi25826@bristol.ac.uk, Designer
 - Yusheng Yang, vj25954@bristol.ac.uk, Manager
