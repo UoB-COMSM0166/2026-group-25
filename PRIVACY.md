@@ -35,10 +35,13 @@ Yes.
 ### Local storage
 - Stored in browser `localStorage` under app-prefixed keys.
 - Used only by the client game logic.
+- All save data is encrypted (XOR cipher with per-save random IV) and integrity-protected (HMAC-SHA256 signed envelope). The encryption key is derived via a 500-round hash-chain KDF. Each save produces a unique ciphertext even for identical payloads, preventing external fingerprinting or replay of stored values.
 
 ### Leaderboard backend
-- Data is sent via HTTPS requests to PocketBase API endpoints.
-- Only minimal fields needed for leaderboard are submitted.
+- Data is sent via HTTPS requests to a self-hosted PocketBase instance.
+- Only minimal fields needed for leaderboard are submitted (`player_name`, `score`, `wave`, `level`, `hidden`).
+- Server-side hooks enforce unconditional range validation on `score` and `wave` to reject fabricated or out-of-bounds data.
+- An optional HMAC-SHA256 token (`X-Game-Token`) can accompany submissions; when present, the server verifies it strictly before accepting the write.
 
 ## 5) Privacy improvements implemented
 
