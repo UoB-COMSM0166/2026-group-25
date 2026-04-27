@@ -139,8 +139,4 @@ if (!playerData.achievementsClaimed) playerData.achievementsClaimed = {};
 if (playerData.hasSeenTutorial === undefined) playerData.hasSeenTutorial = false;
 if (playerData.tutorialRewardClaimed === undefined) playerData.tutorialRewardClaimed = false;
 if (playerData.tutorialRewardChoice === undefined) playerData.tutorialRewardChoice = '';
-// Set true once any modifier (cheat panel) action runs against this save.
-// Once true, leaderboard sync is permanently blocked for this save to keep
-// modder runs out of the public ranking.
-if (playerData.cheatTainted === undefined) playerData.cheatTainted = false;
 savePlayerData(playerData);

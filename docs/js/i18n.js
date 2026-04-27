@@ -459,8 +459,6 @@ const TRANSLATIONS = {
         'lb.hidden.notice':    '你的分数当前是私密状态，不会出现在公开榜单中',
         'lb.close':            '关闭',
         'lb.leaderboard.btn':  '🏆 天梯榜',
-        'lb.tainted.title':    '此存档已使用修改器',
-        'lb.tainted.body':     '为了天梯榜的公平性，使用过修改器的存档不会同步分数到公开榜单。这是不可恢复的——重置存档后即可重新参加排名。',
     },
 
     en: {
@@ -814,8 +812,6 @@ const TRANSLATIONS = {
         'lb.hidden.notice':    'Your score is currently private and will not appear on the public leaderboard',
         'lb.close':            'Close',
         'lb.leaderboard.btn':  '🏆 Leaderboard',
-        'lb.tainted.title':    'Modifier was used on this save',
-        'lb.tainted.body':     'To keep the leaderboard fair, saves that used the modifier panel cannot sync scores to the public ranking. This is permanent — reset your save to re-enter the ranking.',
     },
 };
 
