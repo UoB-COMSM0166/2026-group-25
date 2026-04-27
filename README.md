@@ -217,6 +217,60 @@ We kept the control model intentionally small. If the player also had to aim, sh
 
 We also separated short-term and long-term decisions. Gates and weapon pickups affect the current run immediately, while shop upgrades and talents change future runs. This gives the game a layered structure: quick arcade action in the moment, and gradual improvement over time.
 
+#### 3.5 UML Diagrams
+
+**Class Diagram**
+```mermaid
+classDiagram
+    class Game {
+        +object[] bullets
+        +object[] enemies
+        +object[] explosions
+        +object player
+        +number score
+        +update()
+        +draw()
+    }
+    class Player {
+        +number x
+        +number z
+        +number hp
+        +move()
+    }
+    class Bullet {
+        +number x
+        +number z
+        +string weapon
+        +number damage
+    }
+    class Enemy {
+        +number x
+        +number z
+        +number hp
+        +die()
+    }
+    Game "1" *-- "1" Player
+    Game "1" *-- "*" Bullet
+    Game "1" *-- "*" Enemy
+```
+
+**Sequence Diagram (Shooting & Collision)**
+```mermaid
+sequenceDiagram
+    participant Player
+    participant Game
+    participant Collision
+    participant Enemy
+
+    Player->>Game: fire()
+    Game->>Game: createBullet()
+    Game->>Collision: checkBulletCollision()
+    Collision->>Enemy: hitCheck()
+    Enemy-->>Collision: takeDamage()
+    Collision->>Game: addExplosion()
+```
+
+
 
 
 ---
