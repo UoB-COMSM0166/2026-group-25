@@ -14,6 +14,31 @@ function _lbEscape(str) {
         .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+// ── Forbidden word list (must match server-side list) ─────────
+// Player names containing these substrings will be masked with "**".
+const _FORBIDDEN_WORDS = [
+    '傻逼', 'sb', '垃圾', '废物', '狗', '操', 'fuck',
+    '他妈', '特么', '草泥马', '屌', '婊',
+    'cao', 'shit', 'asshole', 'nmsl', 'cnm', 'tmd', 'md', 'wqnmlgb'
+];
+
+function _censorName(name) {
+    const n = String(name || '');
+    var result = n;
+    var lower = result.toLowerCase();
+    for (var i = 0; i < _FORBIDDEN_WORDS.length; i++) {
+        var w = _FORBIDDEN_WORDS[i].toLowerCase();
+        if (!w) continue;
+        while (true) {
+            var idx = lower.indexOf(w);
+            if (idx === -1) break;
+            result = result.substring(0, idx) + '**' + result.substring(idx + w.length);
+            lower = result.toLowerCase();
+        }
+    }
+    return result;
+}
+
 // ── localStorage ──────────────────────────────────────────────
 function getLbPlayer() {
     try { const r = localStorage.getItem(LB_STORAGE_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
@@ -249,9 +274,10 @@ async function _renderList(myName) {
             const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`;
             const isMe = myName && item.player_name === myName;
             const lv = item.level || 1;
+            const dispName = _censorName(item.player_name);
             return `<div class="lb-row${i < 3 ? ' lb-top3' : ''}${isMe ? ' lb-mine' : ''}">
                 <span class="lb-rank">${medal}</span>
-                <span class="lb-name">${_lbEscape(item.player_name)}</span>
+                <span class="lb-name">${_lbEscape(dispName)}</span>
                 <span class="lb-level">Lv.${lv}</span>
                 <span class="lb-score">${item.score.toLocaleString()}</span>
                 <span class="lb-wave">W${item.wave}</span>
@@ -266,7 +292,7 @@ async function _renderList(myName) {
                 const lv = hs.level || (playerData ? Math.floor(playerData.level || 1) : 1);
                 html += `<div class="lb-row lb-mine">
                     <span class="lb-rank" style="color:#888">--</span>
-                    <span class="lb-name">${_lbEscape(myName)}</span>
+                    <span class="lb-name">${_lbEscape(_censorName(myName))}</span>
                     <span class="lb-level">Lv.${lv}</span>
                     <span class="lb-score">${hs.score > 0 ? hs.score.toLocaleString() : '--'}</span>
                     <span class="lb-wave">${hs.wave > 0 ? 'W'+hs.wave : '--'}</span>
@@ -280,7 +306,7 @@ async function _renderList(myName) {
                         const myMedal = myRank === 1 ? '🥇' : myRank === 2 ? '🥈' : myRank === 3 ? '🥉' : `${myRank}`;
                         html += `<div class="lb-row lb-mine">
                             <span class="lb-rank">${myMedal}</span>
-                            <span class="lb-name">${_lbEscape(myName)}</span>
+                            <span class="lb-name">${_lbEscape(_censorName(myName))}</span>
                             <span class="lb-level">Lv.${lv}</span>
                             <span class="lb-score">${hs.score.toLocaleString()}</span>
                             <span class="lb-wave">W${hs.wave}</span>
