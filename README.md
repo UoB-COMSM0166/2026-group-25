@@ -53,7 +53,8 @@ We reviewed data collection in this game and documented what is collected, why, 
 
 ## Your Group
 
-<img width="1122" height="1402" alt="fec5187c0f3a6316206d2c85914bce84" src="https://github.com/user-attachments/assets/46a72c83-8f20-46e2-a164-4c72b200e5e8" />
+<img width="922" height="1152" alt="cf8491d6113bb7f263f235f8ce58da35" src="https://github.com/user-attachments/assets/88c73a24-042c-4328-abfb-c71eb0676e32" />
+
 
 
 
