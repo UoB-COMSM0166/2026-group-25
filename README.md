@@ -36,9 +36,17 @@ We reviewed data collection in this game and documented what is collected, why, 
 
 
 
-https://github.com/user-attachments/assets/66b7e2b0-84a3-4597-a25d-86f141d7d775
+<div align="center">
 
+[![Watch the video](https://img.youtube.com/vi/91fSc7DAjAI/0.jpg)](https://www.youtube.com/watch?v=91fSc7DAjAI)
 
+</div>
+
+<div align="center">
+
+### [▶ Watch the demo video](https://www.youtube.com/watch?v=91fSc7DAjAI)
+
+</div>
 
 
 
