@@ -192,23 +192,39 @@ At a high level, the game runs through several states:
 
 ---
 
-#### 3.2 Module Structure  
+#### 3.2 Module Structure
+
+The runtime currently spans 26 JavaScript modules under `docs/js/`. The table groups them by responsibility.
 
 | File | Responsibility |
 |---|---|
 | `docs/index.html` | Main HTML structure, overlays, menu panels, and script loading |
 | `docs/style.css` | Game UI, menus, shop panels, achievements, leaderboard, and responsive styling |
-| `docs/js/main.js` | p5.js lifecycle, setup, draw loop, and high-level game state routing |
+| `docs/js/main.js` | p5.js lifecycle, `setup()`, `draw()` loop, and high-level state routing |
+| `docs/js/globals.js` | Top-level shared state (player, enemies, bullets, gates, score, wave, weapon timers) |
 | `docs/js/config.js` | Game constants, level settings, weapons, talents, enemy types, and balance data |
+| `docs/js/core.js` | Game initialisation, projection, level configuration |
 | `docs/js/input.js` | Keyboard, mouse, and touch input handling |
-| `docs/js/update.js` | Main update flow for each frame |
-| `docs/js/update_world.js` | Gates, wave spawning, barrels, coins, gems, and world progression |
-| `docs/js/update_effects.js` | Visual effects, timers, and feedback effects |
-| `docs/js/shop.js` | Permanent shop, weapon purchases, talents, and item UI |
-| `docs/js/achievements.js` | Achievement definitions, tracking, claiming, and notifications |
-| `docs/js/leaderboard.js` | PocketBase leaderboard connection and score synchronisation |
-| `docs/js/i18n.js` | English/Chinese translation dictionary and language switching |
-| `docs/js/crypto.js` / persistence helpers | Encrypted local progress persistence and save-data integrity checks |
+| `docs/js/update.js` | Main update flow for each frame; dispatches to sub-systems below |
+| `docs/js/update_world.js` | Gates, wave triggers, barrels, coins, gems, world progression |
+| `docs/js/update_enemies.js` | Enemy AI, movement, animation, boss skill execution |
+| `docs/js/update_collision.js` | Bullet–enemy collision, damage application, explosion spawning |
+| `docs/js/update_effects.js` | Damage numbers, blast rings, fade timers, feedback effects |
+| `docs/js/update_timers.js` | Global timers — weapons, skills, effect cooldowns |
+| `docs/js/spawn.js` | Spawn functions for enemies, bosses, gates, barrels |
+| `docs/js/combat.js` | Weapon firing, bullet creation, damage numbers, boss attacks |
+| `docs/js/draw.js` | 3D perspective rendering and sprite drawing |
+| `docs/js/render.js` | UI rendering, HUD, in-world text |
+| `docs/js/hud.js` | In-game UI (HP bars, popup text, combo counters) |
+| `docs/js/shop.js` | Permanent shop, weapon purchases, talents, mid-run shop UI |
+| `docs/js/achievements.js` | Achievement definitions, tracking, claiming, notifications |
+| `docs/js/leaderboard.js` | PocketBase leaderboard connection, hide/show, score sync |
+| `docs/js/i18n.js` | English / Chinese translation dictionary and language switching |
+| `docs/js/audio.js` | Sound-effect playback and music management |
+| `docs/js/tutorial.js` | Tutorial level logic and scripted hints |
+| `docs/js/helpers.js` | Utility functions (adaptive scaling, level multipliers) |
+| `docs/js/cheat.js` | Developer / debugging tools |
+| `docs/js/crypto.js` / persistence helpers | Signed local progress persistence and save-data integrity checks |
 
 ---
 
@@ -237,40 +253,147 @@ We also separated short-term and long-term decisions. Gates and weapon pickups a
 
 #### 3.5 UML Diagrams
 
-**Class Diagram**
+**Class Diagram.** Bridge Assault is implemented as plain JavaScript with shared module-level state rather than ES6 classes, so the "classes" below describe the **object shapes** that flow through the runtime. The diagram covers the in-run world entities, the visual-effect objects, and the persistence-layer records that survive across runs.
+
 ```mermaid
 classDiagram
     class Game {
-        +object[] bullets
-        +object[] enemies
-        +object[] explosions
-        +object player
+        +string state
+        +number cameraZ
         +number score
-        +update()
-        +draw()
+        +number wave
+        +number killCount
+        +number comboCount
+        +number squadCount
+        +string weapon
+        +number weaponTimer
+        +boolean levelCompleted
+        +Player player
+        +Enemy[] enemies
+        +Bullet[] bullets
+        +Gate[] gates
+        +Barrel[] barrels
+        +Coin[] coins
+        +Gem[] gems
+        +DamageNumber[] damageNumbers
+        +Explosion[] explosions
+        +update() void
+        +draw() void
     }
     class Player {
         +number x
-        +number z
-        +number hp
-        +move()
-    }
-    class Bullet {
-        +number x
-        +number z
-        +string weapon
-        +number damage
+        +number animFrame
+        +number muzzleFlash
     }
     class Enemy {
         +number x
         +number z
         +number hp
-        +die()
+        +number maxHp
+        +number damage
+        +number type
+        +boolean alive
+        +boolean isHeavy
+        +boolean isBoss
+        +boolean isMegaBoss
+        +number hitFlash
     }
+    class Bullet {
+        +number x
+        +number z
+        +number vx
+        +number vz
+        +string weapon
+        +number damage
+        +number tier
+        +boolean pierce
+        +Set hitEnemies
+    }
+    class Gate {
+        +number z
+        +GateOption[] options
+        +boolean triggered
+        +number fadeTimer
+        +number chosenIdx
+    }
+    class GateOption {
+        +number x
+        +number width
+        +string gateType
+        +string op
+        +number value
+        +string weapon
+    }
+    class Barrel {
+        +number x
+        +number z
+        +number hp
+        +number aoeDamage
+        +boolean alive
+    }
+    class Coin {
+        +number x
+        +number z
+        +number y
+        +number value
+        +number life
+    }
+    class Gem {
+        +number x
+        +number z
+        +number y
+        +number value
+        +number life
+    }
+    class DamageNumber {
+        +number x
+        +number z
+        +number value
+        +boolean crit
+        +number life
+    }
+    class Explosion {
+        +number x
+        +number z
+        +number timer
+        +boolean isBlastRing
+    }
+    class PlayerData {
+        +number coins
+        +number gems
+        +number level
+        +number exp
+        +number armor
+        +Object weaponLevels
+        +Object weaponCharges
+        +Object talents
+        +Object achievements
+        +Object stats
+    }
+    class Achievement {
+        +string id
+        +string name
+        +number tiers
+        +number[] goals
+        +Object[] rewards
+        +function check
+    }
+
     Game "1" *-- "1" Player
-    Game "1" *-- "*" Bullet
     Game "1" *-- "*" Enemy
+    Game "1" *-- "*" Bullet
+    Game "1" *-- "*" Gate
+    Game "1" *-- "*" Barrel
+    Game "1" *-- "*" Coin
+    Game "1" *-- "*" Gem
+    Game "1" *-- "*" DamageNumber
+    Game "1" *-- "*" Explosion
+    Gate "1" o-- "*" GateOption
+    Game ..> PlayerData : reads / writes
+    PlayerData "1" *-- "*" Achievement : tracks
 ```
+
+The `Game` aggregate is the global state container assembled in `globals.js`; per-frame updates live in `update*.js` and mutate its arrays in place. `Player` only stores presentation fields — squad health is represented collectively by `Game.squadCount` rather than by a per-soldier `hp`. `Enemy` covers regular foes, heavy variants, bosses, and mega-bosses through boolean flags rather than separate subclasses; boss-specific fields (`bossShootTimer`, `megaSkillTimer`, `megaNextSkill`, …) are attached only when the spawn function builds a boss. `Gate` and `GateOption` form a parent-children pair because each gate offers two or three branchable options selected by the player's lane on contact. `Coin`, `Gem`, `DamageNumber`, and `Explosion` are all short-lived particle-like objects that live until their `life`/`timer` reaches zero and are then garbage-collected by the next array filter. Persistence is split out: `PlayerData` is signed and stored in `localStorage` by `crypto.js`, and `Achievement` definitions plus per-tier progress live inside it.
 
 **Sequence Diagram (Shooting & Collision)**
 ```mermaid
