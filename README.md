@@ -1106,7 +1106,7 @@ Overall, Bridge Assault helped us practise both game development and software en
 | Yusheng Yang | Manager | Team coordination, planning, task tracking, repository organisation, report structure | 20% |
 | Zhiqin Lin | Coder, Reviewer | Core gameplay, combat systems, enemy waves, weapons, boss behaviour, code review, UI/UX implementation, achievement, shop/progression systems, leaderboard support | 20% |
 | Yulun Wu | Testing engineer | Manual testing, bug reporting, edge-case checks, playtest feedback, QA notes | 20% |
-| Yiyang Dong | Coder | UI implementation, shop/progression systems, leaderboard support | 20% |
+| Yiyang Dong | Coder | UI implementation, shop/progression systems, leaderboard support, report review and refinement, bug fixing | 20% |
 
 
 
