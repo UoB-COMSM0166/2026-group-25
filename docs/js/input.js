@@ -95,16 +95,23 @@ function mouseMoved() {
     }
 }
 
-function touchMoved() {
+function _isTouchOnCanvas(e) {
+    const t = e && (e.target || (e.targetTouches && e.targetTouches[0] && e.targetTouches[0].target));
+    return !t || t.tagName === 'CANVAS';
+}
+
+function touchMoved(e) {
     if (game && game.state === 'playing' && touches.length > 0) {
         game.inputX = Math.max(-CONFIG.ROAD_HALF_WIDTH, Math.min(CONFIG.ROAD_HALF_WIDTH, _getWorldX(touches[0].x)));
     }
+    if (!_isTouchOnCanvas(e)) return;
     return false;
 }
 
-function touchStarted() {
+function touchStarted(e) {
     if (game && game.state === 'playing' && touches.length > 0) {
         game.inputX = Math.max(-CONFIG.ROAD_HALF_WIDTH, Math.min(CONFIG.ROAD_HALF_WIDTH, _getWorldX(touches[0].x)));
     }
+    if (!_isTouchOnCanvas(e)) return;
     return false;
 }

@@ -6,7 +6,6 @@ html, body {
         radial-gradient(circle at top, #24385c 0%, #10182d 34%, #070b16 68%, #03050a 100%);
     overflow: hidden;
     font-family: 'Courier New', monospace;
-    touch-action: none;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
@@ -51,6 +50,7 @@ body::after {
 #gameContainer canvas {
     display: block;
     width: 100%; height: 100%;
+    touch-action: none;
 }
 
 /* Overlay (Start / Game Over) */
