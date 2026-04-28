@@ -95,6 +95,15 @@ function mouseMoved() {
     }
 }
 
+// p5.js 1.x falls back to touchStarted/touchMoved/touchEnded when the
+// matching mouse* handler is missing, then calls preventDefault() if the
+// touch handler returns false. That blocks every mousedown on UI overlays
+// (e.g. cheat panel sliders), so define explicit no-op mouse handlers to
+// short-circuit the fallback.
+function mousePressed() {}
+function mouseDragged() {}
+function mouseReleased() {}
+
 function _isTouchOnCanvas(e) {
     const t = e && (e.target || (e.targetTouches && e.targetTouches[0] && e.targetTouches[0].target));
     return !t || t.tagName === 'CANVAS';
