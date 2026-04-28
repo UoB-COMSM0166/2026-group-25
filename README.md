@@ -216,6 +216,7 @@ The runtime currently spans 26 JavaScript modules under `docs/js/`. The table gr
 | `docs/js/draw.js` | 3D perspective rendering and sprite drawing |
 | `docs/js/render.js` | UI rendering, HUD, in-world text |
 | `docs/js/hud.js` | In-game UI (HP bars, popup text, combo counters) |
+| `docs/js/ui.js` | Pause menu, level select, game lifecycle, skill / weapon-slot UI, revive and game-over overlays, debug overlay |
 | `docs/js/shop.js` | Permanent shop, weapon purchases, talents, mid-run shop UI |
 | `docs/js/achievements.js` | Achievement definitions, tracking, claiming, notifications |
 | `docs/js/leaderboard.js` | PocketBase leaderboard connection, hide/show, score sync |
@@ -400,16 +401,16 @@ The `Game` aggregate is the global state container assembled in `globals.js`; pe
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Loop as p5.js draw loop
+    participant Frame as p5.js draw
     participant Timers as update_timers
     participant Combat as combat.fireWeapon
-    participant Game as game (shared state)
+    participant Game as game state
     participant Collision as update_collision
     participant Enemy
     participant Kill as helpers.processEnemyKill
 
-    Note over Loop,Timers: per-frame tick — auto-fire is timer-driven, not player-initiated
-    Loop->>Timers: shootTimer -= dt
+    Note over Frame,Timers: per-frame tick — auto-fire is timer-driven, not player-initiated
+    Frame->>Timers: shootTimer -= dt
     opt shootTimer <= 0
         Timers->>Combat: fireWeapon()
         Combat->>Game: read playerData talents / weapon tier
@@ -417,7 +418,7 @@ sequenceDiagram
         Combat->>Game: player.muzzleFlash = 4
     end
 
-    Loop->>Collision: updateBulletCollisions(g, dtF)
+    Frame->>Collision: updateBulletCollisions(g, dtF)
     Collision->>Game: move every bullet (b.x += b.vx * dtF)
     Collision->>Game: cull off-screen / over-range bullets
 
