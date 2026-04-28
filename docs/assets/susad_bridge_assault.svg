@@ -12,11 +12,11 @@
 <line x1="400" y1="380" x2="611.6026908252903" y2="671.2461179749811" stroke="#ced4da" stroke-width="1.5" stroke-dasharray="5,5"/>
 <line x1="400" y1="380" x2="188.3973091747097" y2="671.2461179749811" stroke="#ced4da" stroke-width="1.5" stroke-dasharray="5,5"/>
 <line x1="400" y1="380" x2="57.61965413374469" y2="268.753882025019" stroke="#ced4da" stroke-width="1.5" stroke-dasharray="5,5"/>
-<text x="400.0" y="-10.0" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="central" transform="rotate(0 400.0 -10.0)">Individual</text>
-<text x="770.9120413551099" y="259.4833721937705" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="central" transform="rotate(72 770.9120413551099 259.4833721937705)">Technical</text>
-<text x="629.2362483940645" y="695.5166278062295" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="central" transform="rotate(324 629.2362483940645 695.5166278062295)">Economic</text>
-<text x="170.7637516059355" y="695.5166278062295" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="central" transform="rotate(396 170.7637516059355 695.5166278062295)">Environmental</text>
-<text x="29.08795864489008" y="259.48337219377055" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="central" transform="rotate(288 29.08795864489008 259.48337219377055)">Social</text>
+<text x="214.1151957595605" y="124.15151615313582" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="central" transform="rotate(-36 214.1151957595605 124.15151615313582)">Social</text>
+<text x="99.23206874684837" y="477.72542485937373" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="central" transform="rotate(72 99.23206874684837 477.72542485937373)">Environmental</text>
+<text x="400.0" y="696.2461179749811" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="central" transform="rotate(0 400.0 696.2461179749811)">Economic</text>
+<text x="700.7679312531516" y="477.7254248593737" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="central" transform="rotate(-72 700.7679312531516 477.7254248593737)">Technical</text>
+<text x="585.8848042404395" y="124.15151615313576" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="central" transform="rotate(36 585.8848042404395 124.15151615313576)">Individual</text>
 <text x="484.94678440936946" y="318.28254850929034" font-size="14" font-weight="bold" fill="#adb5bd" transform="rotate(15 484.94678440936946 318.28254850929034)">immediate</text>
 <text x="582.0288237343632" y="247.74831823419353" font-size="14" font-weight="bold" fill="#adb5bd" transform="rotate(15 582.0288237343632 247.74831823419353)">enabling</text>
 <text x="679.1108630593569" y="177.21408795909676" font-size="14" font-weight="bold" fill="#adb5bd" transform="rotate(15 679.1108630593569 177.21408795909676)">structural</text>
