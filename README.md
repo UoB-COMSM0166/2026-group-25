@@ -395,21 +395,55 @@ classDiagram
 
 The `Game` aggregate is the global state container assembled in `globals.js`; per-frame updates live in `update*.js` and mutate its arrays in place. `Player` only stores presentation fields — squad health is represented collectively by `Game.squadCount` rather than by a per-soldier `hp`. `Enemy` covers regular foes, heavy variants, bosses, and mega-bosses through boolean flags rather than separate subclasses; boss-specific fields (`bossShootTimer`, `megaSkillTimer`, `megaNextSkill`, …) are attached only when the spawn function builds a boss. `Gate` and `GateOption` form a parent-children pair because each gate offers two or three branchable options selected by the player's lane on contact. `Coin`, `Gem`, `DamageNumber`, and `Explosion` are all short-lived particle-like objects that live until their `life`/`timer` reaches zero and are then garbage-collected by the next array filter. Persistence is split out: `PlayerData` is signed and stored in `localStorage` by `crypto.js`, and `Achievement` definitions plus per-tier progress live inside it.
 
-**Sequence Diagram (Shooting & Collision)**
+**Sequence Diagram (Auto-fire & Collision).** Shooting in Bridge Assault is *not* a player-initiated action — the player only controls movement and the `update_timers` module fires the equipped weapon automatically once `shootTimer` falls to zero. The diagram below traces one full pipeline tick from the timer firing the weapon through the collision pass deciding whether an enemy dies, drops loot, or just flashes. It is the same call chain you can read in `update_timers.js`, `combat.js`, `update_collision.js`, and `helpers.js`.
+
 ```mermaid
 sequenceDiagram
-    participant Player
-    participant Game
-    participant Collision
+    autonumber
+    participant Loop as p5.js draw loop
+    participant Timers as update_timers
+    participant Combat as combat.fireWeapon
+    participant Game as game (shared state)
+    participant Collision as update_collision
     participant Enemy
+    participant Kill as helpers.processEnemyKill
 
-    Player->>Game: fire()
-    Game->>Game: createBullet()
-    Game->>Collision: checkBulletCollision()
-    Collision->>Enemy: hitCheck()
-    Enemy-->>Collision: takeDamage()
-    Collision->>Game: addExplosion()
+    Note over Loop,Timers: per-frame tick — auto-fire is timer-driven, not player-initiated
+    Loop->>Timers: shootTimer -= dt
+    opt shootTimer <= 0
+        Timers->>Combat: fireWeapon()
+        Combat->>Game: read playerData talents / weapon tier
+        Combat->>Game: bullets.push(N bullets)
+        Combat->>Game: player.muzzleFlash = 4
+    end
+
+    Loop->>Collision: updateBulletCollisions(g, dtF)
+    Collision->>Game: move every bullet (b.x += b.vx * dtF)
+    Collision->>Game: cull off-screen / over-range bullets
+
+    loop for each bullet x each alive enemy
+        Collision->>Collision: swept AABB (prev -> curr vs enemy hitbox)
+        opt hit detected
+            Collision->>Enemy: e.hp -= hitDmg, e.hitFlash = 4
+            Collision->>Game: addImpactFeedback (particles, shake, sfx)
+            opt rocket (b.aoeRadius set)
+                Collision->>Game: spawn Explosion blast rings
+                Collision->>Enemy: AOE damage to neighbours
+            end
+            opt e.hp <= 0
+                Collision->>Kill: processEnemyKill(g, e)
+                Kill->>Game: drop Coin / Gem, increment score + killCount
+            end
+        end
+    end
+    Collision->>Game: emit merged DamageNumbers, filter dead bullets
 ```
+
+A few details worth pointing out from the code:
+- The Player actor never appears in this diagram because the player has no synchronous role in the firing pipeline; their input only feeds `g.player.x` (handled in `input.js`) which is read passively when `fireWeapon()` decides where to spawn bullets.
+- The collision check is a **swept AABB** between the bullet's previous and current positions, not a point-in-box test. This is in the code specifically so fast bullets at high frame deltas cannot tunnel through small hit boxes.
+- Damage numbers are **merged per enemy** before display: if a shotgun dumps 5 pellets into one enemy in a single frame, they show up as one combined number rather than five overlapping ones. That is why the merged-emit step happens after the collision loop, not inside it.
+- `pierce` bullets (laser, top-tier pistol) carry a `Set` of already-hit enemies so they don't re-damage the same enemy on subsequent frames as they continue travelling forward.
 
 
 
