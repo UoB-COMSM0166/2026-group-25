@@ -26,15 +26,7 @@ This final version also includes permanent progression, a shop, special weapons,
 <br>
 <br>
 
-## Privacy
-
-We reviewed data collection in this game and documented what is collected, why, and how it is handled.
-
-- See [`PRIVACY.md`](./PRIVACY.md) for full details.
-- Core gameplay works without submitting remote personal data.
-- Leaderboard visibility is privacy-first (private by default unless player explicitly enables public visibility).
-
-
+## Demo Video
 
 <div align="center">
 
@@ -48,6 +40,14 @@ We reviewed data collection in this game and documented what is collected, why, 
 
 </div>
 
+
+## Privacy
+
+We reviewed data collection in this game and documented what is collected, why, and how it is handled.
+
+- See [`PRIVACY.md`](./PRIVACY.md) for full details.
+- Core gameplay works without submitting remote personal data.
+- Leaderboard visibility is privacy-first (private by default unless player explicitly enables public visibility).
 
 
 
@@ -146,7 +146,7 @@ The **Progression** column shows systems that extend the basic combat loop. *Use
 
 The **End & Online** column covers what happens when a run ends. *Game Over / Restart* is the central pivot — *Revive* `«extend»`s it as an optional second-chance action when the player holds a revive item. *Join Leaderboard* `«include»`s *Sync Best Score* because joining the leaderboard always entails syncing. The **Leaderboard Service** is drawn as an external supporting actor (rectangle with `«external»` stereotype) because score submission depends on a backend (PocketBase) rather than only local browser storage; this externalisation flags privacy, reliability, and connectivity considerations as first-class requirements.
 
-The **Tester / Assessor** is shown as a secondary actor to highlight that the same use cases support both gameplay and structured evaluation. The two actors share the system interface but pursue different goals — players seek immersion and progression, while testers verify the acceptance criteria documented in §5.3. We deliberately did not invent fictitious testing-only use cases; instead, the secondary actor reuses the existing flows under a verification mindset, and only connects to the three anchor flows (*Start Run*, *Play Run*, *Game Over / Restart*) that gate the rest of the verification chain.
+The **Tester / Assessor** is shown as a secondary actor to highlight that the same use cases support both gameplay and structured evaluation. The two actors share the system interface but pursue different goals — players seek immersion and progression, while testers verify the acceptance criteria documented in §5.4. We deliberately did not invent fictitious testing-only use cases; instead, the secondary actor reuses the existing flows under a verification mindset, and only connects to the three anchor flows (*Start Run*, *Play Run*, *Game Over / Restart*) that gate the rest of the verification chain.
 
 <div align="center">
 <img src="docs/assets/use-case-diagram.png" alt="Bridge Assault Use Case Diagram" width="900" />
@@ -528,25 +528,25 @@ The final version includes:
 
 #### 5.2 Quantitative Evaluation (HCI Workshop Findings)
 
-During the HCI evaluation workshop and subsequent sessions, we collaborated with other teams to conduct a quantitative evaluation with **18 users**. Our goal was to measure workload and usability across our two difficulty levels (Normal and Hard). 
+During the HCI evaluation workshop and subsequent sessions, we collaborated with other teams to conduct a quantitative evaluation with **18 users**. Our goal was to measure workload and usability across two test conditions: **Level I**, treated as Normal, and **Level II**, treated as Hard.
 
 **Methodology:**
-- Each participant played the game twice, once on Normal and once on Hard.
-- To account for the **learning effect**, we swapped the difficulty order for half of the users (i.e., half played Normal then Hard; the other half played Hard then Normal).
+- Each participant played the game twice, once on Level I (Normal condition) and once on Level II (Hard condition).
+- To account for the **learning effect**, we swapped the condition order for half of the users (i.e., half played Level I then Level II; the other half played Level II then Level I).
 - After each run, users completed an online form containing the **NASA Task Load Index (TLX)** and the **System Usability Scale (SUS)**.
 
 **Aggregate Results (Averages from 18 users):**
-- **Normal Difficulty:** 
+- **Level I / Normal condition:**
   - NASA TLX: 41.5 / 100
   - SUS: 84.2 / 100
-- **Hard Difficulty:** 
+- **Level II / Hard condition:**
   - NASA TLX: 68.3 / 100
   - SUS: 78.5 / 100
 
 **Significance Testing:**
 Using the **Wilcoxon signed-rank test** via the online calculator, we analysed the four calculated scores:
-1. **Workload (NASA TLX):** The test revealed a statistically significant increase in workload on the Hard difficulty (*p < 0.05*). This confirms that our difficulty scaling effectively demands more mental and temporal effort from players.
-2. **Usability (SUS):** Both scores remained well above the industry average of 68. The slight drop in usability on Hard mode was not statistically significant, indicating that the core controls and user interface remain highly usable even when the gameplay becomes chaotic.
+1. **Workload (NASA TLX):** The test revealed a statistically significant increase in workload on the Level II / Hard condition (*p < 0.05*). This confirms that the second stage effectively demands more mental and temporal effort from players.
+2. **Usability (SUS):** Both scores remained well above the industry average of 68. The slight drop in usability on the Level II / Hard condition was not statistically significant, indicating that the core controls and user interface remain highly usable even when the gameplay becomes chaotic.
 
 ---
 
@@ -628,7 +628,7 @@ Overall, our process improved significantly during the project. We began with in
 
 We considered sustainability using the Sustainability Awareness Framework introduced in the module. This helped us look beyond the direct environmental footprint of the code and consider longer-term effects across environmental, technical, social, individual, and economic dimensions. For this report, we focus mainly on environmental impact, technical sustainability, and social/individual impact, while also recognising some economic trade-offs.
 
-Environmentally, Bridge Assault is a relatively lightweight browser game. It is deployed as a static GitHub Pages site rather than as a large installed application or server-heavy online game. The playable `docs` folder is about 14.12 MB in total, with around 0.46 MB of JavaScript. Most of the size comes from image and audio assets, including 17 PNG files and 12 MP3 files. This is small compared with many commercial games, but it is still not impact-free: every page load transfers data, uses network infrastructure, and consumes energy on the player's device.
+Environmentally, Bridge Assault is a relatively lightweight browser game. It is deployed as a static GitHub Pages site rather than as a large installed application or server-heavy online game. The playable `docs` folder is about 17.04 MB in total, with around 0.46 MB of JavaScript. Most of the size comes from image and audio assets, including 19 PNG files and 12 MP3 files. This is small compared with many commercial games, but it is still not impact-free: every page load transfers data, uses network infrastructure, and consumes energy on the player's device.
 
 The game uses p5.js and 2D rendering rather than a heavy 3D engine. This keeps hardware requirements low and allows the game to run on ordinary laptops through a browser. This is relevant to ICT's own footprint and obsolescence: software that requires newer hardware can indirectly contribute to waste, while lightweight browser software can extend the usefulness of existing devices. Because the game is accessed through a link, players do not need to install extra software or repeatedly download large updates.
 
