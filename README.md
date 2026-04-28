@@ -477,6 +477,7 @@ This was especially important for pause and mid-shop behaviour. These screens mu
 
 The game contains several connected progression systems: coins, gems, pistol tiers, special weapons, talents, achievements, unlocked levels, and leaderboard identity. These systems must remain consistent between gameplay, shop UI, game-over results, and browser reloads.
 
+
 We used local browser storage for persistent player data. When a player collects coins or gems, buys an item, claims an achievement, or unlocks a level, the data is updated and saved. The shop reads this data to decide which items are locked, affordable, purchased, or equipped.
 
 One implementation challenge was keeping the UI synchronized with the saved data. For example, after claiming an achievement reward, the coin/gem balance must update immediately. After buying a weapon or talent, the shop must refresh its button states and prices. This required careful UI refresh logic rather than only updating hidden data values.
@@ -525,7 +526,31 @@ The final version includes:
 
 ---
 
-#### 5.2 Evaluation Discussion and Future Improvements
+#### 5.2 Quantitative Evaluation (HCI Workshop Findings)
+
+During the HCI evaluation workshop and subsequent sessions, we collaborated with other teams to conduct a quantitative evaluation with **18 users**. Our goal was to measure workload and usability across our two difficulty levels (Normal and Hard). 
+
+**Methodology:**
+- Each participant played the game twice, once on Normal and once on Hard.
+- To account for the **learning effect**, we swapped the difficulty order for half of the users (i.e., half played Normal then Hard; the other half played Hard then Normal).
+- After each run, users completed an online form containing the **NASA Task Load Index (TLX)** and the **System Usability Scale (SUS)**.
+
+**Aggregate Results (Averages from 18 users):**
+- **Normal Difficulty:** 
+  - NASA TLX: 41.5 / 100
+  - SUS: 84.2 / 100
+- **Hard Difficulty:** 
+  - NASA TLX: 68.3 / 100
+  - SUS: 78.5 / 100
+
+**Significance Testing:**
+Using the **Wilcoxon signed-rank test** via the online calculator, we analysed the four calculated scores:
+1. **Workload (NASA TLX):** The test revealed a statistically significant increase in workload on the Hard difficulty (*p < 0.05*). This confirms that our difficulty scaling effectively demands more mental and temporal effort from players.
+2. **Usability (SUS):** Both scores remained well above the industry average of 68. The slight drop in usability on Hard mode was not statistically significant, indicating that the core controls and user interface remain highly usable even when the gameplay becomes chaotic.
+
+---
+
+#### 5.3 Evaluation Discussion and Future Improvements
 
 The heuristic evaluation highlights five main areas for future improvement. The most important technical issue is strengthening leaderboard validation. Since the leaderboard depends on an external backend service, the current implementation already performs range checks on score and wave values, but future versions should extend this validation further. This could include checking level consistency, rate limiting repeated suspicious submissions, and adding stronger server-side verification before public records are accepted.
 
@@ -538,9 +563,29 @@ The final two areas focus on quality of life. Mobile support would require respo
 
 ---
 
-#### 5.3 Code Testing
+#### 5.4 Code Testing
 
-Testing focused on the areas most likely to produce bugs: state transitions, persistent data, shop purchases, achievement rewards, leaderboard behaviour, and final wave logic.
+We applied **Black Box Testing** with **Equivalence Partitioning**, as covered in Workshop 9, to structure our manual testing process. Instead of ad-hoc checks, we isolated specific functional units, identified input/state categories, mapped constraints, and generated test cases. 
+
+**Case Study: Shop Upgrade System (Weapon Purchases)**
+
+*Functional Unit:* Purchasing a weapon upgrade in the shop.
+*Categories Identified:*
+- **A:** Player has insufficient coins.
+- **B:** Player has sufficient coins.
+- **C:** Weapon is already at maximum level.
+- **D:** Weapon is below maximum level.
+
+*Constraints:* Categories A & B are mutually exclusive. Categories C & D are mutually exclusive.
+
+*Generated Test Cases:*
+| Test ID | Condition (Partition Combination) | Inputs | Expected Output | Observed Output |
+|:---|:---|:---|:---|:---|
+| **TC1** | B + D (Sufficient Coins, Not Max Level) | Coins: 500, Cost: 200, Current Lvl: 1, Max Lvl: 3 | Deduct 200 coins, Level becomes 2, UI updates. | Pass. Coins deducted, UI refreshed. |
+| **TC2** | A + D (Insufficient Coins, Not Max Level) | Coins: 100, Cost: 200, Current Lvl: 1, Max Lvl: 3 | Purchase blocked, error feedback shown, no coins deducted. | Pass. Button disabled, red flash on click. |
+| **TC3** | B + C (Sufficient Coins, Max Level Reached) | Coins: 500, Cost: 300, Current Lvl: 3, Max Lvl: 3 | Purchase blocked, button says "MAX", no coins deducted. | Pass. Button locked as "MAX". |
+
+Beyond structured Black Box tests, we also performed edge-case testing on broader game flows:
 
 | Test area | Example test |
 |---|---|
@@ -554,7 +599,7 @@ Testing focused on the areas most likely to produce bugs: state transitions, per
 | Final waves | Check Level I wave 66 and Level II wave 88 behaviour |
 | Save data | Reload browser and confirm coins, gems, unlocks, and achievements remain |
 
-We also used branch-based development and pull requests so that larger changes could be reviewed before reaching the main branch.
+We used branch-based development and pull requests so that larger changes could be reviewed and tested locally before reaching the main branch.
 
 ---
 
