@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.claude/
+
+# Diagram exports — keep canonical PNG only, ignore iteration drafts
+docs/assets/onion-model.png
+docs/assets/onion-model-v2.png
+docs/assets/onion-model-v3.png

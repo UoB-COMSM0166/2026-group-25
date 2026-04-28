@@ -106,33 +106,42 @@ The final paper prototype consolidated the adopted concept into a single, testab
 
 #### 2.3&nbsp;&nbsp;Stakeholders & Onion Model  
 
-We identified stakeholders using an onion model approach:  
+We identified stakeholders using Ian Alexander's onion model, which groups them by their proximity to the running system rather than by stake intensity. This produced four concentric layers, from the people who directly operate the game out to the wider environment that constrains it.
 
-Core (Players): casual arcade players who want instant action and short runs; progression-focused players who enjoy long-term unlocks and build crafting.  
+**Core — Operational.** Players. Casual arcade players who want short, immediate runs, and progression-focused players who enjoy long-term unlocks and build crafting. They are the only group that operates the running game on every play session.
 
-Secondary (Testers/Assessors): need clear UI feedback, consistent difficulty ramp, and evidence of design decisions.  
+**Functional Beneficiaries.** Testers / Assessors and the Module Convener. They do not develop the game but interact with the running system to verify design quality, difficulty ramp, and evidence of engineering decisions; their feedback feeds back into the build.
 
-Outer (Developers/Maintainers): our team, who require modular systems (state machine, data-driven configs) for fast iteration and balancing.  
+**Containing Organisation.** The Development Team — Designer, Manager, Coders, and Testing Engineer. The team owns, builds, and maintains the system. We hold the deepest stake in the project's outcome but interact with the running game less frequently than Players or Testers do.
 
-<img width="700" height="633" alt="afc28d4f-42a4-43f6-9c64-56dffc611534" src="https://github.com/user-attachments/assets/3df2c724-9461-466d-ba7c-d25fb816cdd8" />  
+**Wider Environment.** The University of Bristol institutional context, the COMSM0166 module framework, and the open-source communities behind **p5.js** (rendering / runtime) and **PocketBase** (leaderboard backend) that we depend on. These actors do not interact with our specific system but shape constraints, expectations, and the platforms we build on.
+
+<div align="center">
+<img src="docs/assets/onion-model-v4.png" alt="Bridge Assault Stakeholder Onion Model" width="600" />
+</div>
+
 
 ---
 
-#### 2.4&nbsp;&nbsp;Use Case Diagram  
+#### 2.4&nbsp;&nbsp;Use Case Diagram
 
-The use case diagram models the main functional requirements of **Bridge Assault** from three perspectives: the player, the tester/assessor, and the external leaderboard service. Instead of treating the game as a single “start and play” interaction, the diagram separates the full experience into four connected areas: **Access**, **Core Run**, **Progression**, and **End & Online**. This helped us check that the game supports not only moment-to-moment combat, but also onboarding, long-term progression, replayability, and online score sharing.
+The use case diagram captures the functional requirements of **Bridge Assault** from three actor perspectives — the **Player**, the **Tester / Assessor**, and the external **Leaderboard Service** — and groups its 19 top-level use cases into four columns: **Access & Setup**, **Run Loop**, **Progression**, and **End & Online**. The grouping helped us verify that the game supports not just combat, but also onboarding, long-term progression, replayability, and online score sharing.
 
-The **Player** is the primary actor. Before entering a run, the player can switch language, complete the tutorial, choose a level, and start a run. These access features are important because the game contains several mechanics, including gates, coins, gems, active skills, and leaderboard submission. The tutorial therefore introduces core actions before the player enters the main levels, while level selection allows returning players to choose the challenge they want to attempt.
+We follow standard UML 2 stereotype semantics: `«include»` arrows point from a base case to its always-required sub-case (e.g. *Play Run* `«include»` *Move / Auto-fire*), while `«extend»` arrows point from an optional behaviour to the base case it extends (e.g. *Use Skills* `«extend»` *Play Run*, *Buy Upgrades* `«extend»` *Enter Supply Shop*). Sub-cases reachable transitively through include/extend are not duplicated as direct actor associations, which keeps the actor lines focused on top-level intent.
 
-During the **Core Run**, the player controls movement while shooting is handled through auto-fire. The central gameplay loop is to survive enemy waves, choose gates, collect coins and gems, and pause or resume when needed. The diagram uses include relationships to show that surviving waves depends on repeated sub-actions such as moving, fighting, collecting rewards, and making gate choices. This reflects the actual design of the game: progress is not only based on killing enemies, but also on choosing useful upgrades and managing risk under pressure.
+The **Player** is the primary actor. Before entering a run, the player can switch language, complete the tutorial, choose a level, and start a run; *Start Run* `«include»`s *Choose Level* since a level must be picked before the run begins. The tutorial introduces core actions for new players, while level selection lets returning players target a specific challenge.
 
-The **Progression** area shows the systems that extend the basic combat loop. Players can use skills, enter the supply shop, revive after failure, buy upgrades, claim achievements, and persist progress. These use cases represent the game’s long-term structure. Coins and gems collected during runs feed into upgrades, while achievements reward repeated play and skill development. Persistent progress ensures that player investment is saved between sessions, making each run contribute to future attempts.
+During the **Run Loop**, *Play Run* `«include»`s the moment-to-moment *Move / Auto-fire* and the broader *Survive Waves* activity. *Survive Waves* itself `«include»`s *Choose Gates* and *Collect Coins / Gems* — these are not optional sub-events but essential mechanics that any meaningful run goes through. *Pause / Resume* is modelled as an `«extend»` of *Play Run* because it is an optional, conditional interruption.
 
-The **End & Online** area covers what happens after a run ends. When the player reaches game over, they can restart, join the leaderboard, and sync their best score. The **Leaderboard Service** is shown as an external supporting actor because score submission depends on a backend service rather than only local browser storage. This distinction is useful for requirements analysis because it highlights an external dependency with privacy, reliability, and connectivity considerations.
+The **Progression** column shows systems that extend the basic combat loop. *Use Skills* `«extend»`s *Play Run* because skill activation is an optional in-run action. *Enter Supply Shop* is a Player-initiated use case; *Buy Upgrades* `«extend»`s the shop visit (a player may browse without buying). Both *Buy Upgrades* and *Claim Achievements* `«include»` *Persist Progress*, since any state change is immediately written to local storage.
 
-The **Tester/Assessor** is included as a secondary actor. Their role is to verify important flows such as starting a run, observing the combat loop, checking progression behaviour, and confirming that game-over and restart interactions work consistently. This supports structured evaluation and makes the diagram useful not only for design, but also for testing and demonstration.
+The **End & Online** column covers what happens when a run ends. *Game Over / Restart* is the central pivot — *Revive* `«extend»`s it as an optional second-chance action when the player holds a revive item. *Join Leaderboard* `«include»`s *Sync Best Score* because joining the leaderboard always entails syncing. The **Leaderboard Service** is drawn as an external supporting actor (rectangle with `«external»` stereotype) because score submission depends on a backend (PocketBase) rather than only local browser storage; this externalisation flags privacy, reliability, and connectivity considerations as first-class requirements.
 
-<img width="1536" height="1024" alt="7c412ae43f5db6eccb1bb6acd63e77b5" src="https://github.com/user-attachments/assets/1097b022-11c4-460c-80b3-456f8fd931e7" />
+The **Tester / Assessor** is shown as a secondary actor to highlight that the same use cases support both gameplay and structured evaluation. The two actors share the system interface but pursue different goals — players seek immersion and progression, while testers verify the acceptance criteria documented in §5.3. We deliberately did not invent fictitious testing-only use cases; instead, the secondary actor reuses the existing flows under a verification mindset, and only connects to the three anchor flows (*Start Run*, *Play Run*, *Game Over / Restart*) that gate the rest of the verification chain.
+
+<div align="center">
+<img src="docs/assets/use-case-diagram.png" alt="Bridge Assault Use Case Diagram" width="900" />
+</div>
   
 
 ---
@@ -183,23 +192,39 @@ At a high level, the game runs through several states:
 
 ---
 
-#### 3.2 Module Structure  
+#### 3.2 Module Structure
+
+The runtime currently spans 26 JavaScript modules under `docs/js/`. The table groups them by responsibility.
 
 | File | Responsibility |
 |---|---|
 | `docs/index.html` | Main HTML structure, overlays, menu panels, and script loading |
 | `docs/style.css` | Game UI, menus, shop panels, achievements, leaderboard, and responsive styling |
-| `docs/js/main.js` | p5.js lifecycle, setup, draw loop, and high-level game state routing |
+| `docs/js/main.js` | p5.js lifecycle, `setup()`, `draw()` loop, and high-level state routing |
+| `docs/js/globals.js` | Top-level shared state (player, enemies, bullets, gates, score, wave, weapon timers) |
 | `docs/js/config.js` | Game constants, level settings, weapons, talents, enemy types, and balance data |
+| `docs/js/core.js` | Game initialisation, projection, level configuration |
 | `docs/js/input.js` | Keyboard, mouse, and touch input handling |
-| `docs/js/update.js` | Main update flow for each frame |
-| `docs/js/update_world.js` | Gates, wave spawning, barrels, coins, gems, and world progression |
-| `docs/js/update_effects.js` | Visual effects, timers, and feedback effects |
-| `docs/js/shop.js` | Permanent shop, weapon purchases, talents, and item UI |
-| `docs/js/achievements.js` | Achievement definitions, tracking, claiming, and notifications |
-| `docs/js/leaderboard.js` | PocketBase leaderboard connection and score synchronisation |
-| `docs/js/i18n.js` | English/Chinese translation dictionary and language switching |
-| `docs/js/crypto.js` / persistence helpers | Encrypted local progress persistence and save-data integrity checks |
+| `docs/js/update.js` | Main update flow for each frame; dispatches to sub-systems below |
+| `docs/js/update_world.js` | Gates, wave triggers, barrels, coins, gems, world progression |
+| `docs/js/update_enemies.js` | Enemy AI, movement, animation, boss skill execution |
+| `docs/js/update_collision.js` | Bullet–enemy collision, damage application, explosion spawning |
+| `docs/js/update_effects.js` | Damage numbers, blast rings, fade timers, feedback effects |
+| `docs/js/update_timers.js` | Global timers — weapons, skills, effect cooldowns |
+| `docs/js/spawn.js` | Spawn functions for enemies, bosses, gates, barrels |
+| `docs/js/combat.js` | Weapon firing, bullet creation, damage numbers, boss attacks |
+| `docs/js/draw.js` | 3D perspective rendering and sprite drawing |
+| `docs/js/render.js` | UI rendering, HUD, in-world text |
+| `docs/js/hud.js` | In-game UI (HP bars, popup text, combo counters) |
+| `docs/js/shop.js` | Permanent shop, weapon purchases, talents, mid-run shop UI |
+| `docs/js/achievements.js` | Achievement definitions, tracking, claiming, notifications |
+| `docs/js/leaderboard.js` | PocketBase leaderboard connection, hide/show, score sync |
+| `docs/js/i18n.js` | English / Chinese translation dictionary and language switching |
+| `docs/js/audio.js` | Sound-effect playback and music management |
+| `docs/js/tutorial.js` | Tutorial level logic and scripted hints |
+| `docs/js/helpers.js` | Utility functions (adaptive scaling, level multipliers) |
+| `docs/js/cheat.js` | Developer / debugging tools |
+| `docs/js/crypto.js` / persistence helpers | Signed local progress persistence and save-data integrity checks |
 
 ---
 
@@ -228,56 +253,197 @@ We also separated short-term and long-term decisions. Gates and weapon pickups a
 
 #### 3.5 UML Diagrams
 
-**Class Diagram**
+**Class Diagram.** Bridge Assault is implemented as plain JavaScript with shared module-level state rather than ES6 classes, so the "classes" below describe the **object shapes** that flow through the runtime. The diagram covers the in-run world entities, the visual-effect objects, and the persistence-layer records that survive across runs.
+
 ```mermaid
 classDiagram
     class Game {
-        +object[] bullets
-        +object[] enemies
-        +object[] explosions
-        +object player
+        +string state
+        +number cameraZ
         +number score
-        +update()
-        +draw()
+        +number wave
+        +number killCount
+        +number comboCount
+        +number squadCount
+        +string weapon
+        +number weaponTimer
+        +boolean levelCompleted
+        +Player player
+        +Enemy[] enemies
+        +Bullet[] bullets
+        +Gate[] gates
+        +Barrel[] barrels
+        +Coin[] coins
+        +Gem[] gems
+        +DamageNumber[] damageNumbers
+        +Explosion[] explosions
+        +update() void
+        +draw() void
     }
     class Player {
         +number x
-        +number z
-        +number hp
-        +move()
-    }
-    class Bullet {
-        +number x
-        +number z
-        +string weapon
-        +number damage
+        +number animFrame
+        +number muzzleFlash
     }
     class Enemy {
         +number x
         +number z
         +number hp
-        +die()
+        +number maxHp
+        +number damage
+        +number type
+        +boolean alive
+        +boolean isHeavy
+        +boolean isBoss
+        +boolean isMegaBoss
+        +number hitFlash
     }
+    class Bullet {
+        +number x
+        +number z
+        +number vx
+        +number vz
+        +string weapon
+        +number damage
+        +number tier
+        +boolean pierce
+        +Set hitEnemies
+    }
+    class Gate {
+        +number z
+        +GateOption[] options
+        +boolean triggered
+        +number fadeTimer
+        +number chosenIdx
+    }
+    class GateOption {
+        +number x
+        +number width
+        +string gateType
+        +string op
+        +number value
+        +string weapon
+    }
+    class Barrel {
+        +number x
+        +number z
+        +number hp
+        +number aoeDamage
+        +boolean alive
+    }
+    class Coin {
+        +number x
+        +number z
+        +number y
+        +number value
+        +number life
+    }
+    class Gem {
+        +number x
+        +number z
+        +number y
+        +number value
+        +number life
+    }
+    class DamageNumber {
+        +number x
+        +number z
+        +number value
+        +boolean crit
+        +number life
+    }
+    class Explosion {
+        +number x
+        +number z
+        +number timer
+        +boolean isBlastRing
+    }
+    class PlayerData {
+        +number coins
+        +number gems
+        +number level
+        +number exp
+        +number armor
+        +Object weaponLevels
+        +Object weaponCharges
+        +Object talents
+        +Object achievements
+        +Object stats
+    }
+    class Achievement {
+        +string id
+        +string name
+        +number tiers
+        +number[] goals
+        +Object[] rewards
+        +function check
+    }
+
     Game "1" *-- "1" Player
-    Game "1" *-- "*" Bullet
     Game "1" *-- "*" Enemy
+    Game "1" *-- "*" Bullet
+    Game "1" *-- "*" Gate
+    Game "1" *-- "*" Barrel
+    Game "1" *-- "*" Coin
+    Game "1" *-- "*" Gem
+    Game "1" *-- "*" DamageNumber
+    Game "1" *-- "*" Explosion
+    Gate "1" o-- "*" GateOption
+    Game ..> PlayerData : reads / writes
+    PlayerData "1" *-- "*" Achievement : tracks
 ```
 
-**Sequence Diagram (Shooting & Collision)**
+The `Game` aggregate is the global state container assembled in `globals.js`; per-frame updates live in `update*.js` and mutate its arrays in place. `Player` only stores presentation fields — squad health is represented collectively by `Game.squadCount` rather than by a per-soldier `hp`. `Enemy` covers regular foes, heavy variants, bosses, and mega-bosses through boolean flags rather than separate subclasses; boss-specific fields (`bossShootTimer`, `megaSkillTimer`, `megaNextSkill`, …) are attached only when the spawn function builds a boss. `Gate` and `GateOption` form a parent-children pair because each gate offers two or three branchable options selected by the player's lane on contact. `Coin`, `Gem`, `DamageNumber`, and `Explosion` are all short-lived particle-like objects that live until their `life`/`timer` reaches zero and are then garbage-collected by the next array filter. Persistence is split out: `PlayerData` is signed and stored in `localStorage` by `crypto.js`, and `Achievement` definitions plus per-tier progress live inside it.
+
+**Sequence Diagram (Auto-fire & Collision).** Shooting in Bridge Assault is *not* a player-initiated action — the player only controls movement and the `update_timers` module fires the equipped weapon automatically once `shootTimer` falls to zero. The diagram below traces one full pipeline tick from the timer firing the weapon through the collision pass deciding whether an enemy dies, drops loot, or just flashes. It is the same call chain you can read in `update_timers.js`, `combat.js`, `update_collision.js`, and `helpers.js`.
+
 ```mermaid
 sequenceDiagram
-    participant Player
-    participant Game
-    participant Collision
+    autonumber
+    participant Loop as p5.js draw loop
+    participant Timers as update_timers
+    participant Combat as combat.fireWeapon
+    participant Game as game (shared state)
+    participant Collision as update_collision
     participant Enemy
+    participant Kill as helpers.processEnemyKill
 
-    Player->>Game: fire()
-    Game->>Game: createBullet()
-    Game->>Collision: checkBulletCollision()
-    Collision->>Enemy: hitCheck()
-    Enemy-->>Collision: takeDamage()
-    Collision->>Game: addExplosion()
+    Note over Loop,Timers: per-frame tick — auto-fire is timer-driven, not player-initiated
+    Loop->>Timers: shootTimer -= dt
+    opt shootTimer <= 0
+        Timers->>Combat: fireWeapon()
+        Combat->>Game: read playerData talents / weapon tier
+        Combat->>Game: bullets.push(N bullets)
+        Combat->>Game: player.muzzleFlash = 4
+    end
+
+    Loop->>Collision: updateBulletCollisions(g, dtF)
+    Collision->>Game: move every bullet (b.x += b.vx * dtF)
+    Collision->>Game: cull off-screen / over-range bullets
+
+    loop for each bullet x each alive enemy
+        Collision->>Collision: swept AABB (prev -> curr vs enemy hitbox)
+        opt hit detected
+            Collision->>Enemy: e.hp -= hitDmg, e.hitFlash = 4
+            Collision->>Game: addImpactFeedback (particles, shake, sfx)
+            opt rocket (b.aoeRadius set)
+                Collision->>Game: spawn Explosion blast rings
+                Collision->>Enemy: AOE damage to neighbours
+            end
+            opt e.hp <= 0
+                Collision->>Kill: processEnemyKill(g, e)
+                Kill->>Game: drop Coin / Gem, increment score + killCount
+            end
+        end
+    end
+    Collision->>Game: emit merged DamageNumbers, filter dead bullets
 ```
+
+A few details worth pointing out from the code:
+- The Player actor never appears in this diagram because the player has no synchronous role in the firing pipeline; their input only feeds `g.player.x` (handled in `input.js`) which is read passively when `fireWeapon()` decides where to spawn bullets.
+- The collision check is a **swept AABB** between the bullet's previous and current positions, not a point-in-box test. This is in the code specifically so fast bullets at high frame deltas cannot tunnel through small hit boxes.
+- Damage numbers are **merged per enemy** before display: if a shotgun dumps 5 pellets into one enemy in a single frame, they show up as one combined number rather than five overlapping ones. That is why the merged-emit step happens after the collision loop, not inside it.
+- `pierce` bullets (laser, top-tier pistol) carry a `Set` of already-hit enemies so they don't re-damage the same enemy on subsequent frames as they continue travelling forward.
 
 
 
