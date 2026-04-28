@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" style="background:white; font-family:Arial, sans-serif;">
+<polygon points="400.0,20.0 742.3803458662553,268.7538820250189 611.6026908252903,671.2461179749811 188.3973091747097,671.2461179749811 57.61965413374469,268.753882025019" fill="#e9ecef" stroke="#ced4da" stroke-width="1.5" stroke-dasharray="5,5"/>
+<polygon points="400.0,140.0 628.2535639108369,305.83592135001265 541.0684605501935,574.1640786499875 258.93153944980645,574.1640786499875 171.74643608916313,305.83592135001265" fill="#f0f2f5" stroke="#ced4da" stroke-width="1.5" stroke-dasharray="5,5"/>
+<polygon points="400.0,260.0 514.1267819554184,342.9179606750063 470.5342302750968,477.08203932499373 329.4657697249032,477.08203932499373 285.87321804458156,342.9179606750063" fill="#f8f9fa" stroke="#ced4da" stroke-width="1.5" stroke-dasharray="5,5"/>
+<line x1="400" y1="380" x2="400.0" y2="20.0" stroke="#ced4da" stroke-width="1.5" stroke-dasharray="5,5"/>
+<line x1="400" y1="380" x2="742.3803458662553" y2="268.7538820250189" stroke="#ced4da" stroke-width="1.5" stroke-dasharray="5,5"/>
+<line x1="400" y1="380" x2="611.6026908252903" y2="671.2461179749811" stroke="#ced4da" stroke-width="1.5" stroke-dasharray="5,5"/>
+<line x1="400" y1="380" x2="188.3973091747097" y2="671.2461179749811" stroke="#ced4da" stroke-width="1.5" stroke-dasharray="5,5"/>
+<line x1="400" y1="380" x2="57.61965413374469" y2="268.753882025019" stroke="#ced4da" stroke-width="1.5" stroke-dasharray="5,5"/>
+<text x="400.0" y="-10.0" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="middle" transform="rotate(0 400.0 -10.0)">Social</text>
+<text x="770.9120413551099" y="259.4833721937705" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="middle" transform="rotate(72 770.9120413551099 259.4833721937705)">Individual</text>
+<text x="629.2362483940645" y="695.5166278062295" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="middle" transform="rotate(324 629.2362483940645 695.5166278062295)">Technical</text>
+<text x="170.7637516059355" y="695.5166278062295" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="middle" transform="rotate(396 170.7637516059355 695.5166278062295)">Economic</text>
+<text x="29.08795864489008" y="259.48337219377055" font-size="18" font-weight="bold" fill="#343a40" text-anchor="middle" dominant-baseline="middle" transform="rotate(288 29.08795864489008 259.48337219377055)">Environmental</text>
+<text x="484.94678440936946" y="318.28254850929034" font-size="14" font-weight="bold" fill="#adb5bd" transform="rotate(15 484.94678440936946 318.28254850929034)">immediate</text>
+<text x="582.0288237343632" y="247.74831823419353" font-size="14" font-weight="bold" fill="#adb5bd" transform="rotate(15 582.0288237343632 247.74831823419353)">enabling</text>
+<text x="679.1108630593569" y="177.21408795909676" font-size="14" font-weight="bold" fill="#adb5bd" transform="rotate(15 679.1108630593569 177.21408795909676)">structural</text>
+<ellipse cx="400" cy="380" rx="50" ry="25" fill="white" stroke="#6c757d" stroke-width="1.5"/>
+<text x="400" y="378" font-size="14" font-weight="bold" fill="#212529" text-anchor="middle">Bridge</text>
+<text x="400" y="394" font-size="14" font-weight="bold" fill="#212529" text-anchor="middle">Assault</text>
+<defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4dabf7" />
+    </marker>
+  </defs>
+<path d="M 379.42751616976346 408.3155948031232 Q 370.0164539533015 407.65839775665813 376.4885899083011 412.3606797749979" fill="none" stroke="#4dabf7" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 383.62530667150224 427.81892421404626 Q 425.980350813619 319.085252346295 536.1637422418133 343.69400996788033" fill="none" stroke="#4dabf7" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 549.9601227087443 296.55096452523844 Q 440.71969826406195 246.42650509288026 424.2629145421524 131.8011159854526" fill="none" stroke="#4dabf7" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 332.40469598636565 473.036954353119 Q 323.5879172019785 485.1722092687432 317.71006467905374 493.2623792124927" fill="none" stroke="#4dabf7" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 327.29416895078305 537.0110758921197 Q 415.8507072725497 630.5914628700649 538.512130700967 609.6902218500509" fill="none" stroke="#4dabf7" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="294.9771798166022" y="425.7213595499958" width="116" height="28" fill="white" fill-opacity="0.85" rx="4"/>
+<text x="352.9771798166022" y="444.7213595499958" font-size="14" fill="#212529" text-anchor="middle">Free to play</text>
+<rect x="493.19017293312766" y="296.37694101250946" width="156" height="46" fill="white" fill-opacity="0.85" rx="4"/>
+<text x="571.1901729331277" y="315.37694101250946" font-size="14" fill="#212529" text-anchor="middle">Max accessibility</text>
+<text x="571.1901729331277" y="333.37694101250946" font-size="14" fill="#212529" text-anchor="middle">(no paywall)</text>
+<rect x="326.0" y="72.0" width="148" height="46" fill="white" fill-opacity="0.85" rx="4"/>
+<text x="400.0" y="91.0" font-size="14" fill="#212529" text-anchor="middle">Inclusive global</text>
+<text x="400.0" y="109.0" font-size="14" fill="#212529" text-anchor="middle">audience</text>
+<rect x="232.19865458735484" y="497.6230589874906" width="124" height="46" fill="white" fill-opacity="0.85" rx="4"/>
+<text x="294.19865458735484" y="516.6230589874906" font-size="14" fill="#212529" text-anchor="middle">No revenue to</text>
+<text x="294.19865458735484" y="534.6230589874906" font-size="14" fill="#212529" text-anchor="middle">fund servers</text>
+<rect x="494.335575687742" y="594.7050983124842" width="164" height="46" fill="white" fill-opacity="0.85" rx="4"/>
+<text x="576.335575687742" y="613.7050983124842" font-size="14" fill="#212529" text-anchor="middle">Maintenance burden</text>
+<text x="576.335575687742" y="631.7050983124842" font-size="14" fill="#212529" text-anchor="middle">falls to team</text>
+<text x="400" y="780" font-size="18" font-style="italic" fill="#495057" text-anchor="middle">Example of SusAD for one chain-of-effects in Bridge Assault</text>
+</svg>

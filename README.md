@@ -653,6 +653,10 @@ Bridge Assault is a browser-based, on-rails 2D arcade survival shooter served as
 
 #### 7.2 SusAF Chains of Effects
 
+<div align="center">
+<img src="docs/assets/susad_bridge_assault.svg" alt="SusAD Chain of Effects Diagram" width="80%" />
+</div>
+
 Using the SusAF guiding questions across five dimensions, the following chains of effects were identified. Effects are classified as **immediate** (direct product operation), **enabling** (changes induced by adoption), or **structural** (long-term systemic changes).
 
 ---
