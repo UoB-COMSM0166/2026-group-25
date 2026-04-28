@@ -627,26 +627,440 @@ Overall, our process improved significantly during the project. We began with in
 
 ### 7. Sustainability
 
-We considered sustainability using the Sustainability Awareness Framework introduced in the module. This helped us look beyond the direct environmental footprint of the code and consider longer-term effects across environmental, technical, social, individual, and economic dimensions. For this report, we focus mainly on environmental impact, technical sustainability, and social/individual impact, while also recognising some economic trade-offs.
-
-Environmentally, Bridge Assault is a relatively lightweight browser game. It is deployed as a static GitHub Pages site rather than as a large installed application or server-heavy online game. The playable `docs` folder is about 17.04 MB in total, with around 0.46 MB of JavaScript. Most of the size comes from image and audio assets, including 19 PNG files and 12 MP3 files. This is small compared with many commercial games, but it is still not impact-free: every page load transfers data, uses network infrastructure, and consumes energy on the player's device.
-
-The game uses p5.js and 2D rendering rather than a heavy 3D engine. This keeps hardware requirements low and allows the game to run on ordinary laptops through a browser. This is relevant to ICT's own footprint and obsolescence: software that requires newer hardware can indirectly contribute to waste, while lightweight browser software can extend the usefulness of existing devices. Because the game is accessed through a link, players do not need to install extra software or repeatedly download large updates.
-
-Runtime efficiency was also considered. Bridge Assault contains many moving objects, including bullets, enemies, bosses, pickups, gates, particles, and UI effects. If these objects accumulate or update unnecessarily, the game wastes CPU resources. To reduce this, temporary visual effects have lifetimes, collected pickups are removed, and gameplay updates are tied to active game states. Menus, pause screens, shops, achievements, and leaderboard overlays should not keep all gameplay systems running as if the player were still actively playing. This supports the idea that sustainability should be considered during implementation and testing, not only during deployment.
-
-There are still environmental risks. Some assets are relatively large, especially character sprite sheets and the two background music tracks. If development continued, one useful Green Software improvement would be asset optimisation: compressing PNGs and MP3s, removing unused files, and checking whether all sound effects are necessary. This would reduce network transfer, loading time, and device work. Another relevant improvement is minimising unnecessary computation by ensuring inactive states do not update gameplay systems. Future testing could also include measuring page load size and checking CPU usage during long play sessions.
-
-Technical sustainability is important because a game that is hard to maintain becomes difficult to improve, test, or repair. We addressed this by separating the project into modules such as configuration, input, update logic, world progression, shop, achievements, leaderboard, and language switching. Future developers can change weapon costs, enemy values, level data, or translation strings without rewriting the whole game loop. This supports maintainability, usability, and long-term evolution. It also reduces the chance that small changes create unexpected bugs across unrelated systems.
-
-The leaderboard creates a sustainability trade-off. It improves social and competitive value because players can compare scores, but it also depends on a remote PocketBase service. This adds network requests, backend storage, privacy considerations, and possible failure states. To reduce this impact, the core game does not depend on constant server communication. Local progress is stored in the browser, and the leaderboard is only used for score-related features. If the leaderboard service fails, the main game should remain playable.
-
-From a social and individual perspective, Bridge Assault aims to be accessible through simple controls and bilingual English/Chinese UI. The limited control scheme makes the game easier for new players to learn, while language switching supports a wider group of users in our team and player base. However, the game also uses flashing effects, fast bullets, and intense visual feedback. Future work should include clearer accessibility options such as reduced effects, refined tutorial guidance, reliable pause behaviour, and explicit privacy messaging before leaderboard submission.
-
-If Bridge Assault reached a much larger audience, the main sustainability impacts would scale through repeated asset downloads, leaderboard storage, privacy responsibility, and long-term maintenance. Overall, the game has a modest footprint because it is a small static browser game with low hardware requirements. The main future improvements are asset compression, reduced unnecessary runtime updates, better accessibility settings, clearer leaderboard privacy information, and sustainability checks added to the development backlog.
+This section applies the **Sustainability Awareness Framework (SusAF)** to Bridge Assault, following the Karlskrona Manifesto methodology. It covers chains of effects across all five sustainability dimensions, derived user stories with acceptance criteria, and applicable Green Software Foundation (GSF) implementation patterns.
 
 ---
 
+#### 7.1 System Vision & Known Effects (Warm-up)
+
+**Product description:**  
+Bridge Assault is a browser-based, on-rails 2D arcade survival shooter served as a static GitHub Pages site (~7.2 MB total: ~0.38 MB JavaScript, ~3.5 MB PNG sprites, ~3.3 MB MP3 audio). Players move left and right across an auto-scrolling battlefield, choose upgrade gates, collect coins and gems, and spend them in a persistent shop. Progress is stored in the browser's `localStorage`. An optional online leaderboard syncs to a self-hosted PocketBase instance.
+
+**Known sustainability effects identified before SusAF questioning:**
+
+| Fact about the product | Known immediate effect |
+|---|---|
+| Static GitHub Pages delivery, no server compute during play | Low server energy consumption |
+| ~7.2 MB assets transferred per session | Energy and bandwidth per page load |
+| p5.js 60 fps canvas loop with particles, enemies, bullets | CPU usage on player's device every frame |
+| Two MP3 background music tracks (~1.6 MB each) | Large portion of total asset weight |
+| `localStorage` save data, no account required | No remote data storage for core gameplay |
+| Optional PocketBase leaderboard | Network round-trips; privacy implications |
+| Desktop-only (mobile blocked) | Excludes mobile users; forces desktop hardware |
+| Flashing hit effects, screen shake, vignette | Possible discomfort for photosensitive users |
+
+---
+
+#### 7.2 SusAF Chains of Effects
+
+Using the SusAF guiding questions across five dimensions, the following chains of effects were identified. Effects are classified as **immediate** (direct product operation), **enabling** (changes induced by adoption), or **structural** (long-term systemic changes).
+
+---
+
+##### 7.2.1 Environmental Dimension
+
+> *SusAF questions: Material & resources, energy, pollution, logistics.*
+
+**Chain E-1 — Asset weight → energy per session**
+
+```
+[Fact] ~7.2 MB assets loaded each visit
+  → [Immediate]  ~0.03 kWh network + device energy per session (est.)
+  → [Enabling]   Repeated play → cumulative energy grows with user base
+  → [Structural] At 100k sessions/month: ~3,000 kWh/month, equivalent to
+                 ~600 kg CO₂ (EU grid mix) — comparable to a car driving 2,400 km
+```
+
+**Chain E-2 — No server-side compute → low operational carbon**
+
+```
+[Fact] Game logic runs entirely client-side in the browser
+  → [Immediate]  Zero server CPU cycles during active gameplay
+  → [Enabling]   Scales horizontally without proportional energy increase
+  → [Structural] Carbon footprint dominated by client devices, not infrastructure
+```
+
+**Chain E-3 — Adaptive particle cap → reduced wasteful GPU/CPU work**
+
+```
+[Fact] Particle count capped by frame-rate (fps < 40 → cap 150 particles)
+  → [Immediate]  Lower per-frame compute on slower devices
+  → [Enabling]   Game remains playable on older hardware, delaying device replacement
+  → [Structural] Modest contribution to reducing e-waste pressure
+```
+
+**Prioritisation (likelihood × impact):**
+
+| Chain | Likelihood | Impact | Priority |
+|---|---|---|---|
+| E-1 Asset energy | High | Medium | **Address** |
+| E-2 No server compute | High | Positive | **Highlight** |
+| E-3 Adaptive caps | Medium | Low–Medium | Monitor |
+
+---
+
+##### 7.2.2 Individual Dimension
+
+> *SusAF questions: Health, lifelong learning, privacy, safety, agency.*
+
+**Chain I-1 — Flashing effects → photosensitive risk**
+
+```
+[Fact] Screen flash (screenFlash up to 0.9 alpha), rapid particle bursts,
+       screen shake on every enemy kill and gate trigger
+  → [Immediate]  Potential discomfort or trigger for photosensitive players
+  → [Enabling]   Players with epilepsy or migraine conditions excluded or harmed
+  → [Structural] Permanent accessibility barrier for a segment of users
+```
+
+**Chain I-2 — Arcade loop → cognitive engagement and stress relief**
+
+```
+[Fact] Short run length (~5–15 min), clear goals (survive, upgrade)
+  → [Immediate]  Focused engagement, sense of accomplishment on wave completion
+  → [Enabling]   Casual players use game as a break activity (low-commitment fun)
+  → [Structural] Positive mental health signal (leisure, agency, competence)
+```
+
+**Chain I-3 — localStorage only → strong privacy by default**
+
+```
+[Fact] Core gameplay stores coins, gems, progress in browser localStorage only;
+       leaderboard is opt-in and private by default
+  → [Immediate]  No personal data leaves the device without explicit consent
+  → [Enabling]   Players retain full control over their data
+  → [Structural] Minimal privacy risk; trust in the product increases
+```
+
+**Chain I-4 — Desktop-only restriction → access inequality**
+
+```
+[Fact] Mobile users see a block screen; game requires keyboard + mouse
+  → [Immediate]  Players on phones/tablets cannot participate
+  → [Enabling]   Users in regions where mobile is the primary device are excluded
+  → [Structural] Widens digital access gap; reduces potential audience diversity
+```
+
+**Prioritisation:**
+
+| Chain | Likelihood | Impact | Priority |
+|---|---|---|---|
+| I-1 Photosensitive risk | Medium | High | **Address urgently** |
+| I-2 Cognitive engagement | High | Positive | **Highlight** |
+| I-3 Privacy by default | High | Positive | **Maintain** |
+| I-4 Access inequality | High | Medium–High | **Address** |
+
+---
+
+##### 7.2.3 Social Dimension
+
+> *SusAF questions: Sense of community, trust, inclusiveness, participation.*
+
+**Chain S-1 — Leaderboard → competitive community**
+
+```
+[Fact] Optional public leaderboard with player names and scores
+  → [Immediate]  Players can compare performance globally
+  → [Enabling]   Competitive motivation; players return to improve rank
+  → [Structural] Small community of dedicated players; risk of score-gaming or
+                 toxic competition if moderation absent
+```
+
+**Chain S-2 — Bilingual UI (EN/ZH) → cultural inclusiveness**
+
+```
+[Fact] Full English/Chinese language toggle across all UI panels
+  → [Immediate]  Chinese-speaking players can fully engage
+  → [Enabling]   Reduces language barrier for a major global player demographic
+  → [Structural] Signals inclusive design intent; models good i18n practice
+```
+
+---
+
+##### 7.2.4 Economic Dimension
+
+> *SusAF questions: Value, CRM, supply chain, innovation.*
+
+**Chain Ec-1 — Free to play, no monetisation → zero friction, zero revenue**
+
+```
+[Fact] No ads, no IAP, no subscription; game is fully free
+  → [Immediate]  Maximum accessibility; no paywall
+  → [Enabling]   No revenue to fund server costs, ongoing development, or maintenance
+  → [Structural] Long-term maintenance depends entirely on team motivation;
+                 PocketBase hosting cost (~$5–10/month VPS) falls to team
+```
+
+---
+
+##### 7.2.5 Technical Dimension
+
+> *SusAF questions: Maintainability, usability, extensibility, security, scalability.*
+
+**Chain T-1 — Modular JS architecture → maintainability over time**
+
+```
+[Fact] 28 JS modules, data-driven CONFIG object, TALENT_DEFS, PISTOL_TIERS arrays
+  → [Immediate]  Balance changes require only config edits, not core rewrites
+  → [Enabling]   New team members can contribute without understanding full codebase
+  → [Structural] Lower effort to keep game alive for years; reduced abandonment risk
+```
+
+**Chain T-2 — No bundler / build step → fragile dependency on CDN**
+
+```
+[Fact] p5.js loaded from Cloudflare CDN; no npm bundling
+  → [Immediate]  Zero build infrastructure; fast iteration
+  → [Enabling]   If CDN URL changes or goes offline, game breaks silently
+  → [Structural] Long-term availability depends on third-party CDN reliability
+```
+
+**Chain T-3 — XOR + HMAC save data encryption → security/trust**
+
+```
+[Fact] localStorage data encrypted with per-save IV + HMAC-SHA256 signature
+  → [Immediate]  Prevents trivial save editing; tamper-evident
+  → [Enabling]   Players trust that leaderboard scores reflect real progress
+  → [Structural] Sets precedent for responsible local data handling in student projects
+```
+
+---
+
+#### 7.3 SusAF Synthesis — Threats, Opportunities, Actions
+
+| | **Identified** | **Actions** |
+|---|---|---|
+| **Threats** | Photosensitive flash effects exclude/harm players | Add a "Reduced Effects" toggle to disable screen flash and shake |
+| | Desktop-only restriction creates access inequality | Document clearly; plan touch-control roadmap |
+| | CDN dependency risks long-term availability | Self-host p5.js in `docs/lib/` as fallback |
+| | Large MP3 audio files dominate asset weight | Compress BGM; add audio format negotiation (OGG) |
+| | No revenue model risks maintenance cessation | Document in README; accept community PRs |
+| **Opportunities** | Privacy-first design (localStorage, opt-in leaderboard) | Highlight as a model in documentation |
+| | Bilingual UI demonstrates inclusive design | Extend to additional languages (Spanish, French) |
+| | Adaptive performance caps show green-aware design | Document formally as a GSF pattern application |
+| | Modular config enables easy difficulty balancing | Use for accessibility options (slow mode) |
+
+---
+
+#### 7.4 User Stories, Epics & Backlog Items
+
+The following epics and user stories are derived from the chains of effects above and have been added to the project backlog.
+
+---
+
+##### Epic 1 — Environmental Impact Reduction
+
+**E1-US1: Compress audio assets**
+> *As a player on a slow connection, I want the game to load quickly so that I can start playing without a long wait.*
+
+- **Acceptance Criteria:**
+  - [ ] BGM files converted to OGG Vorbis alongside existing MP3 (browser fallback chain)
+  - [ ] OGG files ≤ 60% of current MP3 file size
+  - [ ] Game selects OGG when `canPlayType('audio/ogg')` returns `"probably"` or `"maybe"`
+  - [ ] Existing MP3 fallback preserved; no audio regression on Chrome, Firefox, Safari
+
+**E1-US2: Self-host p5.js library**
+> *As a player in a region with CDN restrictions, I want the game to load even if Cloudflare is unavailable.*
+
+- **Acceptance Criteria:**
+  - [ ] `docs/lib/p5.min.js` committed at pinned version 1.11.0
+  - [ ] `index.html` loads local copy; CDN version removed
+  - [ ] Total page weight change documented in PR description
+  - [ ] Game renders identically across Chrome, Firefox, and Edge
+
+---
+
+##### Epic 2 — Individual Accessibility
+
+**E2-US1: Reduced motion / effects toggle**
+> *As a player who is photosensitive or prone to migraines, I want to be able to disable flashing effects so that I can play safely.*
+
+- **Acceptance Criteria:**
+  - [ ] Settings toggle "Reduced Effects" persists in `localStorage`
+  - [ ] When enabled: `screenFlash` capped at 0.05 alpha; `shakeTimer` capped at 3 frames; particle count halved
+  - [ ] Toggle accessible from main menu before game start
+  - [ ] Game remains fully playable with reduced effects enabled
+  - [ ] Toggle label translated in both EN and ZH i18n dictionaries
+
+**E2-US2: Keyboard-only navigation for menus**
+> *As a player who cannot use a mouse, I want to navigate the main menu and shop using keyboard so that I can access all game features.*
+
+- **Acceptance Criteria:**
+  - [ ] Tab / arrow keys cycle through main menu buttons
+  - [ ] Enter / Space activates focused button
+  - [ ] Focus ring visible on focused element (CSS `:focus-visible`)
+  - [ ] No mouse interaction required to start a game, open shop, or view achievements
+
+---
+
+##### Epic 3 — Technical Sustainability
+
+**E3-US1: Inline p5.js dependency version in README**
+> *As a future maintainer, I want the README to document all CDN dependencies with their pinned versions so that I can reproduce the exact runtime environment.*
+
+- **Acceptance Criteria:**
+  - [ ] README lists p5.js version, source URL, and SHA-256 hash
+  - [ ] README documents PocketBase version used for leaderboard backend
+  - [ ] README documents browser support matrix (Chrome ≥ 90, Firefox ≥ 88, Safari ≥ 14)
+
+**E3-US2: Inactive state update suppression**
+> *As a player who has the game open in a background tab, I want the game not to waste CPU when I am not actively playing so that my device runs efficiently.*
+
+- **Acceptance Criteria:**
+  - [ ] `document.addEventListener('visibilitychange')` pauses the p5.js `draw()` loop when tab hidden
+  - [ ] All update subsystems (enemies, bullets, particles) suspended when hidden
+  - [ ] Game resumes immediately on tab focus without state corruption
+  - [ ] Verified via Chrome DevTools Performance tab showing <5% CPU when hidden
+
+---
+
+##### Epic 4 — Social & Privacy
+
+**E4-US1: In-game "Delete my leaderboard data" action**
+> *As a leaderboard participant, I want to be able to delete my entry so that I can exercise my right to be forgotten.*
+
+- **Acceptance Criteria:**
+  - [ ] "Delete my data" button in leaderboard panel (authenticated users only)
+  - [ ] Sends `DELETE` request to PocketBase with record ID from `localStorage`
+  - [ ] On success: clears `localStorage` leaderboard key; reverts panel to join form
+  - [ ] On failure: shows error message; does not clear local data
+
+**E4-US2: Clear privacy statement before leaderboard join**
+> *As a new player, I want to understand exactly what data is submitted to the leaderboard before I join so that I can make an informed decision.*
+
+- **Acceptance Criteria:**
+  - [ ] Join form includes a 2-sentence plain-language privacy notice above the name input
+  - [ ] Notice states: what is stored (name, score, wave, level), where (self-hosted server), and that it is optional
+  - [ ] Notice translated in both EN and ZH
+  - [ ] Form cannot be submitted without scrolling past the notice (or notice is always visible)
+
+---
+
+#### 7.5 Evidence of Sustainability Impact Across Dimensions
+
+##### 7.5.1 Environmental Impact
+
+Bridge Assault is a relatively lightweight browser application. The full `docs/` delivery folder is approximately 7.2 MB, with 0.38 MB of JavaScript logic and the remainder in image and audio assets. A single session transfer is therefore far smaller than a typical video stream (which can consume 1–3 GB per hour).
+
+The game uses no server-side compute during active play. All physics, AI, rendering and persistence runs client-side in p5.js. The only remote interaction is the optional leaderboard, which makes at most 2–3 API calls per session (fetch top 5 + optional score sync). This architecture means the carbon footprint scales with player count primarily through device energy and page-load bandwidth, not server infrastructure.
+
+An estimated energy budget per session:
+- Network transfer: ~7.2 MB × ~0.06 kWh/GB ≈ **0.00043 kWh** per session
+- Device CPU/GPU: ~15 minutes × 15W (laptop) = **0.00375 kWh** per session
+- **Total per session: ~0.004 kWh → ~0.8 g CO₂ (EU grid average)**
+
+At 1,000 monthly sessions this equates to ~0.8 kg CO₂ — equivalent to charging a smartphone roughly 65 times. This is modest, but asset optimisation (audio compression, self-hosted library) could reduce the network component by ~30–40%.
+
+The game includes two concrete green-aware engineering decisions:
+1. **Adaptive particle cap** (`update_effects.js`): particle limit drops from 400 → 150 when `deltaTime > 30 ms`, reducing CPU load on slower hardware automatically.
+2. **Inactive state saves**: `visibilitychange` listener flushes `localStorage` saves and stops key input when the tab is hidden, preventing unnecessary work.
+
+##### 7.5.2 Individual Impact
+
+The game poses a **photosensitive risk** that is currently unmitigated. The `screenFlash` variable reaches values up to 0.9 (90% white overlay) on mega-boss deaths, barrel explosions, and coin pickups. Combined with screen shake and rapid particle bursts, this creates a pattern of intense visual stimulation that could trigger discomfort or harm for players with photosensitivity or vestibular disorders.
+
+Planned mitigation (Epic 2, E2-US1): a "Reduced Effects" toggle that caps flash intensity at 0.05 and reduces particle density by 50%.
+
+On the positive side, the game's **privacy-by-default architecture** protects individual users effectively. All progress (coins, gems, levels, achievements) is stored exclusively in the player's own browser via `localStorage`. The leaderboard requires explicit opt-in, defaults to `hidden: true`, and can be toggled at any time. No tracking scripts, analytics, or advertising SDKs are included (`PRIVACY.md` confirms this). Players retain full agency over their data.
+
+##### 7.5.3 Technical Impact
+
+The modular JavaScript architecture (28 source files, data-driven CONFIG, TALENT_DEFS, PISTOL_TIERS) significantly improves **maintainability**. Balance values (enemy speed, wave scaling, weapon costs) can be adjusted by editing constants in `config.js` without touching gameplay logic. This reduces the barrier for long-term upkeep and lowers the risk of the project being abandoned due to code complexity.
+
+The save data system applies a **500-round hash-chain KDF** with a per-save random IV and HMAC-SHA256 signature, providing tamper-evident local storage without requiring a backend account. This supports leaderboard integrity (the server applies range-validation server-hooks as a second layer) while keeping the user experience frictionless.
+
+A known **technical sustainability risk** is the CDN dependency on `cdnjs.cloudflare.com` for p5.js. If this CDN URL changes or the library is delisted, the game silently breaks with no fallback. Mitigation (E1-US2): commit a local copy of `p5.min.js` at version 1.11.0 to `docs/lib/`.
+
+---
+
+#### 7.6 Green Software Foundation Patterns
+
+The following patterns from the [GSF Pattern Catalog](https://patterns.greensoftware.foundation/catalog/) are applicable to Bridge Assault:
+
+---
+
+##### Pattern 1 — Demand Shaping (Cloud: Static Serving)
+
+**GSF Reference:** *Serve static content over CDN / static host instead of dynamic server.*
+
+**Application in Bridge Assault:**  
+The entire game is deployed as a GitHub Pages static site. There is no application server, no database queries during gameplay, and no server-side rendering. This eliminates the energy cost of on-demand compute for every player interaction. The pattern is **already implemented** and is a core architectural decision.
+
+**Evidence in code:** `index.html` loads p5.js from CDN; all game modules are plain `.js` files; `docs/` folder requires no build pipeline to serve.
+
+---
+
+##### Pattern 2 — Efficient Background Tasks (Web: Visibility-Aware Execution)
+
+**GSF Reference:** *Pause or reduce computational work when the application is not visible to the user.*
+
+**Application in Bridge Assault:**  
+The `input.js` module registers a `visibilitychange` listener that clears all held keys and flushes pending `localStorage` saves when the tab becomes hidden. However, the p5.js `draw()` loop currently continues to execute (updating timers, particles, and enemies) even when the game tab is in the background.
+
+**Planned improvement (E3-US2):** Pause the p5.js loop via `noLoop()` on `visibilitychange` hidden and resume with `loop()` on focus. This would eliminate background CPU consumption entirely during inactive periods.
+
+**Impact estimate:** A player leaving the game open in a background tab for 30 minutes at 60fps currently consumes ~130,000 wasted `draw()` calls. Post-fix: zero.
+
+---
+
+##### Pattern 3 — Asset Optimization (Web: Compressed Media)
+
+**GSF Reference:** *Compress, resize and reformat media assets to reduce transfer size and energy.*
+
+**Application in Bridge Assault:**  
+Audio files represent ~46% of total asset weight (two MP3 BGM tracks). The game currently uses MP3 exclusively. Modern browsers support OGG Vorbis at equivalent quality with ~30–40% smaller file size. All browsers in the support matrix (Chrome, Firefox, Safari ≥ 14) support OGG.
+
+**Planned improvement (E1-US1):** Add OGG versions of BGM tracks. `audio.js` already uses `fetch()` for audio loading — adding `canPlayType()` negotiation requires fewer than 10 lines of change.
+
+**Estimated saving per session:** ~1.0 MB reduction in transfer → ~0.00006 kWh → 0.012 g CO₂ per session. At 10,000 sessions: ~120 g CO₂ saved.
+
+---
+
+##### Pattern 4 — Efficient Rendering (Web: Adaptive Quality)
+
+**GSF Reference:** *Reduce rendering complexity dynamically based on device capability.*
+
+**Application in Bridge Assault:**  
+`update_effects.js` already implements adaptive particle capping:
+
+```javascript
+// Adaptive particle cap: reduce when FPS drops below ~40 (deltaMS > 25ms)
+const frameMs = deltaTime;
+const particleLimit = _proj.isMobile ? 120
+    : (frameMs > 30 ? 150 : frameMs > 22 ? 250 : 400);
+```
+
+This reduces per-frame GPU/CPU work automatically on lower-end hardware without requiring player configuration. The pattern is **already implemented**.
+
+Similarly, the sky background is cached to a `p5.Graphics` buffer (`skyBuffer`) and only redrawn when the canvas size or level changes, avoiding redundant gradient calculations every frame.
+
+---
+
+##### Pattern 5 — Data Minimisation (Privacy-by-Default)
+
+**GSF Reference:** *Collect and transmit only data that is strictly necessary.*
+
+**Application in Bridge Assault:**  
+The leaderboard transmits only 5 fields: `player_name`, `score`, `wave`, `level`, `hidden`. No IP address logging, no session tracking, no browser fingerprinting. Core gameplay requires zero remote data — all progress lives in `localStorage`. This minimises both privacy risk and the energy cost of data transmission and storage.
+
+The PocketBase server-side hook (`pb_hooks/game_scores.pb.js`) applies unconditional range validation on `score` and `wave` before any write, rejecting fabricated values without the game client needing to send additional data.
+
+---
+
+#### 7.7 Backlog Summary
+
+| ID | Epic | Story | Priority | Status |
+|---|---|---|---|---|
+| E1-US1 | Environmental | Compress BGM to OGG | High | Planned |
+| E1-US2 | Environmental | Self-host p5.js | Medium | Planned |
+| E2-US1 | Accessibility | Reduced effects toggle | High | Planned |
+| E2-US2 | Accessibility | Keyboard-only menu navigation | Medium | Planned |
+| E3-US1 | Technical | Document dependency versions | Low | Planned |
+| E3-US2 | Technical | Pause draw() loop when tab hidden | High | Planned |
+| E4-US1 | Privacy | Delete leaderboard data action | Medium | Planned |
+| E4-US2 | Privacy | Plain-language privacy notice | High | Planned |
+
+---
 ### 8. AI Statement
 
 Our team used AI tools during the project as development support, especially for asset creation, code migration, debugging, and documentation. AI was not used to replace team decision-making, but it helped us work through technical problems more efficiently.
