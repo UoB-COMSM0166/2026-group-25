@@ -45,7 +45,8 @@ https://github.com/user-attachments/assets/66b7e2b0-84a3-4597-a25d-86f141d7d775
 
 ## Your Group
 
-![0130_1](https://github.com/user-attachments/assets/36302454-9711-4d80-8e8f-009c0f76e488)
+<img width="1122" height="1402" alt="fec5187c0f3a6316206d2c85914bce84" src="https://github.com/user-attachments/assets/46a72c83-8f20-46e2-a164-4c72b200e5e8" />
+
 
 
 
