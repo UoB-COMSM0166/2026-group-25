@@ -625,7 +625,9 @@ Overall, our process improved significantly during the project. We began with in
 
 ---
 
-### 7. Sustainability
+### 7. Sustainability, ethics and accessibility
+
+#### 7.1 Sustainability
 
 We considered sustainability using the Sustainability Awareness Framework (SusAF), which encouraged us to look beyond the direct environmental footprint of the code and consider longer-term effects across environmental, individual, social, economic, and technical dimensions. For Bridge Assault, the most relevant question was: if the game became widely used, what impacts would scale with it?
 
@@ -650,6 +652,22 @@ Technically, sustainability depends on whether the project can be maintained aft
 Several Green Software Foundation ideas are applicable to Bridge Assault. First, static hosting reduces server-side computation compared with a dynamic web app. Second, asset optimisation could reduce transfer size by compressing PNGs, removing unused files, and using smaller audio formats where supported while preserving MP3 fallback. Third, visibility-aware execution could pause background updates when the tab is hidden. Fourth, adaptive rendering, such as particle caps and reduced visual effects, can lower device workload on slower hardware. Finally, data minimisation is already partly used because the leaderboard sends only the minimum score data needed and keeps participation optional.
 
 Overall, Bridge Assault has a modest footprint as a small static browser game, but its sustainability impact would grow with repeated sessions, larger assets, leaderboard storage, and long-term maintenance. The most important future actions are asset compression, reduced background computation, clearer privacy controls, a reduced-effects accessibility option, and better documentation of external dependencies.
+
+#### 7.2 Ethics
+
+When designing Bridge Assault, we considered several ethical dimensions, particularly regarding data privacy, game design, and player wellbeing:
+
+- **Data Privacy and Consent:** The game includes an online leaderboard powered by PocketBase. To protect user privacy, participation is entirely optional, and core gameplay does not require a network connection. Even when scores are synced, the default visibility is strictly private. Players must explicitly consent to make their scores public. We do not track personal identifiers beyond a user-chosen display name, adhering to data minimisation principles.
+- **Fair Game Design and Progression:** The progression system uses in-game currencies (coins and gems) to unlock upgrades, weapons, and talents. Crucially, there are no real-money microtransactions, loot boxes, or exploitative "dark patterns." The economy is balanced to reward effort and skill rather than encouraging compulsive spending or exploiting psychological vulnerabilities.
+- **Community Fairness:** To maintain a fair competitive environment, the leaderboard implements server-side validation to filter out impossible scores and wave combinations. This ensures a level playing field without relying on invasive anti-cheat software that could compromise user privacy or system security.
+
+#### 7.3 Accessibility
+
+To ensure Bridge Assault is enjoyable for a broad audience, we incorporated several accessibility features into its core design:
+
+- **Motor Accessibility:** By automating the shooting mechanic and restricting player movement to a single horizontal axis, we significantly reduced the required manual dexterity and hand-eye coordination. Players do not need to manage complex inputs or twin-stick aiming, making the game accessible to those with limited motor control or those who prefer simpler control schemes.
+- **Cognitive and Linguistic Accessibility:** The game features full bilingual support (English and Chinese), allowing a wider demographic to comfortably navigate the menus, shop, and upgrade descriptions. Furthermore, the inclusion of a "Level 0" tutorial provides a safe, low-pressure environment for new players to learn the mechanics at their own pace before facing the main challenges.
+- **Visual Feedback and Future Considerations:** The game relies on clear, high-contrast pixel art and distinct visual cues (like damage numbers and hit flashes) to convey information. However, we recognise that the intense visual effects, such as screen shake and rapid flashing, may cause discomfort for photosensitive players. A key future accessibility improvement will be the addition of an options menu to disable screen shake and reduce visual intensity, ensuring a safer and more comfortable experience for all players.
 
 ### 8. AI Statement
 
